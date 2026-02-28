@@ -137,32 +137,37 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               {backView === 'calendar' && (() => {
                 const today = new Date();
                 const days90 = uptimeDays.slice(-90);
-                // Group into 3 months (pages)
-                const months: { label: string; days: { status: number; date: Date }[] }[] = [];
+                const months: { days: { status: number; date: Date }[]; startDow: number }[] = [];
                 for (let m = 2; m >= 0; m--) {
-                  const monthDate = subDays(today, m * 30);
                   const slice = days90.slice(90 - (m + 1) * 30, 90 - m * 30);
-                  const startDow = subDays(today, (m + 1) * 30 - 1).getDay();
+                  const firstDate = subDays(today, m * 30 + 29);
                   months.push({
-                    label: format(monthDate, 'MMM'),
+                    startDow: firstDate.getDay(),
                     days: slice.map((s, i) => ({ status: s, date: subDays(today, m * 30 + (29 - i)) })),
                   });
                 }
                 return (
                   <div className="flex gap-1.5 h-7 w-full">
-                    {months.map((month, mi) => (
-                      <div key={mi} className="flex-1 flex flex-col min-w-0">
-                        <div className="grid grid-cols-7 gap-[1px] flex-1">
-                          {month.days.slice(0, 28).map((d, di) => (
-                            <div
-                              key={di}
-                              className={`rounded-[1.5px] ${dayColors[d.status]}`}
-                              title={`${format(d.date, 'MMM d')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][d.status]}`}
-                            />
-                          ))}
+                    {months.map((month, mi) => {
+                      const maxCells = 28;
+                      const visibleDays = month.days.slice(0, maxCells - month.startDow);
+                      return (
+                        <div key={mi} className="flex-1 flex flex-col min-w-0">
+                          <div className="grid grid-cols-7 gap-[1px] flex-1">
+                            {Array.from({ length: month.startDow }).map((_, i) => (
+                              <div key={`e${i}`} />
+                            ))}
+                            {visibleDays.map((d, di) => (
+                              <div
+                                key={di}
+                                className={`rounded-[1.5px] ${dayColors[d.status]}`}
+                                title={`${format(d.date, 'MMM d')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][d.status]}`}
+                              />
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 );
               })()}
