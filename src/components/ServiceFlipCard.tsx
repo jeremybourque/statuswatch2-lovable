@@ -64,7 +64,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
   return (
     <div
-      className="relative h-[110px] cursor-pointer"
+      className="relative h-[130px] cursor-pointer"
       style={{ perspective: '800px' }}
       onClick={() => setFlipped((f) => !f)}>
 
@@ -80,12 +80,17 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden"
           style={{ backfaceVisibility: 'hidden' }}>
 
-          <div className="p-4 flex items-center justify-between h-full">
-            <div className="flex items-center gap-3 min-w-0">
-              <StatusDot status={service.status as ServiceStatus} />
-              <span className="text-lg font-medium text-card-foreground truncate">{service.name}</span>
+          <div className="p-4 flex flex-col justify-center h-full gap-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 min-w-0">
+                <StatusDot status={service.status as ServiceStatus} />
+                <span className="text-lg font-medium text-card-foreground truncate">{service.name}</span>
+              </div>
+              <span className={`text-base font-medium ${cfg.color}`}>{cfg.label}</span>
             </div>
-            <span className={`text-base font-medium ${cfg.color}`}>{cfg.label}</span>
+            {service.description && (
+              <p className="text-sm text-muted-foreground truncate pl-6">{service.description}</p>
+            )}
           </div>
         </div>
 
