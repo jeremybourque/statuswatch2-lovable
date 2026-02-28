@@ -22,7 +22,7 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
   const minVal = 0;
   const padded = 2;
   const chartH = 32;
-  const chartW = 560;
+  const chartW = 660;
   const oX = 4;
   const oY = 2;
   const vbW = oX + chartW + 50;
