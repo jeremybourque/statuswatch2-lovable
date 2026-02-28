@@ -59,7 +59,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
   return (
     <div
-      className="relative h-[72px] cursor-pointer"
+      className="relative h-[88px] cursor-pointer"
       style={{ perspective: '800px' }}
       onClick={() => setFlipped(f => !f)}
     >
@@ -86,29 +86,27 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
         {/* Back */}
         <div
-          className="absolute inset-0 bg-card hover:bg-accent/50 transition-colors overflow-hidden px-4 flex items-center"
+          className="absolute inset-0 bg-card hover:bg-accent/50 transition-colors overflow-hidden p-4"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}
         >
-          <div className="flex items-center gap-3 w-full">
-            <span className="text-xs font-medium text-card-foreground shrink-0 truncate max-w-[120px]">{service.name}</span>
-            <div className="flex-1 min-w-0">
-              <div className="flex gap-[2px] items-end w-full">
-                {uptimeDays.map((day, i) => {
-                  const date = subDays(new Date(), 89 - i);
-                  return (
-                    <div
-                      key={i}
-                      className={`flex-1 min-w-0 h-6 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
-                      title={`${format(date, 'MMM d, yyyy')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][day]}`}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-card-foreground truncate">{service.name}</span>
+            <div className="flex items-center gap-1.5">
               <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}%</span>
               <RotateCcw className="h-3 w-3 text-muted-foreground" />
             </div>
+          </div>
+          <div className="flex gap-[2px] items-end w-full">
+            {uptimeDays.map((day, i) => {
+              const date = subDays(new Date(), 89 - i);
+              return (
+                <div
+                  key={i}
+                  className={`flex-1 min-w-0 h-7 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
+                  title={`${format(date, 'MMM d, yyyy')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][day]}`}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
