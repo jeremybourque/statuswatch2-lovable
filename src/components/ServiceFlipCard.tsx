@@ -173,7 +173,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                               return (
                                 <div
                                   key={di}
-                                  className={`rounded-[1.5px] ${status !== undefined ? dayColors[status] : 'bg-muted/50'}`}
+                                  className={`rounded-[1.5px] ${status !== undefined ? dayColors[status] : 'bg-muted-foreground/30'}`}
                                   onMouseEnter={() => setHoveredDay(label)}
                                 />
                               );
