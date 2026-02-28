@@ -65,6 +65,7 @@ export default {
           degraded: "hsl(var(--status-degraded))",
           "partial-outage": "hsl(var(--status-partial-outage))",
           "major-outage": "hsl(var(--status-major-outage))",
+          maintenance: "hsl(var(--status-maintenance))",
         },
       },
       borderRadius: {

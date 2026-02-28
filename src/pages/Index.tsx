@@ -4,12 +4,11 @@ import { useSiteSettings } from '@/hooks/use-site-settings';
 import { getOverallStatus, getOverallBanner, statusConfig, incidentStatusConfig, impactConfig } from '@/lib/status-helpers';
 import type { ServiceStatus, IncidentStatus, IncidentImpact } from '@/lib/status-helpers';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ServiceFlipCard } from '@/components/ServiceFlipCard';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Settings } from 'lucide-react';
+import { ChevronDown, Activity, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
+import { useState } from 'react';
 
 const Index = () => {
   const { data: services = [] } = useServices();
@@ -27,23 +26,26 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border">
-        <div className="container max-w-4xl py-6 flex items-center justify-between">
-          <h1 className="text-xl font-semibold tracking-tight">{settings?.page_title || 'StatusWatch'}</h1>
+      <header className="border-b border-border bg-card">
+        <div className="max-w-3xl mx-auto px-4 py-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Activity className="h-7 w-7 text-primary" />
+            <h1 className="text-xl font-bold text-foreground tracking-tight">
+              {settings?.page_title || 'StatusWatch'}
+            </h1>
+          </div>
           <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
-            <Settings className="h-5 w-5" />
+            <Settings className="h-4 w-4" />
           </Link>
         </div>
       </header>
 
-      {/* Overall status banner */}
-      <div className={`${banner.bgClass} py-4`}>
-        <div className="container max-w-4xl">
-          <p className="text-sm font-semibold text-primary-foreground">{banner.label}</p>
+      <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
+        {/* Overall status banner */}
+        <div className={`${banner.bgClass} rounded-lg p-4 flex items-center gap-3 text-primary-foreground`}>
+          <span className="text-lg font-semibold">{banner.label}</span>
         </div>
-      </div>
 
-      <main className="container max-w-4xl py-8 space-y-8">
         {/* Description */}
         {settings?.page_description && (
           <p className="text-muted-foreground text-sm">{settings.page_description}</p>
@@ -51,8 +53,8 @@ const Index = () => {
 
         {/* Active Incidents */}
         {activeIncidents.length > 0 && (
-          <section className="space-y-4">
-            <h2 className="text-lg font-semibold">Active Incidents</h2>
+          <section className="space-y-3">
+            <h2 className="text-xl font-semibold text-foreground">Active Incidents</h2>
             {activeIncidents.map(incident => (
               <IncidentCard key={incident.id} incident={incident} />
             ))}
@@ -60,23 +62,30 @@ const Index = () => {
         )}
 
         {/* Services by category */}
-        <section className="space-y-8">
-          {categories.map(cat => (
-            <div key={cat} className="space-y-3">
-              <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{cat}</h2>
-              <div className="grid gap-3">
-                {services.filter(s => s.category === cat).map(service => (
-                  <ServiceFlipCard key={service.id} service={service} />
-                ))}
+        <section className="space-y-6">
+          {categories.map(cat => {
+            const catServices = services.filter(s => s.category === cat);
+            return (
+              <div key={cat}>
+                <div className="flex items-center gap-2 mb-3">
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{cat}</h2>
+                </div>
+                <div className="space-y-0 border border-border rounded-lg overflow-hidden">
+                  {catServices.map((service, i) => (
+                    <div key={service.id} className={i !== catServices.length - 1 ? 'border-b border-border' : ''}>
+                      <ServiceFlipCard service={service} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </section>
 
         {/* Past incidents */}
         {recentResolved.length > 0 && (
-          <section className="space-y-4">
-            <h2 className="text-lg font-semibold">Past Incidents</h2>
+          <section className="space-y-3">
+            <h2 className="text-xl font-semibold text-foreground">Past Incidents</h2>
             {recentResolved.map(incident => (
               <IncidentCard key={incident.id} incident={incident} />
             ))}
@@ -84,9 +93,10 @@ const Index = () => {
         )}
       </main>
 
-      <footer className="border-t border-border py-6">
-        <div className="container max-w-4xl text-center text-xs text-muted-foreground">
-          Powered by StatusWatch
+      <footer className="border-t border-border mt-16">
+        <div className="max-w-3xl mx-auto px-4 py-6 flex items-center justify-between text-sm text-muted-foreground">
+          <span>© 2026 StatusWatch</span>
+          <span className="font-mono text-xs">Updated just now</span>
         </div>
       </footer>
     </div>
@@ -94,46 +104,70 @@ const Index = () => {
 };
 
 function IncidentCard({ incident }: { incident: any }) {
+  const [expanded, setExpanded] = useState(incident.status !== 'resolved');
   const statusCfg = incidentStatusConfig[incident.status as IncidentStatus];
-  const impactCfg = impactConfig[incident.impact as IncidentImpact];
   const updates = (incident.incident_updates || []).sort(
     (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
+  const latestStatus = updates.length > 0 ? updates[0].status : incident.status;
+
+  const updateStatusBg: Record<string, string> = {
+    investigating: 'bg-status-major-outage',
+    identified: 'bg-status-partial-outage',
+    monitoring: 'bg-status-degraded',
+    resolved: 'bg-status-operational',
+  };
+
+  const updateStatusColor: Record<string, string> = {
+    investigating: 'text-status-major-outage',
+    identified: 'text-status-partial-outage',
+    monitoring: 'text-status-degraded',
+    resolved: 'text-status-operational',
+  };
+
   return (
-    <Collapsible>
-      <Card>
-        <CollapsibleTrigger className="w-full">
-          <CardHeader className="flex flex-row items-center justify-between py-4">
-            <div className="flex items-center gap-3">
-              <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
-              <Badge className={`${statusCfg.color} border-0 text-xs`}>{statusCfg.label}</Badge>
-              <Badge className={`${impactCfg.color} border-0 text-xs`}>{impactCfg.label}</Badge>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <span className="text-xs">{format(new Date(incident.created_at), 'MMM d, HH:mm')}</span>
-              <ChevronDown className="h-4 w-4" />
-            </div>
-          </CardHeader>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <CardContent className="pt-0 space-y-3">
+    <div className="border border-border rounded-lg bg-card overflow-hidden">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-accent/50 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className={`w-1.5 h-8 rounded-full ${updateStatusBg[latestStatus] || 'bg-muted'}`} />
+          <div>
+            <h3 className="font-semibold text-card-foreground">{incident.title}</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {format(new Date(incident.created_at), 'MMM d, yyyy · h:mm a')}
+            </p>
+          </div>
+        </div>
+        <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4">
+          <div className="ml-5 border-l-2 border-border pl-6 space-y-4">
             {updates.map((update: any) => {
-              const uCfg = incidentStatusConfig[update.status as IncidentStatus] || { label: update.status, color: '' };
+              const uColor = updateStatusColor[update.status as string] || 'text-muted-foreground';
               return (
-                <div key={update.id} className="flex gap-3 text-sm border-l-2 border-border pl-4 py-1">
-                  <div className="shrink-0 space-y-1">
-                    <Badge className={`${uCfg.color} border-0 text-xs`}>{uCfg.label}</Badge>
-                    <p className="text-xs text-muted-foreground">{format(new Date(update.created_at), 'MMM d, HH:mm')}</p>
+                <div key={update.id} className="relative">
+                  <div className="absolute -left-[31px] top-1 w-3 h-3 rounded-full bg-border border-2 border-card" />
+                  <div>
+                    <span className={`text-sm font-semibold capitalize ${uColor}`}>
+                      {update.status}
+                    </span>
+                    <span className="text-sm text-muted-foreground ml-2">
+                      — {format(new Date(update.created_at), 'MMM d, h:mm a')}
+                    </span>
                   </div>
-                  <p className="text-muted-foreground">{update.message}</p>
+                  <p className="text-sm text-card-foreground mt-1 leading-relaxed">{update.message}</p>
                 </div>
               );
             })}
-          </CardContent>
-        </CollapsibleContent>
-      </Card>
-    </Collapsible>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
