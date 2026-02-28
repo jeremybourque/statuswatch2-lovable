@@ -213,16 +213,91 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                   </div>
                 );
               })()}
-              {backView === 'graph' && (
-                <svg viewBox="0 0 200 40" className="w-full h-10" preserveAspectRatio="none">
-                  <polyline
-                    fill="none"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth="1.5"
-                    points={uptimeDays.map((d, i) => `${(i / 89) * 200},${40 - (d / 3) * 28 - 4 + ((i * 7 + d * 3) % 8)}`).join(' ')}
-                  />
-                </svg>
-              )}
+              {backView === 'graph' && (() => {
+                // Generate mock page load times for past 7 days (every 4 hours = 42 points)
+                const points: { time: Date; value: number }[] = [];
+                let hash = 0;
+                for (let i = 0; i < service.id.length; i++) {
+                  hash = (hash << 5) - hash + service.id.charCodeAt(i) | 0;
+                }
+                const now = new Date();
+                for (let i = 0; i < 42; i++) {
+                  hash = (hash * 1103515245 + 12345) & 0x7fffffff;
+                  const ms = 200 + (hash % 800) + Math.sin(i * 0.5) * 100;
+                  const time = new Date(now.getTime() - (41 - i) * 4 * 60 * 60 * 1000);
+                  points.push({ time, value: ms / 1000 });
+                }
+                const maxVal = Math.max(...points.map(p => p.value));
+                const minVal = Math.min(...points.map(p => p.value));
+                const range = maxVal - minVal || 0.1;
+                const padded = range * 1.15;
+                const chartH = 36;
+                const chartW = 180;
+                const oX = 18;
+                const oY = 2;
+                const yTicks = [minVal, minVal + range / 2, maxVal];
+                const dayLabels: { x: number; label: string }[] = [];
+                for (let d = 6; d >= 0; d--) {
+                  const day = new Date(now.getTime() - d * 24 * 60 * 60 * 1000);
+                  const frac = 1 - d / 6;
+                  dayLabels.push({ x: oX + frac * chartW, label: format(day, 'EEE').charAt(0) });
+                }
+                const svgPoints = points.map((p, i) => {
+                  const x = oX + (i / 41) * chartW;
+                  const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
+                  return `${x},${y}`;
+                }).join(' ');
+                const areaPath = `M${oX},${oY + chartH} ` + points.map((p, i) => {
+                  const x = oX + (i / 41) * chartW;
+                  const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
+                  return `L${x},${y}`;
+                }).join(' ') + ` L${oX + chartW},${oY + chartH} Z`;
+
+                return (
+                  <svg viewBox="0 0 205 48" className="w-full h-10">
+                    {/* Y-axis labels */}
+                    {yTicks.map((t, i) => {
+                      const y = oY + chartH - ((t - minVal) / padded) * chartH;
+                      return (
+                        <text key={i} x={oX - 2} y={y + 1} textAnchor="end" className="fill-muted-foreground" style={{ fontSize: '3.5px' }}>
+                          {t.toFixed(1)}s
+                        </text>
+                      );
+                    })}
+                    {/* X-axis day labels */}
+                    {dayLabels.map((d, i) => (
+                      <text key={i} x={d.x} y={oY + chartH + 5} textAnchor="middle" className="fill-muted-foreground" style={{ fontSize: '3.5px' }}>
+                        {d.label}
+                      </text>
+                    ))}
+                    {/* Grid lines */}
+                    {yTicks.map((t, i) => {
+                      const y = oY + chartH - ((t - minVal) / padded) * chartH;
+                      return <line key={i} x1={oX} x2={oX + chartW} y1={y} y2={y} className="stroke-border" strokeWidth="0.3" />;
+                    })}
+                    {/* Area fill */}
+                    <path d={areaPath} fill="hsl(var(--primary))" opacity="0.1" />
+                    {/* Line */}
+                    <polyline fill="none" stroke="hsl(var(--primary))" strokeWidth="1" points={svgPoints} />
+                    {/* Interactive hover points */}
+                    {points.map((p, i) => {
+                      const x = oX + (i / 41) * chartW;
+                      const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
+                      const label = `${format(p.time, 'EEE h:mma')}: ${(p.value * 1000).toFixed(0)}ms`;
+                      return (
+                        <circle
+                          key={i}
+                          cx={x}
+                          cy={y}
+                          r="2.5"
+                          className="fill-transparent hover:fill-primary cursor-pointer"
+                          onMouseEnter={() => setHoveredDay(label)}
+                        />
+                      );
+                    })}
+                  </svg>
+                );
+              })()}
           </div>
           <div className="mt-auto pt-1 h-5">
             <span className="text-xs font-medium text-foreground truncate block">{hoveredDay ?? '\u00A0'}</span>
