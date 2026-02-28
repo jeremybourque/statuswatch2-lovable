@@ -59,27 +59,33 @@ const Index = () => {
         )}
 
         {/* Services by category */}
-        <section className="space-y-6">
+        <section className="space-y-8">
           {categories.map(cat => (
-            <Card key={cat}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{cat}</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                {services.filter(s => s.category === cat).map((service, i, arr) => {
+            <div key={cat} className="space-y-3">
+              <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{cat}</h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {services.filter(s => s.category === cat).map(service => {
                   const cfg = statusConfig[service.status as ServiceStatus];
                   return (
-                    <div key={service.id} className={`flex items-center justify-between px-6 py-3 ${i < arr.length - 1 ? 'border-b border-border' : ''}`}>
-                      <span className="text-sm font-medium">{service.name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs ${cfg.color}`}>{cfg.label}</span>
-                        <span className={`h-2.5 w-2.5 rounded-full ${cfg.dotClass}`} />
-                      </div>
-                    </div>
+                    <Card key={service.id} className="relative overflow-hidden">
+                      <div className={`absolute inset-y-0 left-0 w-1 ${cfg.dotClass}`} />
+                      <CardContent className="p-4 pl-5 flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">{service.name}</p>
+                          {service.description && (
+                            <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={`text-xs font-medium ${cfg.color}`}>{cfg.label}</span>
+                          <span className={`h-2 w-2 rounded-full ${cfg.dotClass}`} />
+                        </div>
+                      </CardContent>
+                    </Card>
                   );
                 })}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </section>
 
