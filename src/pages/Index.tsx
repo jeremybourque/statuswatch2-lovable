@@ -70,9 +70,9 @@ const Index = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{cat}</h2>
                 </div>
-                <div className="space-y-0 border border-border rounded-lg overflow-hidden">
-                  {catServices.map((service, i) => (
-                    <div key={service.id} className={i !== catServices.length - 1 ? 'border-b border-border' : ''}>
+                <div className="space-y-2">
+                  {catServices.map((service) => (
+                    <div key={service.id} className="border border-border rounded-lg overflow-hidden">
                       <ServiceFlipCard service={service} />
                     </div>
                   ))}
