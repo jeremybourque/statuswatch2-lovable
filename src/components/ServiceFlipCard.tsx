@@ -125,24 +125,24 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-sm font-medium text-card-foreground truncate">{service.name}</span>
-              <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => setBackView('bars')}
-                  className={`p-0.5 rounded transition-colors ${backView === 'bars' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className={`p-2 -m-1 rounded transition-colors ${backView === 'bars' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                   title="Uptime bars"
                 >
                   <BarChart3 size={14} />
                 </button>
                 <button
                   onClick={() => setBackView('calendar')}
-                  className={`p-0.5 rounded transition-colors ${backView === 'calendar' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className={`p-2 -m-1 rounded transition-colors ${backView === 'calendar' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                   title="Calendar view"
                 >
                   <CalendarDays size={14} />
                 </button>
                 <button
                   onClick={() => setBackView('graph')}
-                  className={`p-0.5 rounded transition-colors ${backView === 'graph' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className={`p-2 -m-1 rounded transition-colors ${backView === 'graph' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                   title="Response time"
                 >
                   <Activity size={14} />
