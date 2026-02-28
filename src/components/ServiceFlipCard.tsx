@@ -48,7 +48,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
   return (
     <div
-      className="relative h-[120px] cursor-pointer"
+      className="relative h-[88px] cursor-pointer"
       style={{ perspective: '800px' }}
       onClick={() => setFlipped(f => !f)}
     >
