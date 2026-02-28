@@ -51,6 +51,7 @@ const dayColors = [
 export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const [flipped, setFlipped] = useState(false);
   const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
+  const [hoveredDay, setHoveredDay] = useState<string | null>(null);
   const cfg = statusConfig[service.status as ServiceStatus];
   const uptimeDays = useMemo(() => generateMockUptime(service.id), [service.id]);
 
@@ -58,6 +59,8 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
     const good = uptimeDays.filter((d) => d >= 2).length;
     return (good / uptimeDays.length * 100).toFixed(2);
   }, [uptimeDays]);
+
+  const statusLabels = ['Major Outage', 'Partial Outage', 'Degraded', 'Operational'];
 
   return (
     <div
@@ -88,7 +91,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
         {/* Back */}
         <div
-          className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden p-4"
+          className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden p-4 flex flex-col"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}>
 
           <div className="flex items-center justify-between mb-2">
@@ -120,22 +123,23 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
             </div>
             <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}%</span>
           </div>
-          <div className="w-full">
+          <div className="w-full" onMouseLeave={() => setHoveredDay(null)}>
               {backView === 'bars' && (
-                <div className="flex gap-[2px] items-end w-full h-10 mt-2">
+                <div className="flex gap-[2px] items-end w-full h-8 mt-2">
                   {uptimeDays.map((day, i) => {
                     const date = subDays(new Date(), 89 - i);
+                    const label = `${format(date, 'MMM d, yyyy')}: ${statusLabels[day]}`;
                     return (
                       <div
                         key={i}
                         className={`flex-1 min-w-0 h-8 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
-                        title={`${format(date, 'MMM d, yyyy')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][day]}`} />
+                        onMouseEnter={() => setHoveredDay(label)} />
                     );
                   })}
                 </div>
               )}
               {backView === 'calendar' && (() => {
-                const today = new Date(2026, 1, 15); // Feb 15
+                const today = new Date(2026, 1, 15);
                 const statusMap = new Map<string, number>();
                 for (let i = 0; i < 90; i++) {
                   const d = subDays(today, 89 - i);
@@ -165,11 +169,12 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                               const date = new Date(monthStart.getFullYear(), monthStart.getMonth(), di + 1);
                               const key = format(date, 'yyyy-MM-dd');
                               const status = statusMap.get(key);
+                              const label = `${format(date, 'MMM d')}: ${status !== undefined ? statusLabels[status] : 'No data'}`;
                               return (
                                 <div
                                   key={di}
                                   className={`rounded-[1.5px] ${status !== undefined ? dayColors[status] : 'bg-muted/30'}`}
-                                  title={`${format(date, 'MMM d')}: ${status !== undefined ? ['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][status] : 'No data'}`}
+                                  onMouseEnter={() => setHoveredDay(label)}
                                 />
                               );
                             })}
@@ -190,6 +195,9 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                   />
                 </svg>
               )}
+          </div>
+          <div className="mt-auto h-3.5">
+            <span className="text-[10px] text-muted-foreground truncate block">{hoveredDay ?? '\u00A0'}</span>
           </div>
         </div>
       </div>
