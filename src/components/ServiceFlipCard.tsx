@@ -151,13 +151,13 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 }
                 const months = monthsSet;
                 return (
-                  <div className="flex gap-1.5 h-7 w-full">
+                  <div className="flex gap-3 h-7 w-full">
                     {months.map((monthStart, mi) => {
                       const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
                       const startDow = monthStart.getDay();
                       return (
                         <div key={mi} className="flex-1 flex flex-col min-w-0">
-                          <div className="grid grid-cols-7 grid-rows-5 gap-[1px] flex-1">
+                          <div className="grid grid-cols-7 grid-rows-5 gap-[2px] flex-1">
                             {Array.from({ length: startDow }).map((_, i) => (
                               <div key={`e${i}`} />
                             ))}
