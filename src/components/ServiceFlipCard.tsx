@@ -170,10 +170,15 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               {backView === 'graph' && (
                 <ResponseGraphView serviceId={service.id} onHover={setHoveredDay} />
               )}
-            {hoveredDay && (
+            {backView === 'graph' && hoveredDay && (
               <span className="absolute top-0 left-0 text-xs font-medium text-foreground bg-card/80 px-1 rounded pointer-events-none">{hoveredDay}</span>
             )}
           </div>
+          {backView !== 'graph' && (
+            <div className="mt-auto pt-1 h-5">
+              <span className="text-xs font-medium text-foreground truncate block">{hoveredDay ?? '\u00A0'}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>);
