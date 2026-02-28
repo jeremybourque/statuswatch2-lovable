@@ -121,7 +121,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 </button>
               </div>
             </div>
-            <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}%</span>
+            <span className="text-xs font-medium font-mono text-muted-foreground">uptime {uptimePercent}%</span>
           </div>
           <div className="w-full" onMouseLeave={() => setHoveredDay(null)}>
               {backView === 'bars' && (
