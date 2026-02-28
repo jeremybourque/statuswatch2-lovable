@@ -261,14 +261,14 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                     {yTicks.map((t, i) => {
                       const y = oY + chartH - ((t - minVal) / padded) * chartH;
                       return (
-                        <text key={i} x={oX - 2} y={y + 1} textAnchor="end" className="fill-muted-foreground" style={{ fontSize: '3.5px' }}>
+                        <text key={i} x={oX - 3} y={y + 2} textAnchor="end" className="fill-muted-foreground" style={{ fontSize: '7px' }}>
                           {t.toFixed(1)}s
                         </text>
                       );
                     })}
                     {/* X-axis day labels */}
                     {dayLabels.map((d, i) => (
-                      <text key={i} x={d.x} y={oY + chartH + 5} textAnchor="middle" className="fill-muted-foreground" style={{ fontSize: '3.5px' }}>
+                      <text key={i} x={d.x} y={oY + chartH + 8} textAnchor="middle" className="fill-muted-foreground" style={{ fontSize: '7px' }}>
                         {d.label}
                       </text>
                     ))}
