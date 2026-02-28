@@ -77,7 +77,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
         {/* Front */}
         <div
-          className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden"
+          className="group absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden"
           style={{ backfaceVisibility: 'hidden' }}>
 
           <div className="p-4 flex flex-col justify-center h-full gap-1">
@@ -89,7 +89,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               <span className={`text-base font-medium ${cfg.color}`}>{cfg.label}</span>
             </div>
             {service.description && (
-              <p className="text-sm text-muted-foreground truncate pl-6">{service.description}</p>
+              <p className="text-sm text-muted-foreground truncate pl-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200">{service.description}</p>
             )}
           </div>
         </div>
