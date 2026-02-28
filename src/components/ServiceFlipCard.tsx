@@ -50,6 +50,7 @@ const dayColors = [
 
 export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const [flipped, setFlipped] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
   const cfg = statusConfig[service.status as ServiceStatus];
@@ -66,13 +67,15 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
     <div
       className="relative h-[110px] cursor-pointer"
       style={{ perspective: '800px' }}
-      onClick={() => setFlipped((f) => !f)}>
+      onClick={() => setFlipped((f) => !f)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}>
 
       <div
         className="absolute inset-0 transition-transform duration-500"
         style={{
           transformStyle: 'preserve-3d',
-          transform: flipped ? 'rotateX(180deg)' : 'rotateX(0deg)'
+          transform: flipped ? 'rotateX(180deg)' : hovered ? 'rotateX(15deg)' : 'rotateX(0deg)'
         }}>
 
         {/* Front */}
