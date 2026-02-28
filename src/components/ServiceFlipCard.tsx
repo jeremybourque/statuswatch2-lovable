@@ -1,8 +1,81 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { statusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus } from '@/lib/status-helpers';
 import { format, subDays } from 'date-fns';
 import { BarChart3, CalendarDays, Activity } from 'lucide-react';
+
+function useWiggleAnimation() {
+  const elRef = useRef<HTMLDivElement>(null);
+  const timersRef = useRef<number[]>([]);
+  const iterationRef = useRef(0);
+  const activeRef = useRef(false);
+
+  const clearTimers = useCallback(() => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  }, []);
+
+  const setRot = useCallback((deg: number, ms: number) => {
+    if (elRef.current) {
+      elRef.current.style.transition = `transform ${ms}ms ease-in-out`;
+      elRef.current.style.transform = `rotateX(${deg}deg)`;
+    }
+  }, []);
+
+  const schedule = useCallback((fn: () => void, ms: number) => {
+    const id = window.setTimeout(fn, ms);
+    timersRef.current.push(id);
+    return id;
+  }, []);
+
+  const runSequence = useCallback(() => {
+    if (!activeRef.current) return;
+    let t = 0;
+    // First wiggle: 5deg
+    schedule(() => setRot(5, 400), t); t += 400;
+    // Hold 100ms then back
+    t += 100;
+    schedule(() => setRot(0, 400), t); t += 400;
+    // Wait 5s
+    t += 5000;
+    // Second wiggle: 10deg
+    schedule(() => setRot(10, 600), t); t += 600;
+    // Hold 200ms then back
+    t += 200;
+    schedule(() => setRot(0, 400), t); t += 400;
+
+    iterationRef.current++;
+    if (iterationRef.current < 2) {
+      // Sleep 30s then repeat
+      schedule(() => {
+        if (activeRef.current) runSequence();
+      }, t + 30000);
+    }
+  }, [schedule, setRot]);
+
+  const start = useCallback(() => {
+    if (activeRef.current) return;
+    activeRef.current = true;
+    iterationRef.current = 0;
+    // Initial 2s delay
+    schedule(() => {
+      if (activeRef.current) runSequence();
+    }, 2000);
+  }, [schedule, runSequence]);
+
+  const stop = useCallback(() => {
+    activeRef.current = false;
+    clearTimers();
+    if (elRef.current) {
+      elRef.current.style.transition = 'transform 300ms ease-in-out';
+      elRef.current.style.transform = 'rotateX(0deg)';
+    }
+  }, [clearTimers]);
+
+  useEffect(() => () => clearTimers(), [clearTimers]);
+
+  return { elRef, start, stop };
+}
 
 
 interface ServiceFlipCardProps {
@@ -50,8 +123,8 @@ const dayColors = [
 
 export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const [flipped, setFlipped] = useState(false);
-  const [hovered, setHovered] = useState(false);
   const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
+  const { elRef: wiggleRef, start: startWiggle, stop: stopWiggle } = useWiggleAnimation();
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
   const cfg = statusConfig[service.status as ServiceStatus];
   const uptimeDays = useMemo(() => generateMockUptime(service.id), [service.id]);
@@ -68,11 +141,12 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
       className="relative h-[110px] cursor-pointer"
       style={{ perspective: '800px' }}
       onClick={() => setFlipped((f) => !f)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}>
+      onMouseEnter={() => { if (!flipped) startWiggle(); }}
+      onMouseLeave={() => stopWiggle()}>
 
       <div
-        className={`absolute inset-0 transition-transform duration-500 ${!flipped && hovered ? 'animate-flip-wiggle' : ''}`}
+        ref={wiggleRef}
+        className="absolute inset-0 transition-transform duration-500"
         style={{
           transformStyle: 'preserve-3d',
           transform: flipped ? 'rotateX(180deg)' : 'rotateX(0deg)'
