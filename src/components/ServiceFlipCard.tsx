@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { statusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus } from '@/lib/status-helpers';
 import { format, subDays } from 'date-fns';
+import { BarChart3, CalendarDays, Activity } from 'lucide-react';
 
 
 interface ServiceFlipCardProps {
@@ -49,6 +50,7 @@ const dayColors = [
 
 export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const [flipped, setFlipped] = useState(false);
+  const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
   const cfg = statusConfig[service.status as ServiceStatus];
   const uptimeDays = useMemo(() => generateMockUptime(service.id), [service.id]);
 
@@ -93,20 +95,68 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
             <span className="text-xs font-medium text-card-foreground truncate">{service.name}</span>
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}%</span>
-              
             </div>
           </div>
-          <div className="flex gap-[2px] items-end w-full">
-            {uptimeDays.map((day, i) => {
-              const date = subDays(new Date(), 89 - i);
-              return (
-                <div
-                  key={i}
-                  className={`flex-1 min-w-0 h-7 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
-                  title={`${format(date, 'MMM d, yyyy')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][day]}`} />);
-
-
-            })}
+          <div className="flex gap-2 items-stretch w-full">
+            {/* Triangle icon cluster */}
+            <div className="flex flex-col items-center justify-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => setBackView('bars')}
+                className={`p-0.5 rounded transition-colors ${backView === 'bars' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                title="Uptime bars"
+              >
+                <BarChart3 size={12} />
+              </button>
+              <div className="flex gap-0.5">
+                <button
+                  onClick={() => setBackView('calendar')}
+                  className={`p-0.5 rounded transition-colors ${backView === 'calendar' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  title="Calendar view"
+                >
+                  <CalendarDays size={12} />
+                </button>
+                <button
+                  onClick={() => setBackView('graph')}
+                  className={`p-0.5 rounded transition-colors ${backView === 'graph' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  title="Response time"
+                >
+                  <Activity size={12} />
+                </button>
+              </div>
+            </div>
+            {/* View content */}
+            <div className="flex-1 min-w-0">
+              {backView === 'bars' && (
+                <div className="flex gap-[2px] items-end w-full h-7">
+                  {uptimeDays.map((day, i) => {
+                    const date = subDays(new Date(), 89 - i);
+                    return (
+                      <div
+                        key={i}
+                        className={`flex-1 min-w-0 h-7 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
+                        title={`${format(date, 'MMM d, yyyy')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][day]}`} />
+                    );
+                  })}
+                </div>
+              )}
+              {backView === 'calendar' && (
+                <div className="grid grid-cols-13 gap-[1px] h-7">
+                  {uptimeDays.slice(-78).map((day, i) => (
+                    <div key={i} className={`rounded-[2px] ${dayColors[day]}`} />
+                  ))}
+                </div>
+              )}
+              {backView === 'graph' && (
+                <svg viewBox="0 0 200 28" className="w-full h-7" preserveAspectRatio="none">
+                  <polyline
+                    fill="none"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth="1.5"
+                    points={uptimeDays.map((d, i) => `${(i / 89) * 200},${28 - (d / 3) * 20 - 4 + ((i * 7 + d * 3) % 8)}`).join(' ')}
+                  />
+                </svg>
+              )}
+            </div>
           </div>
         </div>
       </div>
