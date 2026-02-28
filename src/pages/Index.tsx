@@ -104,7 +104,7 @@ const Index = () => {
 };
 
 function IncidentCard({ incident }: { incident: any }) {
-  const [expanded, setExpanded] = useState(incident.status !== 'resolved');
+  const [expanded, setExpanded] = useState(false);
   const statusCfg = incidentStatusConfig[incident.status as IncidentStatus];
   const updates = (incident.incident_updates || []).sort(
     (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
