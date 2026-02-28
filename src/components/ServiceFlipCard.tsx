@@ -119,7 +119,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
         {/* Back */}
         <div
-          className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden p-4 flex flex-col"
+          className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden pl-4 pr-2 py-4 flex flex-col"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}>
 
           <div className="flex items-center justify-between mb-2">
