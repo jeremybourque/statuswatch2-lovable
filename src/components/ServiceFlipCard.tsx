@@ -124,6 +124,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2 min-w-0">
+              <StatusDot status={service.status as ServiceStatus} />
               <span className="text-sm font-medium text-card-foreground truncate">{service.name}</span>
               <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
                 <button
