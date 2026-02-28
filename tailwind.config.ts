@@ -93,7 +93,7 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "flip-wiggle": "flip-wiggle 1s ease-in-out",
+        "flip-wiggle": "flip-wiggle 1s ease-in-out 2s",
       },
     },
   },
