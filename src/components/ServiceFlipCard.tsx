@@ -261,7 +261,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                     {yTicks.map((t, i) => {
                       const y = oY + chartH - ((t - minVal) / padded) * chartH;
                       return (
-                        <text key={i} x={oX - 3} y={y + 2} textAnchor="end" className="fill-muted-foreground" style={{ fontSize: '7px' }}>
+                        <text key={i} x={oX + chartW + 3} y={y + 2} textAnchor="start" className="fill-muted-foreground" style={{ fontSize: '7px' }}>
                           {t.toFixed(1)}s
                         </text>
                       );
