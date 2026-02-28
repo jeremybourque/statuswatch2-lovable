@@ -3,7 +3,9 @@ import { statusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus } from '@/lib/status-helpers';
 import { format, subDays } from 'date-fns';
 import { BarChart3, CalendarDays, Activity, Info } from 'lucide-react';
-
+import { UptimeBarsView } from './service-card/UptimeBarsView';
+import { CalendarView } from './service-card/CalendarView';
+import { ResponseGraphView } from './service-card/ResponseGraphView';
 
 interface ServiceFlipCardProps {
   service: {
@@ -40,12 +42,6 @@ function generateMockUptime(serviceId: string): number[] {
   }
   return days;
 }
-
-const dayColors = [
-'bg-status-major-outage',
-'bg-status-partial-outage',
-'bg-status-degraded',
-'bg-status-operational'];
 
 
 export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
@@ -154,153 +150,14 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           </div>
           <div className="w-full flex-1 flex flex-col" onMouseLeave={() => setHoveredDay(null)}>
               {backView === 'bars' && (
-                <div className="flex gap-[2px] items-end w-full h-8 mt-2">
-                  {uptimeDays.map((day, i) => {
-                    const date = subDays(new Date(), 89 - i);
-                    const label = `${format(date, 'MMM d, yyyy')}: ${statusLabels[day]}`;
-                    return (
-                      <div
-                        key={i}
-                        className={`flex-1 min-w-0 h-8 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
-                        onMouseEnter={() => setHoveredDay(label)} />
-                    );
-                  })}
-                </div>
+                <UptimeBarsView uptimeDays={uptimeDays} onHover={setHoveredDay} />
               )}
-              {backView === 'calendar' && (() => {
-                const today = new Date(2026, 1, 15);
-                const statusMap = new Map<string, number>();
-                for (let i = 0; i < 90; i++) {
-                  const d = subDays(today, 89 - i);
-                  statusMap.set(format(d, 'yyyy-MM-dd'), uptimeDays[i]);
-                }
-                const monthsSet: Date[] = [];
-                for (let i = 89; i >= 0; i--) {
-                  const d = subDays(today, i);
-                  const key = format(d, 'yyyy-MM');
-                  if (!monthsSet.find(m => format(m, 'yyyy-MM') === key)) {
-                    monthsSet.push(new Date(d.getFullYear(), d.getMonth(), 1));
-                  }
-                }
-                const months = monthsSet;
-                return (
-                  <div className="flex gap-3 h-10 w-full">
-                    {months.map((monthStart, mi) => {
-                      const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
-                      const startDow = monthStart.getDay();
-                      return (
-                        <div key={mi} className="flex-1 flex flex-col min-w-0">
-                          <div className="grid grid-cols-7 grid-rows-6 gap-[2px] flex-1">
-                            {Array.from({ length: startDow }).map((_, i) => (
-                              <div key={`e${i}`} />
-                            ))}
-                            {Array.from({ length: daysInMonth }).map((_, di) => {
-                              const date = new Date(monthStart.getFullYear(), monthStart.getMonth(), di + 1);
-                              const key = format(date, 'yyyy-MM-dd');
-                              const status = statusMap.get(key);
-                              const label = `${format(date, 'MMM d')}: ${status !== undefined ? statusLabels[status] : 'No data'}`;
-                              return (
-                                <div
-                                  key={di}
-                                  className={`rounded-[1.5px] ${status !== undefined ? dayColors[status] : 'bg-muted-foreground/30'}`}
-                                  onMouseEnter={() => setHoveredDay(label)}
-                                />
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-              {backView === 'graph' && (() => {
-                // Generate mock page load times for past 7 days (every 4 hours = 42 points)
-                const points: { time: Date; value: number }[] = [];
-                let hash = 0;
-                for (let i = 0; i < service.id.length; i++) {
-                  hash = (hash << 5) - hash + service.id.charCodeAt(i) | 0;
-                }
-                const now = new Date();
-                for (let i = 0; i < 42; i++) {
-                  hash = (hash * 1103515245 + 12345) & 0x7fffffff;
-                  const ms = 200 + (hash % 800) + Math.sin(i * 0.5) * 100;
-                  const time = new Date(now.getTime() - (41 - i) * 4 * 60 * 60 * 1000);
-                  points.push({ time, value: ms / 1000 });
-                }
-                const minVal = 0;
-                const maxVal = 2;
-                const range = 2;
-                const padded = 2;
-                const chartH = 32;
-                const chartW = 540;
-                const oX = 4;
-                const oY = 2;
-                const vbW = oX + chartW + 50;
-                const vbH = chartH + 10;
-                const yTicks = [0, 1, 2];
-                const dayLabels: { x: number; label: string }[] = [];
-                for (let d = 6; d >= 0; d--) {
-                  const day = new Date(now.getTime() - d * 24 * 60 * 60 * 1000);
-                  const frac = 1 - d / 6;
-                  dayLabels.push({ x: oX + frac * chartW, label: format(day, 'EEE').charAt(0) });
-                }
-                const svgPoints = points.map((p, i) => {
-                  const x = oX + (i / 41) * chartW;
-                  const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
-                  return `${x},${y}`;
-                }).join(' ');
-                const areaPath = `M${oX},${oY + chartH} ` + points.map((p, i) => {
-                  const x = oX + (i / 41) * chartW;
-                  const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
-                  return `L${x},${y}`;
-                }).join(' ') + ` L${oX + chartW},${oY + chartH} Z`;
-
-                return (
-                  <svg viewBox={`0 0 ${vbW} ${vbH}`} className="w-full flex-1" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                    {/* Y-axis labels */}
-                    {yTicks.map((t, i) => {
-                      const y = oY + chartH - ((t - minVal) / padded) * chartH;
-                      return (
-                        <text key={i} x={oX + chartW + 3} y={y + 2} textAnchor="start" className="fill-muted-foreground" style={{ fontSize: '7px' }}>
-                          {t}
-                        </text>
-                      );
-                    })}
-                    {/* X-axis day labels */}
-                    {dayLabels.map((d, i) => (
-                      <text key={i} x={d.x} y={oY + chartH + 9} textAnchor="middle" className="fill-muted-foreground" style={{ fontSize: '7px' }}>
-                        {d.label}
-                      </text>
-                    ))}
-                    {/* Grid lines */}
-                    {yTicks.map((t, i) => {
-                      const y = oY + chartH - ((t - minVal) / padded) * chartH;
-                      return <line key={i} x1={oX} x2={oX + chartW} y1={y} y2={y} className="stroke-border" strokeWidth="0.3" />;
-                    })}
-                    {/* Area fill */}
-                    <path d={areaPath} fill="hsl(var(--primary))" opacity="0.1" />
-                    {/* Line */}
-                    <polyline fill="none" stroke="hsl(var(--primary))" strokeWidth="1" points={svgPoints} />
-                    {/* Interactive hover points */}
-                    {points.map((p, i) => {
-                      const x = oX + (i / 41) * chartW;
-                      const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
-                      const label = `${format(p.time, 'EEE h:mma')}: ${(p.value * 1000).toFixed(0)}ms`;
-                      return (
-                        <circle
-                          key={i}
-                          cx={x}
-                          cy={y}
-                          r="2.5"
-                          className="fill-transparent hover:fill-primary cursor-pointer"
-                          onMouseEnter={() => setHoveredDay(label)}
-                        />
-                      );
-                    })}
-                  </svg>
-                );
-              })()}
+              {backView === 'calendar' && (
+                <CalendarView uptimeDays={uptimeDays} onHover={setHoveredDay} />
+              )}
+              {backView === 'graph' && (
+                <ResponseGraphView serviceId={service.id} onHover={setHoveredDay} />
+              )}
           </div>
           <div className="mt-auto pt-1 h-5">
             <span className="text-xs font-medium text-foreground truncate block">{hoveredDay ?? '\u00A0'}</span>
