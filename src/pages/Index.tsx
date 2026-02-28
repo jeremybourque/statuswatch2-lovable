@@ -64,7 +64,7 @@ const Index = () => {
           {categories.map(cat => (
             <div key={cat} className="space-y-3">
               <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{cat}</h2>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3">
                 {services.filter(s => s.category === cat).map(service => (
                   <ServiceFlipCard key={service.id} service={service} />
                 ))}
