@@ -157,7 +157,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                       const startDow = monthStart.getDay();
                       return (
                         <div key={mi} className="flex-1 flex flex-col min-w-0">
-                          <div className="grid grid-cols-7 gap-[1px] flex-1">
+                          <div className="grid grid-cols-7 grid-rows-5 gap-[1px] flex-1">
                             {Array.from({ length: startDow }).map((_, i) => (
                               <div key={`e${i}`} />
                             ))}
