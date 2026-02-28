@@ -1,4 +1,4 @@
-import { Server, AlertTriangle, Settings } from 'lucide-react';
+import { Server, AlertTriangle, Settings, ArrowLeft } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import {
@@ -46,6 +46,21 @@ export function AdminSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/" className="hover:bg-muted/50" activeClassName="">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    {!collapsed && <span>Back to Status Page</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
