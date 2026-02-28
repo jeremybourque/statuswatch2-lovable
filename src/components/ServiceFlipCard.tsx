@@ -51,6 +51,7 @@ const dayColors = [
 export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const [rotationX, setRotationX] = useState(0);
   const [hovered, setHovered] = useState(false);
+  const [mouseInTopHalf, setMouseInTopHalf] = useState(true);
   const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
   const cfg = statusConfig[service.status as ServiceStatus];
@@ -80,10 +81,14 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
         });
       }}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}>
+      onMouseLeave={() => setHovered(false)}
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setMouseInTopHalf(e.clientY - rect.top < rect.height / 2);
+      }}>
 
       <div
-        className={`absolute inset-0 transition-transform duration-500 ${!isFlipped && hovered ? 'animate-flip-wiggle' : ''}`}
+        className={`absolute inset-0 transition-transform duration-500 ${!isFlipped && hovered ? (mouseInTopHalf ? 'animate-flip-wiggle' : 'animate-flip-wiggle-reverse') : ''}`}
         style={{
           transformStyle: 'preserve-3d',
           transform: `rotateX(${rotationX}deg)`

@@ -84,9 +84,12 @@ export default {
         },
         "flip-wiggle": {
           "0%": { transform: "rotateX(0deg)" },
-          "33%": { transform: "rotateX(15deg)" },
-          "66%": { transform: "rotateX(0deg)" },
-          "83%": { transform: "rotateX(10deg)" },
+          "50%": { transform: "rotateX(15deg)" },
+          "100%": { transform: "rotateX(0deg)" },
+        },
+        "flip-wiggle-reverse": {
+          "0%": { transform: "rotateX(0deg)" },
+          "50%": { transform: "rotateX(-15deg)" },
           "100%": { transform: "rotateX(0deg)" },
         },
       },
@@ -94,6 +97,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "flip-wiggle": "flip-wiggle 0.3s ease-in-out 2s",
+        "flip-wiggle-reverse": "flip-wiggle-reverse 0.3s ease-in-out 2s",
       },
     },
   },
