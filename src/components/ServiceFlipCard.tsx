@@ -152,7 +152,6 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                   <div className="flex gap-1.5 h-7 w-full">
                     {months.map((month, mi) => (
                       <div key={mi} className="flex-1 flex flex-col min-w-0">
-                        <span className="text-[6px] leading-none text-muted-foreground mb-0.5 text-center">{month.label}</span>
                         <div className="grid grid-cols-7 gap-[1px] flex-1">
                           {month.days.slice(0, 28).map((d, di) => (
                             <div
