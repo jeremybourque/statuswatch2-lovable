@@ -49,8 +49,7 @@ const dayColors = [
 
 
 export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
-  const [flipped, setFlipped] = useState(false);
-  const [flipDirection, setFlipDirection] = useState<1 | -1>(1);
+  const [rotationX, setRotationX] = useState(0);
   const [hovered, setHovered] = useState(false);
   const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
@@ -63,6 +62,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   }, [uptimeDays]);
 
   const statusLabels = ['Major Outage', 'Partial Outage', 'Degraded', 'Operational'];
+  const isFlipped = Math.abs(Math.round(rotationX / 180)) % 2 === 1;
 
   return (
     <div
@@ -72,18 +72,21 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
         const rect = e.currentTarget.getBoundingClientRect();
         const clickY = e.clientY - rect.top;
         const isTopHalf = clickY < rect.height / 2;
-        const direction = flipped ? (isTopHalf ? -1 : 1) : (isTopHalf ? 1 : -1);
-        setFlipDirection(direction as 1 | -1);
-        setFlipped((f) => !f);
+        const direction = isTopHalf ? 1 : -1;
+
+        setRotationX((prev) => {
+          const next = prev + direction * 180;
+          return Math.abs(next) >= 3600 ? next % 360 : next;
+        });
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}>
 
       <div
-        className={`absolute inset-0 transition-transform duration-500 ${!flipped && hovered ? 'animate-flip-wiggle' : ''}`}
+        className={`absolute inset-0 transition-transform duration-500 ${!isFlipped && hovered ? 'animate-flip-wiggle' : ''}`}
         style={{
           transformStyle: 'preserve-3d',
-          transform: flipped ? `rotateX(${flipDirection * 180}deg)` : 'rotateX(0deg)'
+          transform: `rotateX(${rotationX}deg)`
         }}>
 
         {/* Front */}
@@ -108,7 +111,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
         {/* Back */}
         <div
           className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden p-4 flex flex-col"
-          style={{ backfaceVisibility: 'hidden', transform: `rotateX(${flipDirection * 180}deg)` }}>
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}>
 
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2 min-w-0">
