@@ -134,13 +134,39 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                   })}
                 </div>
               )}
-              {backView === 'calendar' && (
-                <div className="grid grid-cols-13 gap-[1px] h-7">
-                  {uptimeDays.slice(-78).map((day, i) => (
-                    <div key={i} className={`rounded-[2px] ${dayColors[day]}`} />
-                  ))}
-                </div>
-              )}
+              {backView === 'calendar' && (() => {
+                const today = new Date();
+                const days90 = uptimeDays.slice(-90);
+                // Group into 3 months (pages)
+                const months: { label: string; days: { status: number; date: Date }[] }[] = [];
+                for (let m = 2; m >= 0; m--) {
+                  const monthDate = subDays(today, m * 30);
+                  const slice = days90.slice(90 - (m + 1) * 30, 90 - m * 30);
+                  const startDow = subDays(today, (m + 1) * 30 - 1).getDay();
+                  months.push({
+                    label: format(monthDate, 'MMM'),
+                    days: slice.map((s, i) => ({ status: s, date: subDays(today, m * 30 + (29 - i)) })),
+                  });
+                }
+                return (
+                  <div className="flex gap-1.5 h-7 w-full">
+                    {months.map((month, mi) => (
+                      <div key={mi} className="flex-1 flex flex-col min-w-0">
+                        <span className="text-[6px] leading-none text-muted-foreground mb-0.5 text-center">{month.label}</span>
+                        <div className="grid grid-cols-7 gap-[1px] flex-1">
+                          {month.days.slice(0, 28).map((d, di) => (
+                            <div
+                              key={di}
+                              className={`rounded-[1.5px] ${dayColors[d.status]}`}
+                              title={`${format(d.date, 'MMM d')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][d.status]}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
               {backView === 'graph' && (
                 <svg viewBox="0 0 200 28" className="w-full h-7" preserveAspectRatio="none">
                   <polyline
