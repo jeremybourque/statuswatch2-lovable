@@ -5,6 +5,7 @@ import { getOverallStatus, getOverallBanner, statusConfig, incidentStatusConfig,
 import type { ServiceStatus, IncidentStatus, IncidentImpact } from '@/lib/status-helpers';
 import { Badge } from '@/components/ui/badge';
 import { ServiceFlipCard } from '@/components/ServiceFlipCard';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { ChevronDown, Activity, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
@@ -34,9 +35,12 @@ const Index = () => {
               {settings?.page_title || 'StatusWatch'}
             </h1>
           </div>
-          <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
-            <Settings className="h-4 w-4" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Settings className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </header>
 
