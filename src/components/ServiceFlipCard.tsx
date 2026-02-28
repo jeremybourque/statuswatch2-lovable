@@ -72,7 +72,8 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
         const rect = e.currentTarget.getBoundingClientRect();
         const clickY = e.clientY - rect.top;
         const isTopHalf = clickY < rect.height / 2;
-        setFlipDirection(isTopHalf ? 1 : -1);
+        const direction = flipped ? (isTopHalf ? -1 : 1) : (isTopHalf ? 1 : -1);
+        setFlipDirection(direction as 1 | -1);
         setFlipped((f) => !f);
       }}
       onMouseEnter={() => setHovered(true)}
