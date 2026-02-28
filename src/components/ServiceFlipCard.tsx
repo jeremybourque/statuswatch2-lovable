@@ -119,7 +119,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
         {/* Back */}
         <div
-          className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden pl-4 pr-2 py-4 flex flex-col"
+          className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden p-4 flex flex-col"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}>
 
           <div className="flex items-center justify-between mb-2">
@@ -232,7 +232,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 const range = 2;
                 const padded = 2;
                 const chartH = 32;
-                const chartW = 950;
+                const chartW = 540;
                 const oX = 4;
                 const oY = 2;
                 const vbW = oX + chartW + 50;
