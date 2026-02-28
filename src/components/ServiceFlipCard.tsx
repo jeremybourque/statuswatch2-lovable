@@ -196,8 +196,8 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 </svg>
               )}
           </div>
-          <div className="mt-auto h-3.5">
-            <span className="text-[10px] text-muted-foreground truncate block">{hoveredDay ?? '\u00A0'}</span>
+          <div className="mt-auto pt-1 h-5">
+            <span className="text-xs font-medium text-foreground truncate block">{hoveredDay ?? '\u00A0'}</span>
           </div>
         </div>
       </div>
