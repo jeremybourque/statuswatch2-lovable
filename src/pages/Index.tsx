@@ -5,6 +5,7 @@ import { getOverallStatus, getOverallBanner, statusConfig, incidentStatusConfig,
 import type { ServiceStatus, IncidentStatus, IncidentImpact } from '@/lib/status-helpers';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ServiceFlipCard } from '@/components/ServiceFlipCard';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -64,26 +65,9 @@ const Index = () => {
             <div key={cat} className="space-y-3">
               <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{cat}</h2>
               <div className="grid gap-3 sm:grid-cols-2">
-                {services.filter(s => s.category === cat).map(service => {
-                  const cfg = statusConfig[service.status as ServiceStatus];
-                  return (
-                    <Card key={service.id} className="relative overflow-hidden">
-                      <div className={`absolute inset-y-0 left-0 w-1 ${cfg.dotClass}`} />
-                      <CardContent className="p-4 pl-5 flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium">{service.name}</p>
-                          {service.description && (
-                            <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className={`text-xs font-medium ${cfg.color}`}>{cfg.label}</span>
-                          <span className={`h-2 w-2 rounded-full ${cfg.dotClass}`} />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                {services.filter(s => s.category === cat).map(service => (
+                  <ServiceFlipCard key={service.id} service={service} />
+                ))}
               </div>
             </div>
           ))}
