@@ -122,13 +122,13 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           </div>
           <div className="w-full">
               {backView === 'bars' && (
-                <div className="flex gap-[2px] items-end w-full h-10">
+                <div className="flex gap-[2px] items-end w-full h-10 mt-2">
                   {uptimeDays.map((day, i) => {
                     const date = subDays(new Date(), 89 - i);
                     return (
                       <div
                         key={i}
-                        className={`flex-1 min-w-0 h-10 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
+                        className={`flex-1 min-w-0 h-8 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
                         title={`${format(date, 'MMM d, yyyy')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][day]}`} />
                     );
                   })}
