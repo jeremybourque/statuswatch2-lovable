@@ -72,7 +72,7 @@ const Index = () => {
                 </div>
                 <div className="space-y-2">
                   {catServices.map((service) => (
-                    <div key={service.id} className="border border-border rounded-lg overflow-hidden">
+                    <div key={service.id}>
                       <ServiceFlipCard service={service} />
                     </div>
                   ))}

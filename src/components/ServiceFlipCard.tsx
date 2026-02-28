@@ -72,7 +72,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
       >
         {/* Front */}
         <div
-          className="absolute inset-0 bg-card hover:bg-accent/50 transition-colors overflow-hidden"
+          className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden"
           style={{ backfaceVisibility: 'hidden' }}
         >
           <div className="p-4 flex items-center justify-between h-full">
@@ -86,7 +86,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
         {/* Back */}
         <div
-          className="absolute inset-0 bg-card hover:bg-accent/50 transition-colors overflow-hidden p-4"
+          className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden p-4"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}
         >
           <div className="flex items-center justify-between mb-2">
