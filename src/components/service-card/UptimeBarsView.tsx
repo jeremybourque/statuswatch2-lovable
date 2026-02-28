@@ -16,7 +16,7 @@ interface UptimeBarsViewProps {
 
 export function UptimeBarsView({ uptimeDays, onHover }: UptimeBarsViewProps) {
   return (
-    <div className="flex gap-[2px] items-end w-full h-8 -mt-1">
+    <div className="flex gap-[2px] items-end w-full h-8 mt-0.5">
       {uptimeDays.map((day, i) => {
         const date = subDays(new Date(), 89 - i);
         const label = `${format(date, 'MMM d, yyyy')}: ${statusLabels[day]}`;
