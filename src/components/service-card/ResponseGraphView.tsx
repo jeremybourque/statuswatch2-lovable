@@ -15,10 +15,11 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
     hash = (hash << 5) - hash + serviceId.charCodeAt(i) | 0;
   }
   const now = new Date();
+  const currentHour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours());
   for (let i = 0; i < 168; i++) {
     hash = (hash * 1103515245 + 12345) & 0x7fffffff;
     const ms = 200 + (hash % 800) + Math.sin(i * 0.5) * 100;
-    const time = new Date(now.getTime() - (167 - i) * 60 * 60 * 1000);
+    const time = new Date(currentHour.getTime() - (167 - i) * 60 * 60 * 1000);
     points.push({ time, value: ms / 1000 });
   }
 
