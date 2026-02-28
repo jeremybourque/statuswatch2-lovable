@@ -120,7 +120,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
             </div>
             <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}%</span>
           </div>
-          <div className="w-full">
+          <div className="w-full mt-1">
               {backView === 'bars' && (
                 <div className="flex gap-[2px] items-end w-full h-8">
                   {uptimeDays.map((day, i) => {
