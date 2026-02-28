@@ -232,7 +232,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 const range = 2;
                 const padded = 2;
                 const chartH = 32;
-                const chartW = 540;
+                const chartW = 800;
                 const oX = 4;
                 const oY = 2;
                 const vbW = oX + chartW + 50;
