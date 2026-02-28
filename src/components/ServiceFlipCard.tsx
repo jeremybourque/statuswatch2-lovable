@@ -80,12 +80,19 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden"
           style={{ backfaceVisibility: 'hidden' }}>
 
-          <div className="p-4 flex items-center justify-between h-full">
-            <div className="flex items-center gap-3 min-w-0">
-              <StatusDot status={service.status as ServiceStatus} />
-              <span className="text-lg font-medium text-card-foreground truncate">{service.name}</span>
+          <div className="p-4 flex items-start justify-between h-full">
+            <div className="flex items-start gap-3 min-w-0">
+              <div className="mt-1.5">
+                <StatusDot status={service.status as ServiceStatus} />
+              </div>
+              <div className="min-w-0">
+                <span className="text-lg font-medium text-card-foreground truncate block">{service.name}</span>
+                {service.description && (
+                  <span className="text-xs text-muted-foreground truncate block mt-0.5">{service.description}</span>
+                )}
+              </div>
             </div>
-            <span className={`text-base font-medium ${cfg.color}`}>{cfg.label}</span>
+            <span className={`text-base font-medium ${cfg.color} shrink-0`}>{cfg.label}</span>
           </div>
         </div>
 
