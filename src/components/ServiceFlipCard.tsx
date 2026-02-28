@@ -232,10 +232,10 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 const range = maxVal - minVal || 0.1;
                 const padded = range * 1.15;
                 const chartH = 32;
-                const chartW = 580;
-                const oX = 24;
+                const chartW = 540;
+                const oX = 4;
                 const oY = 2;
-                const vbW = oX + chartW + 2;
+                const vbW = oX + chartW + 50;
                 const vbH = chartH + 10;
                 const yTicks = [minVal, minVal + range / 2, maxVal];
                 const dayLabels: { x: number; label: string }[] = [];
