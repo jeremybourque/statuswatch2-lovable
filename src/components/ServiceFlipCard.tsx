@@ -155,11 +155,13 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                     {months.map((monthStart, mi) => {
                       const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
                       const startDow = monthStart.getDay();
+                      const totalCells = startDow + daysInMonth;
+                      const endPad = (7 - (totalCells % 7)) % 7;
                       return (
                         <div key={mi} className="flex-1 flex flex-col min-w-0">
-                          <div className="grid grid-cols-7 grid-rows-5 gap-[1px] flex-1">
+                          <div className="grid grid-cols-7 gap-[1px] flex-1">
                             {Array.from({ length: startDow }).map((_, i) => (
-                              <div key={`e${i}`} />
+                              <div key={`s${i}`} className="rounded-[1.5px] bg-muted/20" />
                             ))}
                             {Array.from({ length: daysInMonth }).map((_, di) => {
                               const date = new Date(monthStart.getFullYear(), monthStart.getMonth(), di + 1);
@@ -173,6 +175,9 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                                 />
                               );
                             })}
+                            {Array.from({ length: endPad }).map((_, i) => (
+                              <div key={`p${i}`} className="rounded-[1.5px] bg-muted/20" />
+                            ))}
                           </div>
                         </div>
                       );
