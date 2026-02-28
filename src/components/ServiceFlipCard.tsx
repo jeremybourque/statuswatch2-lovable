@@ -233,8 +233,9 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 const padded = range * 1.15;
                 const chartH = 36;
                 const chartW = 270;
-                const oX = 18;
+                const oX = 14;
                 const oY = 2;
+                const vbW = oX + chartW + 2;
                 const yTicks = [minVal, minVal + range / 2, maxVal];
                 const dayLabels: { x: number; label: string }[] = [];
                 for (let d = 6; d >= 0; d--) {
@@ -254,7 +255,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 }).join(' ') + ` L${oX + chartW},${oY + chartH} Z`;
 
                 return (
-                  <svg viewBox="0 0 295 48" className="w-full h-10">
+                  <svg viewBox={`0 0 ${vbW} 48`} className="w-full h-10">
                     {/* Y-axis labels */}
                     {yTicks.map((t, i) => {
                       const y = oY + chartH - ((t - minVal) / padded) * chartH;
