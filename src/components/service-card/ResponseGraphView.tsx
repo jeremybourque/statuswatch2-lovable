@@ -12,10 +12,10 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
     hash = (hash << 5) - hash + serviceId.charCodeAt(i) | 0;
   }
   const now = new Date();
-  for (let i = 0; i < 42; i++) {
+  for (let i = 0; i < 168; i++) {
     hash = (hash * 1103515245 + 12345) & 0x7fffffff;
     const ms = 200 + (hash % 800) + Math.sin(i * 0.5) * 100;
-    const time = new Date(now.getTime() - (41 - i) * 4 * 60 * 60 * 1000);
+    const time = new Date(now.getTime() - (167 - i) * 60 * 60 * 1000);
     points.push({ time, value: ms / 1000 });
   }
 
@@ -36,14 +36,15 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
     dayLabels.push({ x: oX + frac * chartW, label: format(day, 'EEE').charAt(0) });
   }
 
+  const total = points.length;
   const svgPoints = points.map((p, i) => {
-    const x = oX + (i / 41) * chartW;
+    const x = oX + (i / (total - 1)) * chartW;
     const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
     return `${x},${y}`;
   }).join(' ');
 
   const areaPath = `M${oX},${oY + chartH} ` + points.map((p, i) => {
-    const x = oX + (i / 41) * chartW;
+    const x = oX + (i / (total - 1)) * chartW;
     const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
     return `L${x},${y}`;
   }).join(' ') + ` L${oX + chartW},${oY + chartH} Z`;
@@ -70,7 +71,7 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
       <path d={areaPath} fill="hsl(var(--primary))" opacity="0.1" />
       <polyline fill="none" stroke="hsl(var(--primary))" strokeWidth="1" points={svgPoints} />
       {points.map((p, i) => {
-        const x = oX + (i / 41) * chartW;
+        const x = oX + (i / (total - 1)) * chartW;
         const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
         const label = `${format(p.time, 'EEE h:mma')}: ${(p.value * 1000).toFixed(0)}ms`;
         return (
@@ -78,7 +79,7 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
             key={i}
             cx={x}
             cy={y}
-            r="2.5"
+            r="1.5"
             className="fill-transparent hover:fill-primary cursor-pointer"
             onMouseEnter={() => onHover(label)}
           />
