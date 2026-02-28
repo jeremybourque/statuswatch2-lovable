@@ -169,12 +169,11 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                               const date = new Date(monthStart.getFullYear(), monthStart.getMonth(), di + 1);
                               const key = format(date, 'yyyy-MM-dd');
                               const status = statusMap.get(key);
-                              const label = `${format(date, 'MMM d')}: ${status !== undefined ? statusLabels[status] : 'No data'}`;
                               return (
                                 <div
                                   key={di}
                                   className={`rounded-[1.5px] ${status !== undefined ? dayColors[status] : 'bg-muted/30'}`}
-                                  onMouseEnter={() => setHoveredDay(label)}
+                                  onMouseEnter={status !== undefined ? () => setHoveredDay(`${format(date, 'MMM d')}: ${statusLabels[status]}`) : undefined}
                                 />
                               );
                             })}
