@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { statusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus } from '@/lib/status-helpers';
 import { format, subDays } from 'date-fns';
@@ -49,7 +49,24 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const [hovered, setHovered] = useState(false);
   const [mouseInTopHalf, setMouseInTopHalf] = useState(true);
   const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('left');
+  const [animating, setAnimating] = useState(false);
+  const [displayedView, setDisplayedView] = useState<'bars' | 'calendar' | 'graph'>('bars');
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
+
+  const viewOrder: ('bars' | 'calendar' | 'graph')[] = ['bars', 'calendar', 'graph'];
+
+  const switchView = (newView: 'bars' | 'calendar' | 'graph') => {
+    if (newView === displayedView || animating) return;
+    const oldIdx = viewOrder.indexOf(displayedView);
+    const newIdx = viewOrder.indexOf(newView);
+    setSlideDirection(newIdx > oldIdx ? 'left' : 'right');
+    setAnimating(true);
+    setTimeout(() => {
+      setDisplayedView(newView);
+      setTimeout(() => setAnimating(false), 200);
+    }, 150);
+  };
   const cfg = statusConfig[service.status as ServiceStatus];
   const uptimeDays = useMemo(() => generateMockUptime(service.id), [service.id]);
 
@@ -124,22 +141,22 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               <span className="text-sm font-medium text-card-foreground truncate">{service.name}</span>
               <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
                 <button
-                  onClick={() => setBackView('bars')}
-                  className={`p-2 -m-1 rounded transition-colors ${backView === 'bars' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  onClick={() => switchView('bars')}
+                  className={`p-2 -m-1 rounded transition-colors ${displayedView === 'bars' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                   title="Uptime bars"
                 >
                   <BarChart3 size={14} />
                 </button>
                 <button
-                  onClick={() => setBackView('calendar')}
-                  className={`p-2 -m-1 rounded transition-colors ${backView === 'calendar' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  onClick={() => switchView('calendar')}
+                  className={`p-2 -m-1 rounded transition-colors ${displayedView === 'calendar' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                   title="Calendar view"
                 >
                   <CalendarDays size={14} />
                 </button>
                 <button
-                  onClick={() => setBackView('graph')}
-                  className={`p-2 -m-1 rounded transition-colors ${backView === 'graph' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  onClick={() => switchView('graph')}
+                  className={`p-2 -m-1 rounded transition-colors ${displayedView === 'graph' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                   title="Response time"
                 >
                   <Activity size={14} />
@@ -148,16 +165,29 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
             </div>
             <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}% uptime</span>
           </div>
-          <div className="w-full flex-1 flex flex-col" onMouseLeave={() => setHoveredDay(null)}>
-              {backView === 'bars' && (
+          <div
+            className="w-full flex-1 flex flex-col overflow-hidden"
+            onMouseLeave={() => setHoveredDay(null)}
+          >
+            <div
+              className={`flex-1 flex flex-col transition-all duration-200 ease-out ${
+                animating
+                  ? slideDirection === 'left'
+                    ? 'opacity-0 -translate-x-4'
+                    : 'opacity-0 translate-x-4'
+                  : 'opacity-100 translate-x-0'
+              }`}
+            >
+              {displayedView === 'bars' && (
                 <UptimeBarsView uptimeDays={uptimeDays} onHover={setHoveredDay} />
               )}
-              {backView === 'calendar' && (
+              {displayedView === 'calendar' && (
                 <CalendarView uptimeDays={uptimeDays} onHover={setHoveredDay} />
               )}
-              {backView === 'graph' && (
+              {displayedView === 'graph' && (
                 <ResponseGraphView serviceId={service.id} onHover={setHoveredDay} />
               )}
+            </div>
           </div>
           <div className="mt-auto pt-1 h-5">
             <span className="text-xs font-medium text-foreground truncate block">{hoveredDay ?? '\u00A0'}</span>
