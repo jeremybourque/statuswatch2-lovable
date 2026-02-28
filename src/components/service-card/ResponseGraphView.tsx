@@ -15,10 +15,13 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
     hash = (hash << 5) - hash + serviceId.charCodeAt(i) | 0;
   }
   const now = new Date();
-  for (let i = 0; i < 168; i++) {
+  const latest = new Date(now);
+  latest.setMinutes(Math.floor(latest.getMinutes() / 10) * 10, 0, 0);
+  const totalPoints = 7 * 24 * 6; // 7 days × 24 hours × 6 per hour
+  for (let i = 0; i < totalPoints; i++) {
     hash = (hash * 1103515245 + 12345) & 0x7fffffff;
     const ms = 200 + (hash % 800) + Math.sin(i * 0.5) * 100;
-    const time = new Date(now.getTime() - (167 - i) * 60 * 60 * 1000);
+    const time = new Date(latest.getTime() - (totalPoints - 1 - i) * 10 * 60 * 1000);
     points.push({ time, value: ms / 1000 });
   }
 
@@ -38,7 +41,7 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
 
   const dayLabels: { x: number; label: string }[] = [];
   for (let d = 6; d >= 0; d--) {
-    const day = new Date(now.getTime() - d * 24 * 60 * 60 * 1000);
+    const day = new Date(latest.getTime() - d * 24 * 60 * 60 * 1000);
     const frac = 1 - d / 6;
     dayLabels.push({ x: oX + frac * chartW, label: format(day, 'EEE').charAt(0) });
   }
