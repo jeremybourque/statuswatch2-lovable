@@ -256,7 +256,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 }).join(' ') + ` L${oX + chartW},${oY + chartH} Z`;
 
                 return (
-                  <svg viewBox={`0 0 ${vbW} ${vbH}`} className="w-full flex-1" preserveAspectRatio="none">
+                  <svg viewBox={`0 0 ${vbW} ${vbH}`} className="w-full flex-1" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
                     {/* Y-axis labels */}
                     {yTicks.map((t, i) => {
                       const y = oY + chartH - ((t - minVal) / padded) * chartH;
