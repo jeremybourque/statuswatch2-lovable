@@ -56,7 +56,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
         className="absolute inset-0 transition-transform duration-500"
         style={{
           transformStyle: 'preserve-3d',
-          transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          transform: flipped ? 'rotateX(180deg)' : 'rotateX(0deg)',
         }}
       >
         {/* Front */}
@@ -82,7 +82,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
         {/* Back */}
         <div
           className="absolute inset-0 rounded-lg border border-border bg-card shadow-sm overflow-hidden p-4"
-          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}
         >
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs font-medium text-card-foreground">{service.name}</p>
