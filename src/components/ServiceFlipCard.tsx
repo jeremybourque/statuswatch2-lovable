@@ -151,7 +151,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
             </div>
             <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}% uptime</span>
           </div>
-          <div className="w-full flex-1 flex flex-col" onMouseLeave={() => setHoveredDay(null)}>
+          <div className="w-full flex-1 flex flex-col min-h-0" onMouseLeave={() => setHoveredDay(null)}>
               {backView === 'bars' && (
                 <div className="flex gap-[2px] items-end w-full h-8 mt-2">
                   {uptimeDays.map((day, i) => {
@@ -256,7 +256,8 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 }).join(' ') + ` L${oX + chartW},${oY + chartH} Z`;
 
                 return (
-                  <svg viewBox={`0 0 ${vbW} ${vbH}`} className="w-full flex-1 block" width="100%" height="100%" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                  <div className="relative flex-1 min-h-0">
+                    <svg viewBox={`0 0 ${vbW} ${vbH}`} className="absolute inset-0 w-full h-full" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
                     {/* Y-axis labels */}
                     {yTicks.map((t, i) => {
                       const y = oY + chartH - ((t - minVal) / padded) * chartH;
@@ -298,6 +299,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                       );
                     })}
                   </svg>
+                  </div>
                 );
               })()}
           </div>
