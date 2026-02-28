@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { statusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus } from '@/lib/status-helpers';
 import { format, subDays } from 'date-fns';
-import { BarChart3, CalendarDays, Activity } from 'lucide-react';
+import { BarChart3, CalendarDays, Activity, Info } from 'lucide-react';
 
 
 interface ServiceFlipCardProps {
@@ -107,6 +107,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               <div className="flex items-center gap-3 min-w-0">
                 <StatusDot status={service.status as ServiceStatus} />
                 <span className="text-lg font-medium text-card-foreground truncate">{service.name}</span>
+                <Info size={16} className="text-muted-foreground shrink-0" />
               </div>
               <span className={`text-base font-medium ${cfg.color}`}>{cfg.label}</span>
             </div>
