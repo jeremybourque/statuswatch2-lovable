@@ -73,7 +73,7 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
       {points.map((p, i) => {
         const x = oX + (i / (total - 1)) * chartW;
         const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
-        const label = `${format(p.time, 'EEE h:mma')}: ${(p.value * 1000).toFixed(0)}ms`;
+        const label = `${format(p.time, 'EEE HH:mm')}: ${(p.value * 1000).toFixed(0)}ms`;
         return (
           <circle
             key={i}
