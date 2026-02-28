@@ -78,7 +78,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           <div className="p-4 flex items-center justify-between h-full">
             <div className="flex items-center gap-3 min-w-0">
               <StatusDot status={service.status as ServiceStatus} />
-              <span className="font-medium text-card-foreground truncate">{service.name}</span>
+              <span className="text-base font-medium text-card-foreground truncate">{service.name}</span>
             </div>
             <span className={`text-sm font-medium ${cfg.color}`}>{cfg.label}</span>
           </div>
