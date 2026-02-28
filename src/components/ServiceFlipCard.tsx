@@ -92,22 +92,16 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}>
 
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-card-foreground truncate">{service.name}</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}%</span>
-            </div>
-          </div>
-          <div className="flex gap-2 items-stretch w-full">
-            {/* Triangle icon cluster */}
-            <div className="flex flex-col items-center justify-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-              <button
-                onClick={() => setBackView('bars')}
-                className={`p-0.5 rounded transition-colors ${backView === 'bars' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                title="Uptime bars"
-              >
-                <BarChart3 size={12} />
-              </button>
-              <div className="flex gap-0.5">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs font-medium text-card-foreground truncate">{service.name}</span>
+              <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={() => setBackView('bars')}
+                  className={`p-0.5 rounded transition-colors ${backView === 'bars' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  title="Uptime bars"
+                >
+                  <BarChart3 size={12} />
+                </button>
                 <button
                   onClick={() => setBackView('calendar')}
                   className={`p-0.5 rounded transition-colors ${backView === 'calendar' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
@@ -124,8 +118,9 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 </button>
               </div>
             </div>
-            {/* View content */}
-            <div className="flex-1 min-w-0">
+            <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}%</span>
+          </div>
+          <div className="w-full">
               {backView === 'bars' && (
                 <div className="flex gap-[2px] items-end w-full h-7">
                   {uptimeDays.map((day, i) => {
@@ -156,7 +151,6 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                   />
                 </svg>
               )}
-            </div>
           </div>
         </div>
       </div>
