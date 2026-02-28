@@ -149,7 +149,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                     monthsSet.push(new Date(d.getFullYear(), d.getMonth(), 1));
                   }
                 }
-                const months = monthsSet.slice(-3);
+                const months = monthsSet;
                 return (
                   <div className="flex gap-1.5 h-7 w-full">
                     {months.map((monthStart, mi) => {
