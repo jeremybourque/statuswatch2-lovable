@@ -151,15 +151,15 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 }
                 const months = monthsSet;
                 return (
-                  <div className="flex gap-1.5 h-7 w-full">
+                  <div className="flex gap-1 h-7 w-full justify-center">
                     {months.map((monthStart, mi) => {
                       const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
                       const startDow = monthStart.getDay();
                       return (
-                        <div key={mi} className="flex-1 flex flex-col min-w-0">
-                          <div className="grid grid-cols-7 grid-rows-5 gap-[1px] flex-1">
+                        <div key={mi} className="flex flex-col min-w-0">
+                          <div className="grid grid-cols-7 grid-rows-5 gap-[1px]" style={{ width: 'calc(5.6px * 7 + 6px)', height: '100%' }}>
                             {Array.from({ length: startDow }).map((_, i) => (
-                              <div key={`e${i}`} />
+                              <div key={`e${i}`} className="aspect-square" />
                             ))}
                             {Array.from({ length: daysInMonth }).map((_, di) => {
                               const date = new Date(monthStart.getFullYear(), monthStart.getMonth(), di + 1);
@@ -168,7 +168,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                               return (
                                 <div
                                   key={di}
-                                  className={`rounded-[1.5px] ${status !== undefined ? dayColors[status] : 'bg-muted/30'}`}
+                                  className={`aspect-square rounded-[1px] ${status !== undefined ? dayColors[status] : 'bg-muted/30'}`}
                                   title={`${format(date, 'MMM d')}: ${status !== undefined ? ['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][status] : 'No data'}`}
                                 />
                               );
