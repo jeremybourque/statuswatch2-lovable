@@ -50,10 +50,6 @@ const Index = () => {
           <span className="text-lg font-semibold">{banner.label}</span>
         </div>
 
-        {/* Description */}
-        {settings?.page_description && (
-          <p className="text-muted-foreground text-sm">{settings.page_description}</p>
-        )}
 
         {/* Active Incidents */}
         {activeIncidents.length > 0 && (
