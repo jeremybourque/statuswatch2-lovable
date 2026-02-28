@@ -12,10 +12,7 @@ export default {
         "2xl": "1400px",
       },
     },
-    fontFamily: {
-        sans: ["Hanken Grotesk", "sans-serif"],
-      },
-      extend: {
+    extend: {
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
