@@ -227,17 +227,17 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                   const time = new Date(now.getTime() - (41 - i) * 4 * 60 * 60 * 1000);
                   points.push({ time, value: ms / 1000 });
                 }
-                const maxVal = Math.max(...points.map(p => p.value));
-                const minVal = Math.min(...points.map(p => p.value));
-                const range = maxVal - minVal || 0.1;
-                const padded = range * 1.15;
+                const minVal = 0;
+                const maxVal = 4;
+                const range = 4;
+                const padded = 4;
                 const chartH = 32;
                 const chartW = 540;
                 const oX = 4;
                 const oY = 2;
                 const vbW = oX + chartW + 50;
                 const vbH = chartH + 10;
-                const yTicks = [minVal, minVal + range / 2, maxVal];
+                const yTicks = [0, 2, 4];
                 const dayLabels: { x: number; label: string }[] = [];
                 for (let d = 6; d >= 0; d--) {
                   const day = new Date(now.getTime() - d * 24 * 60 * 60 * 1000);
