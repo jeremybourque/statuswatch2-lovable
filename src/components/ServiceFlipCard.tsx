@@ -72,10 +72,10 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
       onMouseLeave={() => setHovered(false)}>
 
       <div
-        className="absolute inset-0 transition-transform duration-500"
+        className={`absolute inset-0 transition-transform duration-500 ${!flipped && hovered ? 'animate-flip-wiggle' : ''}`}
         style={{
           transformStyle: 'preserve-3d',
-          transform: flipped ? 'rotateX(180deg)' : hovered ? 'rotateX(15deg)' : 'rotateX(0deg)'
+          transform: flipped ? 'rotateX(180deg)' : 'rotateX(0deg)'
         }}>
 
         {/* Front */}
