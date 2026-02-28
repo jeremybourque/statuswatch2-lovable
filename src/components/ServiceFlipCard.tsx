@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { statusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus } from '@/lib/status-helpers';
-import { ChevronDown } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 
 interface ServiceFlipCardProps {
   service: {
@@ -47,7 +47,7 @@ const dayColors = [
 ];
 
 export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
-  const [expanded, setExpanded] = useState(false);
+  const [flipped, setFlipped] = useState(false);
   const cfg = statusConfig[service.status as ServiceStatus];
   const uptimeDays = useMemo(() => generateMockUptime(service.id), [service.id]);
 
@@ -57,42 +57,57 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   }, [uptimeDays]);
 
   return (
-    <div className="bg-card hover:bg-accent/50 transition-colors">
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-4 text-left"
+    <div
+      className="relative h-[72px] cursor-pointer"
+      style={{ perspective: '800px' }}
+      onClick={() => setFlipped(f => !f)}
+    >
+      <div
+        className="absolute inset-0 transition-transform duration-500"
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: flipped ? 'rotateX(180deg)' : 'rotateX(0deg)',
+        }}
       >
-        <div className="flex items-center gap-3 min-w-0">
-          <StatusDot status={service.status as ServiceStatus} />
-          <span className="font-medium text-card-foreground truncate">{service.name}</span>
+        {/* Front */}
+        <div
+          className="absolute inset-0 bg-card hover:bg-accent/50 transition-colors overflow-hidden"
+          style={{ backfaceVisibility: 'hidden' }}
+        >
+          <div className="p-4 flex items-center justify-between h-full">
+            <div className="flex items-center gap-3 min-w-0">
+              <StatusDot status={service.status as ServiceStatus} />
+              <span className="font-medium text-card-foreground truncate">{service.name}</span>
+            </div>
+            <span className={`text-sm font-medium ${cfg.color}`}>{cfg.label}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className={`text-sm font-medium ${cfg.color}`}>{cfg.label}</span>
-          <ChevronDown
-            className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`}
-          />
-        </div>
-      </button>
-      {expanded && (
-        <div className="px-4 pb-4">
-          <div className="flex items-center gap-2 ml-6">
+
+        {/* Back */}
+        <div
+          className="absolute inset-0 bg-card hover:bg-accent/50 transition-colors overflow-hidden px-4 flex items-center"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}
+        >
+          <div className="flex items-center gap-3 w-full">
+            <span className="text-xs font-medium text-card-foreground shrink-0 truncate max-w-[120px]">{service.name}</span>
             <div className="flex-1 min-w-0">
-              <div className="flex gap-[2px] items-end w-full min-w-0">
+              <div className="flex gap-[2px] items-end w-full">
                 {uptimeDays.map((day, i) => (
                   <div
                     key={i}
-                    className={`flex-1 min-w-0 h-6 rounded-sm transition-colors ${dayColors[day]} hover:opacity-80`}
+                    className={`flex-1 min-w-0 h-6 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
                     title={`Day ${90 - i}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][day]}`}
                   />
                 ))}
               </div>
             </div>
-            <span className="text-xs font-medium font-mono text-muted-foreground shrink-0 w-16 text-right">
-              {uptimePercent}%
-            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}%</span>
+              <RotateCcw className="h-3 w-3 text-muted-foreground" />
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
