@@ -50,6 +50,7 @@ const dayColors = [
 
 export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const [flipped, setFlipped] = useState(false);
+  const [flipDirection, setFlipDirection] = useState<1 | -1>(1);
   const [hovered, setHovered] = useState(false);
   const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
@@ -67,7 +68,15 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
     <div
       className="relative h-[110px] cursor-pointer"
       style={{ perspective: '800px' }}
-      onClick={() => setFlipped((f) => !f)}
+      onClick={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickY = e.clientY - rect.top;
+        const isTopHalf = clickY < rect.height / 2;
+        if (!flipped) {
+          setFlipDirection(isTopHalf ? 1 : -1);
+        }
+        setFlipped((f) => !f);
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}>
 
@@ -75,7 +84,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
         className={`absolute inset-0 transition-transform duration-500 ${!flipped && hovered ? 'animate-flip-wiggle' : ''}`}
         style={{
           transformStyle: 'preserve-3d',
-          transform: flipped ? 'rotateX(180deg)' : 'rotateX(0deg)'
+          transform: flipped ? `rotateX(${flipDirection * 180}deg)` : 'rotateX(0deg)'
         }}>
 
         {/* Front */}
@@ -100,7 +109,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
         {/* Back */}
         <div
           className="absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden p-4 flex flex-col"
-          style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}>
+          style={{ backfaceVisibility: 'hidden', transform: `rotateX(${flipDirection * 180}deg)` }}>
 
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2 min-w-0">
