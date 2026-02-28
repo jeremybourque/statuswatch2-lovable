@@ -122,13 +122,13 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           </div>
           <div className="w-full">
               {backView === 'bars' && (
-                <div className="flex gap-[2px] items-end w-full h-7">
+                <div className="flex gap-[2px] items-end w-full h-10">
                   {uptimeDays.map((day, i) => {
                     const date = subDays(new Date(), 89 - i);
                     return (
                       <div
                         key={i}
-                        className={`flex-1 min-w-0 h-7 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
+                        className={`flex-1 min-w-0 h-10 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
                         title={`${format(date, 'MMM d, yyyy')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][day]}`} />
                     );
                   })}
@@ -151,7 +151,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 }
                 const months = monthsSet;
                 return (
-                  <div className="flex gap-3 h-7 w-full">
+                  <div className="flex gap-3 h-10 w-full">
                     {months.map((monthStart, mi) => {
                       const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
                       const startDow = monthStart.getDay();
@@ -181,12 +181,12 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 );
               })()}
               {backView === 'graph' && (
-                <svg viewBox="0 0 200 28" className="w-full h-7" preserveAspectRatio="none">
+                <svg viewBox="0 0 200 40" className="w-full h-10" preserveAspectRatio="none">
                   <polyline
                     fill="none"
                     stroke="hsl(var(--primary))"
                     strokeWidth="1.5"
-                    points={uptimeDays.map((d, i) => `${(i / 89) * 200},${28 - (d / 3) * 20 - 4 + ((i * 7 + d * 3) % 8)}`).join(' ')}
+                    points={uptimeDays.map((d, i) => `${(i / 89) * 200},${40 - (d / 3) * 28 - 4 + ((i * 7 + d * 3) % 8)}`).join(' ')}
                   />
                 </svg>
               )}
