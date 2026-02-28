@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { statusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus } from '@/lib/status-helpers';
+import { format, subDays } from 'date-fns';
 import { RotateCcw } from 'lucide-react';
 
 interface ServiceFlipCardProps {
@@ -92,13 +93,16 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
             <span className="text-xs font-medium text-card-foreground shrink-0 truncate max-w-[120px]">{service.name}</span>
             <div className="flex-1 min-w-0">
               <div className="flex gap-[2px] items-end w-full">
-                {uptimeDays.map((day, i) => (
-                  <div
-                    key={i}
-                    className={`flex-1 min-w-0 h-6 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
-                    title={`Day ${90 - i}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][day]}`}
-                  />
-                ))}
+                {uptimeDays.map((day, i) => {
+                  const date = subDays(new Date(), 89 - i);
+                  return (
+                    <div
+                      key={i}
+                      className={`flex-1 min-w-0 h-6 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
+                      title={`${format(date, 'MMM d, yyyy')}: ${['Major Outage', 'Partial Outage', 'Degraded', 'Operational'][day]}`}
+                    />
+                  );
+                })}
               </div>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
