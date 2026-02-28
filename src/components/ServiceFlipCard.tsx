@@ -262,7 +262,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                       const y = oY + chartH - ((t - minVal) / padded) * chartH;
                       return (
                         <text key={i} x={oX + chartW + 3} y={y + 2} textAnchor="start" className="fill-muted-foreground" style={{ fontSize: '10px' }}>
-                          {t}s
+                          {t}
                         </text>
                       );
                     })}
