@@ -160,7 +160,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
             </div>
             <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}% uptime</span>
           </div>
-          <div className={`w-full flex-1 flex flex-col transition-opacity duration-150 ${fading ? 'opacity-0' : 'opacity-100'}`} onMouseLeave={() => setHoveredDay(null)}>
+          <div className={`relative w-full flex-1 flex flex-col transition-opacity duration-150 ${fading ? 'opacity-0' : 'opacity-100'}`} onMouseLeave={() => setHoveredDay(null)}>
               {backView === 'bars' && (
                 <UptimeBarsView uptimeDays={uptimeDays} onHover={setHoveredDay} />
               )}
@@ -170,9 +170,9 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               {backView === 'graph' && (
                 <ResponseGraphView serviceId={service.id} onHover={setHoveredDay} />
               )}
-          </div>
-          <div className="mt-auto pt-1 h-5">
-            <span className="text-xs font-medium text-foreground truncate block">{hoveredDay ?? '\u00A0'}</span>
+            {hoveredDay && (
+              <span className="absolute top-0 left-0 text-xs font-medium text-foreground bg-card/80 px-1 rounded pointer-events-none">{hoveredDay}</span>
+            )}
           </div>
         </div>
       </div>
