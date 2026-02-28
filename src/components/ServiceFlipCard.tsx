@@ -135,7 +135,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 </div>
               )}
               {backView === 'calendar' && (() => {
-                const today = new Date();
+                const today = new Date(2026, 1, 15); // Feb 15
                 const statusMap = new Map<string, number>();
                 for (let i = 0; i < 90; i++) {
                   const d = subDays(today, 89 - i);
