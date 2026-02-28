@@ -84,14 +84,16 @@ export default {
         },
         "flip-wiggle": {
           "0%": { transform: "rotateX(0deg)" },
-          "50%": { transform: "rotateX(15deg)" },
+          "25%": { transform: "rotateX(15deg)" },
+          "50%": { transform: "rotateX(0deg)" },
+          "75%": { transform: "rotateX(15deg)" },
           "100%": { transform: "rotateX(0deg)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "flip-wiggle": "flip-wiggle 0.1s ease-in-out 2s",
+        "flip-wiggle": "flip-wiggle 0.2s ease-in-out 2s",
       },
     },
   },
