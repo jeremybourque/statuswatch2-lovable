@@ -89,7 +89,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               <span className={`text-base font-medium ${cfg.color}`}>{cfg.label}</span>
             </div>
             {service.description && (
-              <p className="text-sm text-muted-foreground truncate pl-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-0 group-hover:delay-[250ms]">{service.description}</p>
+              <p className="text-sm text-muted-foreground truncate pl-6 opacity-0 group-hover:opacity-100 transition-opacity duration-[400ms] delay-0 group-hover:delay-[250ms]">{service.description}</p>
             )}
           </div>
         </div>
