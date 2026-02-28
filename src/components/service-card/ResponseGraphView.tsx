@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { format } from 'date-fns';
 
 interface ResponseGraphViewProps {
@@ -6,6 +7,8 @@ interface ResponseGraphViewProps {
 }
 
 export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
   const points: { time: Date; value: number }[] = [];
   let hash = 0;
   for (let i = 0; i < serviceId.length; i++) {
@@ -28,6 +31,10 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
   const vbW = oX + chartW + 50;
   const vbH = chartH + 10;
   const yTicks = [0, 1, 2];
+  const total = points.length;
+
+  const getX = (i: number) => oX + (i / (total - 1)) * chartW;
+  const getY = (v: number) => oY + chartH - ((v - minVal) / padded) * chartH;
 
   const dayLabels: { x: number; label: string }[] = [];
   for (let d = 6; d >= 0; d--) {
@@ -36,23 +43,20 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
     dayLabels.push({ x: oX + frac * chartW, label: format(day, 'EEE').charAt(0) });
   }
 
-  const total = points.length;
-  const svgPoints = points.map((p, i) => {
-    const x = oX + (i / (total - 1)) * chartW;
-    const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
-    return `${x},${y}`;
-  }).join(' ');
+  const svgPoints = points.map((p, i) => `${getX(i)},${getY(p.value)}`).join(' ');
 
-  const areaPath = `M${oX},${oY + chartH} ` + points.map((p, i) => {
-    const x = oX + (i / (total - 1)) * chartW;
-    const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
-    return `L${x},${y}`;
-  }).join(' ') + ` L${oX + chartW},${oY + chartH} Z`;
+  const areaPath = `M${oX},${oY + chartH} ` + points.map((p, i) => `L${getX(i)},${getY(p.value)}`).join(' ') + ` L${oX + chartW},${oY + chartH} Z`;
 
   return (
-    <svg viewBox={`0 0 ${vbW} ${vbH}`} className="w-full flex-1" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+    <svg
+      viewBox={`0 0 ${vbW} ${vbH}`}
+      className="w-full flex-1"
+      preserveAspectRatio="none"
+      style={{ overflow: 'visible' }}
+      onMouseLeave={() => { setHoveredIdx(null); onHover(null); }}
+    >
       {yTicks.map((t, i) => {
-        const y = oY + chartH - ((t - minVal) / padded) * chartH;
+        const y = getY(t);
         return (
           <text key={i} x={oX + chartW + 3} y={y + 2} textAnchor="start" className="fill-muted-foreground" style={{ fontSize: '7px' }}>
             {t}
@@ -65,23 +69,51 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
         </text>
       ))}
       {yTicks.map((t, i) => {
-        const y = oY + chartH - ((t - minVal) / padded) * chartH;
+        const y = getY(t);
         return <line key={i} x1={oX} x2={oX + chartW} y1={y} y2={y} className="stroke-border" strokeWidth="0.3" />;
       })}
       <path d={areaPath} fill="hsl(var(--primary))" opacity="0.1" />
       <polyline fill="none" stroke="hsl(var(--primary))" strokeWidth="1" points={svgPoints} />
+
+      {/* Vertical cursor line */}
+      {hoveredIdx !== null && (
+        <line
+          x1={getX(hoveredIdx)}
+          x2={getX(hoveredIdx)}
+          y1={oY}
+          y2={oY + chartH}
+          stroke="hsl(var(--muted-foreground))"
+          strokeWidth="0.5"
+          strokeDasharray="2,2"
+          pointerEvents="none"
+        />
+      )}
+
+      {/* Hovered point indicator */}
+      {hoveredIdx !== null && (
+        <circle
+          cx={getX(hoveredIdx)}
+          cy={getY(points[hoveredIdx].value)}
+          r="3"
+          fill="hsl(var(--primary))"
+          stroke="hsl(var(--background))"
+          strokeWidth="1"
+          pointerEvents="none"
+        />
+      )}
+
+      {/* Invisible hit targets */}
       {points.map((p, i) => {
-        const x = oX + (i / (total - 1)) * chartW;
-        const y = oY + chartH - ((p.value - minVal) / padded) * chartH;
+        const x = getX(i);
         const label = `${format(p.time, 'EEE HH:mm')} ${(p.value * 1000).toFixed(0)}ms`;
         return (
           <circle
             key={i}
             cx={x}
-            cy={y}
-            r="1.5"
-            className="fill-transparent hover:fill-primary cursor-pointer"
-            onMouseEnter={() => onHover(label)}
+            cy={getY(p.value)}
+            r="3"
+            className="fill-transparent cursor-pointer"
+            onMouseEnter={() => { setHoveredIdx(i); onHover(label); }}
           />
         );
       })}
