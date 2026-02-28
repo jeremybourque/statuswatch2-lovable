@@ -86,7 +86,7 @@ export default {
           "0%": { transform: "rotateX(0deg)" },
           "25%": { transform: "rotateX(15deg)" },
           "50%": { transform: "rotateX(0deg)" },
-          "75%": { transform: "rotateX(5deg)" },
+          "75%": { transform: "rotateX(10deg)" },
           "100%": { transform: "rotateX(0deg)" },
         },
       },
