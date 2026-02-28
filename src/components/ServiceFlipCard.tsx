@@ -49,7 +49,19 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const [hovered, setHovered] = useState(false);
   const [mouseInTopHalf, setMouseInTopHalf] = useState(true);
   const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
+  const [viewKey, setViewKey] = useState(0);
+  const [fading, setFading] = useState(false);
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
+
+  const switchView = (view: typeof backView) => {
+    if (view === backView) return;
+    setFading(true);
+    setTimeout(() => {
+      setBackView(view);
+      setViewKey((k) => k + 1);
+      setFading(false);
+    }, 150);
+  };
   const cfg = statusConfig[service.status as ServiceStatus];
   const uptimeDays = useMemo(() => generateMockUptime(service.id), [service.id]);
 
@@ -124,21 +136,21 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               <span className="text-sm font-medium text-card-foreground truncate">{service.name}</span>
               <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
                 <button
-                  onClick={() => setBackView('bars')}
+                  onClick={() => switchView('bars')}
                   className={`p-2 -m-1 rounded transition-colors ${backView === 'bars' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                   title="Uptime bars"
                 >
                   <BarChart3 size={14} />
                 </button>
                 <button
-                  onClick={() => setBackView('calendar')}
+                  onClick={() => switchView('calendar')}
                   className={`p-2 -m-1 rounded transition-colors ${backView === 'calendar' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                   title="Calendar view"
                 >
                   <CalendarDays size={14} />
                 </button>
                 <button
-                  onClick={() => setBackView('graph')}
+                  onClick={() => switchView('graph')}
                   className={`p-2 -m-1 rounded transition-colors ${backView === 'graph' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                   title="Response time"
                 >
@@ -148,7 +160,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
             </div>
             <span className="text-xs font-medium font-mono text-muted-foreground">{uptimePercent}% uptime</span>
           </div>
-          <div className="w-full flex-1 flex flex-col" onMouseLeave={() => setHoveredDay(null)}>
+          <div className={`w-full flex-1 flex flex-col transition-opacity duration-150 ${fading ? 'opacity-0' : 'opacity-100'}`} onMouseLeave={() => setHoveredDay(null)}>
               {backView === 'bars' && (
                 <UptimeBarsView uptimeDays={uptimeDays} onHover={setHoveredDay} />
               )}
