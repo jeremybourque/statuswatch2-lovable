@@ -106,7 +106,7 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
       {/* Invisible hit targets */}
       {points.map((p, i) => {
         const x = getX(i);
-        const label = `${format(p.time, 'EEE H:mm')} ${(p.value * 1000).toFixed(0)}ms`;
+        const label = `${format(p.time, 'EEE H:mm')} · ${(p.value * 1000).toFixed(0)}ms`;
         return (
           <circle
             key={i}
