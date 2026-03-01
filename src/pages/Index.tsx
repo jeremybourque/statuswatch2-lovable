@@ -56,15 +56,8 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
-              className="text-muted-foreground hover:text-foreground transition-colors -ml-1 p-1 rounded-md hover:bg-accent"
-              aria-label="Toggle navigation drawer"
-            >
-              {drawerOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
             <Activity className="h-7 w-7 text-primary" />
             <h1 className="text-xl font-bold text-foreground tracking-tight">
               {settings?.page_title || 'StatusWatch'}
@@ -77,6 +70,13 @@ const Index = () => {
             </Link>
           </div>
         </div>
+        <button
+          onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
+          className="w-full flex justify-center py-0.5 hover:bg-accent/60 transition-colors cursor-pointer"
+          aria-label="Toggle navigation drawer"
+        >
+          <div className={`w-12 h-1 rounded-full bg-muted-foreground/40 transition-colors ${drawerOpen ? 'bg-primary' : ''}`} />
+        </button>
 
         {/* Drawer */}
         {drawerOpen && (
