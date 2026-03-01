@@ -172,10 +172,10 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 <CalendarView uptimeDays={uptimeDays} onHover={setHoveredDay} />
               )}
               {backView === 'graph' && service.chart_label === 'response time' && (
-                <ResponseTimeGraphView serviceId={service.id} onHover={setHoveredDay} onAvgChange={setGraphAvg} />
+                <ResponseTimeGraphView serviceId={service.id} uptimeDays={uptimeDays} onHover={setHoveredDay} onAvgChange={setGraphAvg} />
               )}
               {backView === 'graph' && service.chart_label !== 'response time' && (
-                <PageLoadGraphView serviceId={service.id} onHover={setHoveredDay} onAvgChange={setGraphAvg} />
+                <PageLoadGraphView serviceId={service.id} uptimeDays={uptimeDays} onHover={setHoveredDay} onAvgChange={setGraphAvg} />
               )}
             {backView === 'graph' && hoveredDay && (() => {
               const parts = hoveredDay.split(' ● ');

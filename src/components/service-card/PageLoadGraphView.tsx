@@ -1,9 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
 import { BaseGraphView, type GraphPoint } from './BaseGraphView';
+import { applyOutageEffects } from './outage-helpers';
 
 interface PageLoadGraphViewProps {
   serviceId: string;
+  uptimeDays: number[];
   onHover: (label: string | null) => void;
   onAvgChange?: (avg: number) => void;
 }
@@ -30,18 +32,24 @@ function generatePoints(serviceId: string): GraphPoint[] {
   return points;
 }
 
-export function PageLoadGraphView({ serviceId, onHover, onAvgChange }: PageLoadGraphViewProps) {
-  const points = generatePoints(serviceId);
-  const avgLast10 = points.slice(-10).reduce((s, p) => s + p.value, 0) / 10;
+export function PageLoadGraphView({ serviceId, uptimeDays, onHover, onAvgChange }: PageLoadGraphViewProps) {
+  const rawPoints = useMemo(() => generatePoints(serviceId), [serviceId]);
+  const yMax = 4;
+  const { modifiedPoints, overlays } = useMemo(
+    () => applyOutageEffects(rawPoints, uptimeDays, yMax),
+    [rawPoints, uptimeDays]
+  );
+  const avgLast10 = modifiedPoints.slice(-10).reduce((s, p) => s + p.value, 0) / 10;
   useEffect(() => { onAvgChange?.(avgLast10); }, [avgLast10, onAvgChange]);
 
   return (
     <BaseGraphView
-      points={points}
+      points={modifiedPoints}
       yTicks={[0, 2, 4]}
-      yMax={4}
+      yMax={yMax}
       formatLabel={(p) => `${format(p.time, 'EEE H:mm')} ● ${p.value.toFixed(2)}s`}
       onHover={onHover}
+      overlays={overlays}
     />
   );
 }
