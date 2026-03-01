@@ -45,7 +45,7 @@ export function CalendarView({ uptimeDays, onHover }: CalendarViewProps) {
                 const date = new Date(monthStart.getFullYear(), monthStart.getMonth(), di + 1);
                 const key = format(date, 'yyyy-MM-dd');
                 const status = statusMap.get(key);
-                const label = `${format(date, 'MMM d')} — ${status !== undefined ? statusLabels[status] : 'No data'}`;
+                const label = `${format(date, 'MMM d, yyyy')} — ${status !== undefined ? statusLabels[status] : 'No data'}`;
                 return (
                   <div
                     key={di}
