@@ -106,7 +106,7 @@ export default function AdminIncidents() {
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
-                        <Badge className={`${sCfg.color} border-0 text-xs`}>{sCfg.label}</Badge>
+                        <Badge className={`${sCfg.color} border-0 text-xs min-w-[5.5rem] text-center justify-center`}>{sCfg.label}</Badge>
                         {(incident.incident_services || []).map((link: any) => {
                           const svc = services.find(s => s.id === link.service_id);
                           return svc ? <Badge key={svc.id} variant="outline" className="text-xs py-0 px-1.5">{svc.name}</Badge> : null;
