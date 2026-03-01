@@ -117,7 +117,7 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label>Description</Label>
-          {descFocused && <span className={`text-xs ${description.length > 100 ? 'text-destructive' : 'text-muted-foreground'}`}>{description.length}/100</span>}
+          <span className={`text-xs transition-opacity ${descFocused ? 'opacity-100' : 'opacity-0'} ${description.length > 100 ? 'text-destructive' : 'text-muted-foreground'}`}>{description.length}/100</span>
         </div>
         <Textarea value={description} onChange={e => { if (e.target.value.length <= 100) setDescription(e.target.value); }} onFocus={() => setDescFocused(true)} onBlur={() => setDescFocused(false)} />
       </div>
