@@ -1,0 +1,1 @@
+ALTER TABLE public.services ADD CONSTRAINT services_description_max_length CHECK (length(description) <= 100);
