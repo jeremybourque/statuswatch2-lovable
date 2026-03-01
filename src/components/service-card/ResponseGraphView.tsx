@@ -33,7 +33,7 @@ export function ResponseGraphView({ serviceId, onHover, onAvgChange }: ResponseG
   const chartW = 540;
   const oX = 4;
   const oY = 2;
-  const vbW = oX + chartW + 30;
+  const vbW = oX + chartW + 10;
   const vbH = chartH + 10;
   const yTicks = [0, 1, 2];
   const total = points.length;
