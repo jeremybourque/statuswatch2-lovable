@@ -105,6 +105,7 @@ const IncidentHistory = () => {
 
       <footer className="border-t border-border mt-16">
         <div className="max-w-3xl mx-auto px-4 py-6 flex items-center justify-between text-sm text-muted-foreground">
+          <Link to="/" className="text-primary hover:underline">← Back to Status Page</Link>
           <span>© 2026 StatusWatch</span>
         </div>
       </footer>
