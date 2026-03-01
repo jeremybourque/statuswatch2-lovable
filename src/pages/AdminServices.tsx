@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -102,10 +103,19 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
   const [category, setCategory] = useState(initial?.category || 'General');
   const [status, setStatus] = useState(initial?.status || 'operational');
   const [displayOrder, setDisplayOrder] = useState(initial?.display_order?.toString() || '0');
+  const [chartEnabled, setChartEnabled] = useState(initial?.chart_enabled !== false);
+  const [chartLabel, setChartLabel] = useState(initial?.chart_label || 'page load time');
+  const [chartDataFormat, setChartDataFormat] = useState(initial?.chart_data_format || '{value}s');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ name, description, category, status, display_order: parseInt(displayOrder) || 0 });
+    onSave({
+      name, description, category, status,
+      display_order: parseInt(displayOrder) || 0,
+      chart_enabled: chartEnabled,
+      chart_label: chartLabel,
+      chart_data_format: chartDataFormat,
+    });
   };
 
   return (
@@ -141,6 +151,27 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
         <Label>Display Order</Label>
         <Input type="number" value={displayOrder} onChange={e => setDisplayOrder(e.target.value)} />
       </div>
+
+      <div className="border-t border-border pt-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="chart-toggle">Chart View</Label>
+          <Switch id="chart-toggle" checked={chartEnabled} onCheckedChange={setChartEnabled} />
+        </div>
+        {chartEnabled && (
+          <>
+            <div className="space-y-2">
+              <Label>Chart Label</Label>
+              <Input value={chartLabel} onChange={e => setChartLabel(e.target.value)} placeholder="e.g. page load time" />
+            </div>
+            <div className="space-y-2">
+              <Label>Data Format</Label>
+              <Input value={chartDataFormat} onChange={e => setChartDataFormat(e.target.value)} placeholder="e.g. {value}s or {value}ms" />
+              <p className="text-xs text-muted-foreground">Use <code className="bg-muted px-1 rounded">{'{value}'}</code> as a placeholder.</p>
+            </div>
+          </>
+        )}
+      </div>
+
       <Button type="submit" className="w-full">Save</Button>
     </form>
   );
