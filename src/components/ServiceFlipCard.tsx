@@ -84,7 +84,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const statusLabels = ['Major Outage', 'Partial Outage', 'Degraded', 'Operational'];
 
   const calendarNeeds6Rows = useMemo(() => {
-    const today = new Date();
+    const today = new Date(2026, 1, 25); // TEST: Feb 25
     const monthsSet: Date[] = [];
     for (let i = 89; i >= 0; i--) {
       const d = subDays(today, i);
