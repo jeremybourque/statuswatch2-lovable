@@ -66,6 +66,14 @@ export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, 
     dayLabels.unshift({ x: getXFromTime(startTime), label: format(startDate, 'EEE') });
   }
 
+  // If last datapoint is between 4:00-11:59, noon label won't appear — add one at the end
+  const endDate = new Date(endTime);
+  const endHour = endDate.getHours();
+  const needsLastDayLabel = endHour >= 4 && endHour <= 11;
+  if (needsLastDayLabel) {
+    dayLabels.push({ x: getXFromTime(endTime), label: format(endDate, 'EEE') });
+  }
+
   const svgPoints = points.map((p, i) => `${getX(i)},${getY(p.value)}`).join(' ');
   const areaPath = `M${oX},${oY + chartH} ` + points.map((p, i) => `L${getX(i)},${getY(p.value)}`).join(' ') + ` L${oX + chartW},${oY + chartH} Z`;
 
