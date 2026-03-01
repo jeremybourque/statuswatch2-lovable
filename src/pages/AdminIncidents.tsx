@@ -89,11 +89,12 @@ export default function AdminIncidents() {
       ) : (
         <div className="space-y-3">
           {incidents.map(incident => {
-            const sCfg = incidentStatusConfig[incident.status as IncidentStatus];
-            const impactCfg = impactToServiceStatus[incident.impact] || impactToServiceStatus.none;
             const updates = (incident.incident_updates || []).sort(
               (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
             );
+            const derivedStatus = updates.length > 0 ? updates[0].status : incident.status;
+            const sCfg = incidentStatusConfig[derivedStatus as IncidentStatus];
+            const impactCfg = impactToServiceStatus[incident.impact] || impactToServiceStatus.none;
             return (
               <Collapsible key={incident.id}>
                 <Card>
@@ -163,7 +164,7 @@ export default function AdminIncidents() {
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader><DialogTitle>Add Update</DialogTitle></DialogHeader>
-                            <AddUpdateForm incidentId={incident.id} currentStatus={incident.status} onSave={handleAddUpdate} />
+                            <AddUpdateForm incidentId={incident.id} currentStatus={derivedStatus} onSave={handleAddUpdate} />
                           </DialogContent>
                         </Dialog>
                         <Dialog open={servicesDialogId === incident.id} onOpenChange={v => setServicesDialogId(v ? incident.id : null)}>

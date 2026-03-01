@@ -105,12 +105,11 @@ const Index = () => {
 
 function IncidentCard({ incident, services = [] }: { incident: any; services?: any[] }) {
   const [expanded, setExpanded] = useState(false);
-  const statusCfg = incidentStatusConfig[incident.status as IncidentStatus];
   const updates = (incident.incident_updates || []).sort(
     (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
-
   const latestStatus = updates.length > 0 ? updates[0].status : incident.status;
+  const statusCfg = incidentStatusConfig[latestStatus as IncidentStatus];
 
   const affectedServiceIds = (incident.incident_services || []).map((s: any) => s.service_id);
   const affectedServices = services.filter(s => affectedServiceIds.includes(s.id));

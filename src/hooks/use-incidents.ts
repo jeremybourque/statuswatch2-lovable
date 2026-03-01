@@ -55,10 +55,10 @@ export function useAddIncidentUpdate() {
         .insert({ incident_id: input.incident_id, status: input.status, message: input.message });
       if (updateErr) throw updateErr;
 
-      const updates: Record<string, unknown> = { status: input.status };
-      if (input.status === 'resolved') updates.resolved_at = new Date().toISOString();
-      const { error } = await supabase.from('incidents').update(updates).eq('id', input.incident_id);
-      if (error) throw error;
+      if (input.status === 'resolved') {
+        const { error } = await supabase.from('incidents').update({ resolved_at: new Date().toISOString() }).eq('id', input.incident_id);
+        if (error) throw error;
+      }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['incidents'] }),
   });
