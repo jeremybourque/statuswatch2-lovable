@@ -112,7 +112,7 @@ export default function AdminIncidents() {
                         <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
                           {(incident.incident_services || []).map((link: any) => {
                             const svc = services.find(s => s.id === link.service_id);
-                            return svc ? <Badge key={svc.id} variant="outline" className="text-xs py-0 px-1.5">{svc.name}</Badge> : null;
+                            return svc ? <span key={svc.id} className="text-xs text-muted-foreground">{svc.name}</span> : null;
                           })}
                         </div>
                       )}
