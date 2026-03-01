@@ -156,12 +156,14 @@ export default function AdminIncidents() {
                           <ChevronDown className="h-4 w-4 text-muted-foreground" />
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
-                        <Badge className={`${sCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center mr-1.5`}>{sCfg.label}</Badge>
-                        {(incident.incident_services || []).map((link: any) => {
-                          const svc = services.find(s => s.id === link.service_id);
-                          return svc ? <Badge key={svc.id} variant="outline" className="text-xs">{svc.name}</Badge> : null;
-                        })}
+                      <div className="flex items-start gap-1.5 mt-1.5">
+                        <Badge className={`${sCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center shrink-0`}>{sCfg.label}</Badge>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {(incident.incident_services || []).map((link: any) => {
+                            const svc = services.find(s => s.id === link.service_id);
+                            return svc ? <Badge key={svc.id} variant="outline" className="text-xs">{svc.name}</Badge> : null;
+                          })}
+                        </div>
                       </div>
                     </CardHeader>
                   </CollapsibleTrigger>
