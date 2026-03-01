@@ -15,7 +15,7 @@ interface CalendarViewProps {
 }
 
 export function CalendarView({ uptimeDays, onHover }: CalendarViewProps) {
-  const today = new Date(2026, 1, 25); // TEST: Feb 25
+  const today = new Date();
   const statusMap = new Map<string, number>();
   for (let i = 0; i < 90; i++) {
     const d = subDays(today, 89 - i);
