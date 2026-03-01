@@ -31,8 +31,8 @@ const Index = () => {
         <div className="max-w-3xl mx-auto px-4 py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Activity className="h-7 w-7 text-primary" />
-            <h1 className="text-xl font-bold tracking-tight">
-              <span className="text-foreground">Status</span><span className="text-[hsl(220,70%,50%)] dark:text-[hsl(215,80%,60%)]">Watch</span>
+            <h1 className="text-xl font-bold text-foreground tracking-tight">
+              {settings?.page_title || 'StatusWatch'}
             </h1>
           </div>
           <div className="flex items-center gap-2">
