@@ -42,7 +42,7 @@ export function applyOutageEffects(
     const offsetHours = (i * 3 + 2) % 12 + 4; // 4-15
     const durationHours = status === 0 ? 6 : status === 1 ? 4 : 3;
     const ovStart = dayStart + offsetHours * 3600000;
-    const ovEnd = dayStart + (offsetHours + durationHours) * 3600000;
+    const ovEnd = dayStart + (offsetHours + durationHours + 2) * 3600000; // extend 2 hours past spike
 
     overlays.push({
       startTime: ovStart,
