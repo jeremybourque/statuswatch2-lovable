@@ -22,8 +22,8 @@ function generatePoints(serviceId: string): GraphPoint[] {
     hash = (hash * 1103515245 + 12345) & 0x7fffffff;
     const r2 = (hash & 0xffff) / 0xffff;
     const gaussian = (r1 + r2) / 2;
-    const ms = 150 + (gaussian - 0.5) * 200 + Math.sin(i * 0.3) * 30;
-    const clamped = Math.max(30, Math.min(500, ms));
+    const ms = 300 + (gaussian - 0.5) * 300 + Math.sin(i * 0.3) * 30;
+    const clamped = Math.max(50, Math.min(800, ms));
     const time = new Date(currentHour.getTime() - (167 - i) * 60 * 60 * 1000);
     points.push({ time, value: clamped });
   }
@@ -38,8 +38,8 @@ export function ResponseTimeGraphView({ serviceId, onHover, onAvgChange }: Respo
   return (
     <BaseGraphView
       points={points}
-      yTicks={[0, 250, 500]}
-      yMax={500}
+      yTicks={[0, 400, 800]}
+      yMax={800}
       formatLabel={(p) => `${format(p.time, 'EEE H:mm')} ● ${Math.round(p.value)}ms`}
       onHover={onHover}
     />
