@@ -183,7 +183,16 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           </div>
           {backView !== 'graph' && (
             <div className="mt-auto pt-1 h-5">
-              <span className="text-xs font-medium text-foreground truncate block">{hoveredDay ?? '\u00A0'}</span>
+              {hoveredDay ? (() => {
+                const parts = hoveredDay.split(' — ');
+                return (
+                  <span className="text-xs inline-flex whitespace-nowrap">
+                    <span className="text-muted-foreground w-[6.5em]">{parts[0]}</span>
+                    <span className="text-muted-foreground mx-0.5">—</span>
+                    <span className="font-semibold text-foreground w-[7em]">{parts[1]}</span>
+                  </span>
+                );
+              })() : <span className="text-xs">&nbsp;</span>}
             </div>
           )}
         </div>
