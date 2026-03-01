@@ -73,11 +73,13 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
 
   const statusLabels = ['Major Outage', 'Partial Outage', 'Degraded', 'Operational'];
   const isFlipped = Math.abs(Math.round(rotationX / 180)) % 2 === 1;
+  const frontHeight = 64;
+  const backHeight = 110;
 
   return (
     <div
-      className="relative h-[110px] cursor-pointer"
-      style={{ perspective: '800px' }}
+      className="relative cursor-pointer transition-[height] duration-500"
+      style={{ perspective: '800px', height: isFlipped ? backHeight : frontHeight }}
       onClick={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const clickY = e.clientY - rect.top;
