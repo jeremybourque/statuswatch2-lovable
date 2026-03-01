@@ -151,14 +151,14 @@ const Index = () => {
                         {disrupted.length > 0 && (
                           <div className="space-y-2">
                             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Disrupted Services</h3>
-                            <div className="grid grid-cols-2 gap-1.5">
+                            <div className="grid grid-cols-3 gap-1.5">
                               {disrupted.map(s => <ServiceButton key={s.id} s={s} />)}
                             </div>
                           </div>
                         )}
                         <div className="space-y-2">
                           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Healthy Services</h3>
-                          <div className="grid grid-cols-2 gap-1.5">
+                          <div className="grid grid-cols-3 gap-1.5">
                             {healthy.map(s => <ServiceButton key={s.id} s={s} />)}
                           </div>
                         </div>
