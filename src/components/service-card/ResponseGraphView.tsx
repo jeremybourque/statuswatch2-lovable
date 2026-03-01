@@ -45,7 +45,7 @@ export function ResponseGraphView({ serviceId, onHover, onAvgChange }: ResponseG
   for (let d = 6; d >= 0; d--) {
     const day = new Date(now.getTime() - d * 24 * 60 * 60 * 1000);
     const frac = 1 - d / 6;
-    dayLabels.push({ x: oX + frac * chartW, label: format(day, 'EEE').slice(0, 2) });
+    dayLabels.push({ x: oX + frac * chartW, label: format(day, 'EEE') });
   }
 
   const svgPoints = points.map((p, i) => `${getX(i)},${getY(p.value)}`).join(' ');
