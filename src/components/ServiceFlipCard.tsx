@@ -109,10 +109,11 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
       }}>
 
       <div
-        className={`absolute inset-0 transition-transform duration-500 ${!isFlipped && hovered ? (mouseInTopHalf ? 'animate-flip-wiggle' : 'animate-flip-wiggle-reverse') : ''}`}
+        className={`absolute inset-0 transition-transform duration-500 antialiased ${!isFlipped && hovered ? (mouseInTopHalf ? 'animate-flip-wiggle' : 'animate-flip-wiggle-reverse') : ''}`}
         style={{
           transformStyle: 'preserve-3d',
-          transform: `rotateX(${rotationX}deg)`
+          transform: `rotateX(${rotationX}deg)`,
+          WebkitFontSmoothing: 'antialiased',
         }}>
 
         {/* Front */}
