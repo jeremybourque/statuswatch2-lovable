@@ -30,15 +30,9 @@ const Index = () => {
       <header className="border-b border-border bg-card">
         <div className="max-w-3xl mx-auto px-4 py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Activity className="h-7 w-7 text-primary" />
-            <h1 className="text-xl font-bold text-foreground tracking-tight">
-              {settings?.page_title ? (
-                settings.page_title.includes('Watch') ? (
-                  <>{settings.page_title.split('Watch')[0]}<span className="bg-gradient-to-r from-[hsl(200,80%,50%)] to-[hsl(170,70%,45%)] bg-clip-text text-transparent">Watch</span>{settings.page_title.split('Watch').slice(1).join('Watch')}</>
-                ) : settings.page_title
-              ) : (
-                <>Status<span className="bg-gradient-to-r from-[hsl(200,80%,50%)] to-[hsl(170,70%,45%)] bg-clip-text text-transparent">Watch</span></>
-              )}
+            <Activity className="h-7 w-7" style={{ color: 'hsl(195, 85%, 45%)' }} />
+            <h1 className="text-xl font-bold tracking-tight">
+              <span className="text-foreground">Status</span><span className="bg-gradient-to-r from-[hsl(210,90%,55%)] via-[hsl(190,85%,48%)] to-[hsl(168,75%,42%)] bg-clip-text text-transparent">Watch</span>
             </h1>
           </div>
           <div className="flex items-center gap-2">
