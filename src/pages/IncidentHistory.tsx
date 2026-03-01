@@ -93,13 +93,16 @@ const IncidentHistory = () => {
           })}
         </div>
 
-        <div className="flex justify-center pt-2">
+        <div className="flex flex-col items-center gap-3 pt-2">
           <Button
             variant="outline"
             onClick={() => setMonthsToShow(prev => prev + 6)}
           >
             Show more
           </Button>
+          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            ← Back to Status Page
+          </Link>
         </div>
       </main>
 
