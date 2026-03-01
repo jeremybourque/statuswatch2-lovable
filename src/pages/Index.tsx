@@ -151,36 +151,6 @@ const Index = () => {
                     </div>
                   </div>
 
-                  {/* Quick links */}
-                  <nav className="flex flex-col gap-1 border-t border-border pt-3">
-                    {activeIncidents.length > 0 && (
-                      <a
-                        href="#active-incidents"
-                        onClick={() => setDrawerOpen(false)}
-                        className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
-                      >
-                        <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-                        Active Incidents
-                        <Badge variant="secondary" className="ml-auto text-xs">{activeIncidents.length}</Badge>
-                      </a>
-                    )}
-                    <a
-                      href="#past-incidents"
-                      onClick={() => setDrawerOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
-                    >
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                      Past Incidents
-                    </a>
-                    <Link
-                      to="/history"
-                      onClick={() => setDrawerOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
-                    >
-                      <History className="h-4 w-4 text-muted-foreground" />
-                      Incident History
-                    </Link>
-                  </nav>
                 </div>
               )}
             </div>
