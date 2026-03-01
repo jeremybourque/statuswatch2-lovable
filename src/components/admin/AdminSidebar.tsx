@@ -15,7 +15,7 @@ import {
 
 const items = [
   { title: 'Incidents', url: '/admin/incidents', icon: AlertTriangle },
-  { title: 'Services', url: '/admin', icon: Server },
+  { title: 'Services', url: '/admin/services', icon: Server },
   { title: 'Settings', url: '/admin/settings', icon: Settings },
 ];
 
