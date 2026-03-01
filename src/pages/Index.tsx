@@ -76,7 +76,7 @@ const Index = () => {
           className="flex justify-center w-full pb-1 -mt-1 group"
           aria-label="Toggle navigation drawer"
         >
-          <div className={`w-10 h-1 rounded-full transition-colors ${drawerOpen ? 'bg-primary' : 'bg-border group-hover:bg-muted-foreground'}`} />
+          <div className={`w-30 h-1 rounded-full transition-colors ${drawerOpen ? 'bg-primary' : 'bg-border group-hover:bg-muted-foreground'}`} />
         </button>
 
         {/* Drawer */}
