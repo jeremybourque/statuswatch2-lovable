@@ -23,7 +23,7 @@ export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, 
   const chartW = 540;
   const oX = 4;
   const oY = 2;
-  const vbW = oX + chartW + 10;
+  const vbW = oX + chartW + 14;
   const vbH = chartH + 10;
   const total = points.length;
 
