@@ -39,8 +39,15 @@ export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, 
   const midnightTicks: number[] = [];
 
   // Walk through each day in range, place labels at 12:00 and ticks at 0:00
+  const startDate = new Date(startTime);
+  const startHour = startDate.getHours();
   const startDay = new Date(startTime);
   startDay.setHours(0, 0, 0, 0);
+
+  // If first datapoint is between 13:00-21:00, noon of that day is already past
+  // so we won't get a label for it — add one at the first datapoint instead
+  const needsFirstDayLabel = startHour >= 13 && startHour <= 21;
+
   for (let d = new Date(startDay); d.getTime() <= endTime + 24 * 60 * 60 * 1000; d.setDate(d.getDate() + 1)) {
     const noon = new Date(d);
     noon.setHours(12, 0, 0, 0);
@@ -52,6 +59,11 @@ export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, 
     if (midnightT > startTime && midnightT <= endTime) {
       midnightTicks.push(getXFromTime(midnightT));
     }
+  }
+
+  // Add label for the first day at the first datapoint position if needed
+  if (needsFirstDayLabel) {
+    dayLabels.unshift({ x: getXFromTime(startTime), label: format(startDate, 'EEE') });
   }
 
   const svgPoints = points.map((p, i) => `${getX(i)},${getY(p.value)}`).join(' ');
