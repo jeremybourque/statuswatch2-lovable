@@ -52,6 +52,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const [viewKey, setViewKey] = useState(0);
   const [fading, setFading] = useState(false);
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
+  const [graphAvg, setGraphAvg] = useState<number | null>(null);
 
   const switchView = (view: typeof backView) => {
     if (view === backView) return;
@@ -158,7 +159,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 </button>
               </div>
             </div>
-            <span className="text-xs font-medium font-mono text-muted-foreground">{backView === 'graph' ? 'Load time' : `${uptimePercent}% uptime`}</span>
+            <span className="text-xs font-medium font-mono text-muted-foreground">{backView === 'graph' ? `Page load time: ${graphAvg !== null ? graphAvg.toFixed(2) : '—'}s` : `${uptimePercent}% uptime`}</span>
           </div>
           <div className={`relative w-full flex-1 flex flex-col transition-opacity duration-150 ${fading ? 'opacity-0' : 'opacity-100'}`} onMouseLeave={() => setHoveredDay(null)}>
               {backView === 'bars' && (
@@ -168,7 +169,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 <CalendarView uptimeDays={uptimeDays} onHover={setHoveredDay} />
               )}
               {backView === 'graph' && (
-                <ResponseGraphView serviceId={service.id} onHover={setHoveredDay} />
+                <ResponseGraphView serviceId={service.id} onHover={setHoveredDay} onAvgChange={setGraphAvg} />
               )}
             {backView === 'graph' && hoveredDay && (() => {
               const parts = hoveredDay.split(' ● ');
