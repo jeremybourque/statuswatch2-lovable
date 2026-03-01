@@ -114,7 +114,6 @@ export type Database = {
           display_order: number
           id: string
           name: string
-          status: string
         }
         Insert: {
           category?: string
@@ -126,7 +125,6 @@ export type Database = {
           display_order?: number
           id?: string
           name: string
-          status?: string
         }
         Update: {
           category?: string
@@ -138,7 +136,6 @@ export type Database = {
           display_order?: number
           id?: string
           name?: string
-          status?: string
         }
         Relationships: []
       }

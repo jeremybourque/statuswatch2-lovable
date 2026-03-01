@@ -59,7 +59,7 @@ export function useServices() {
 export function useCreateService() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (service: { name: string; description?: string; category: string; status: string; display_order: number }) => {
+    mutationFn: async (service: { name: string; description?: string; category: string; display_order: number; chart_enabled?: boolean; chart_label?: string; chart_data_format?: string }) => {
       const { data, error } = await supabase.from('services').insert(service).select().single();
       if (error) throw error;
       return data;
@@ -71,7 +71,7 @@ export function useCreateService() {
 export function useUpdateService() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string; name?: string; description?: string; category?: string; status?: string; display_order?: number }) => {
+    mutationFn: async ({ id, ...updates }: { id: string; name?: string; description?: string; category?: string; display_order?: number; chart_enabled?: boolean; chart_label?: string; chart_data_format?: string }) => {
       const { data, error } = await supabase.from('services').update(updates).eq('id', id).select().single();
       if (error) throw error;
       return data;

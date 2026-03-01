@@ -2,25 +2,14 @@ import { useState } from 'react';
 import { useServices, useCreateService, useUpdateService, useDeleteService } from '@/hooks/use-services';
 import { statusConfig, type ServiceStatus } from '@/lib/status-helpers';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Plus, Pencil, Trash2, CheckCircle, AlertTriangle, AlertOctagon, XOctagon } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-
-const statusIcons: Record<ServiceStatus, typeof CheckCircle> = {
-  operational: CheckCircle,
-  degraded: AlertTriangle,
-  partial_outage: AlertOctagon,
-  major_outage: XOctagon,
-};
-
-const statusOrder: ServiceStatus[] = ['operational', 'degraded', 'partial_outage', 'major_outage'];
 
 export default function AdminServices() {
   const { data: services = [], isLoading } = useServices();
@@ -29,17 +18,6 @@ export default function AdminServices() {
   const deleteService = useDeleteService();
   const [editService, setEditService] = useState<any>(null);
   const [open, setOpen] = useState(false);
-
-  const cycleStatus = async (service: any) => {
-    const currentIdx = statusOrder.indexOf(service.status as ServiceStatus);
-    const nextStatus = statusOrder[(currentIdx + 1) % statusOrder.length];
-    try {
-      await updateService.mutateAsync({ id: service.id, status: nextStatus });
-      toast.success(`Status changed to ${statusConfig[nextStatus].label}`);
-    } catch {
-      toast.error('Failed to update status');
-    }
-  };
 
   const handleSave = async (formData: any) => {
     try {
@@ -89,7 +67,6 @@ export default function AdminServices() {
         <div className="space-y-2">
           {services.map(service => {
             const cfg = statusConfig[service.status as ServiceStatus];
-            const StatusIcon = statusIcons[service.status as ServiceStatus];
             return (
               <Card key={service.id}>
                 <CardContent className="flex items-center justify-between py-4 px-6">
@@ -101,35 +78,6 @@ export default function AdminServices() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    <TooltipProvider delayDuration={200}>
-                      {statusOrder.map((s) => {
-                        const Icon = statusIcons[s];
-                        const scfg = statusConfig[s];
-                        const isActive = service.status === s;
-                        return (
-                          <Tooltip key={s}>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className={`h-8 w-8 ${isActive ? scfg.color : 'text-muted-foreground/40 hover:text-muted-foreground'}`}
-                                onClick={() => {
-                                  if (!isActive) {
-                                    updateService.mutateAsync({ id: service.id, status: s })
-                                      .then(() => toast.success(`Status → ${scfg.label}`))
-                                      .catch(() => toast.error('Failed to update status'));
-                                  }
-                                }}
-                              >
-                                <Icon className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom" className="text-xs">{scfg.label}</TooltipContent>
-                          </Tooltip>
-                        );
-                      })}
-                    </TooltipProvider>
-                    <div className="w-px h-5 bg-border mx-1" />
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditService(service); setOpen(true); }}>
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -152,7 +100,7 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
   const [description, setDescription] = useState(initial?.description || '');
   const [descFocused, setDescFocused] = useState(false);
   const [category, setCategory] = useState(initial?.category || 'General');
-  const [status, setStatus] = useState(initial?.status || 'operational');
+  
   const [displayOrder, setDisplayOrder] = useState(initial?.display_order?.toString() || '0');
   const chartModeFromInitial = () => {
     if (!initial) return 'none';
@@ -170,7 +118,7 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
         ? { chart_enabled: true, chart_label: 'response time', chart_data_format: '{value}ms' }
         : { chart_enabled: true, chart_label: 'page load time', chart_data_format: '{value}s' };
     onSave({
-      name, description, category, status,
+      name, description, category,
       display_order: parseInt(displayOrder) || 0,
       ...chartSettings,
     });
@@ -191,16 +139,6 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
         <Label>Category</Label>
         <Input value={category} onChange={e => setCategory(e.target.value)} />
 
-        <Label>Status</Label>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="operational">Operational</SelectItem>
-            <SelectItem value="degraded">Degraded</SelectItem>
-            <SelectItem value="partial_outage">Partial Outage</SelectItem>
-            <SelectItem value="major_outage">Major Outage</SelectItem>
-          </SelectContent>
-        </Select>
 
         <Label>Metric</Label>
         <Select value={chartMode} onValueChange={setChartMode}>
