@@ -82,18 +82,32 @@ export function useUpdateIncidentServices() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ incident_id, service_ids }: { incident_id: string; service_ids: string[] }) => {
-      // Delete existing links
-      const { error: delErr } = await supabase
+      // Get current links
+      const { data: current, error: fetchErr } = await supabase
         .from('incident_services')
-        .delete()
+        .select('service_id')
         .eq('incident_id', incident_id);
-      if (delErr) throw delErr;
+      if (fetchErr) throw fetchErr;
+
+      const currentIds = (current || []).map(c => c.service_id);
+      const toDelete = currentIds.filter(id => !service_ids.includes(id));
+      const toInsert = service_ids.filter(id => !currentIds.includes(id));
+
+      // Delete removed links
+      for (const sid of toDelete) {
+        const { error } = await supabase
+          .from('incident_services')
+          .delete()
+          .eq('incident_id', incident_id)
+          .eq('service_id', sid);
+        if (error) throw error;
+      }
 
       // Insert new links
-      if (service_ids.length > 0) {
+      if (toInsert.length > 0) {
         const { error: insErr } = await supabase
           .from('incident_services')
-          .insert(service_ids.map(sid => ({ incident_id, service_id: sid })));
+          .insert(toInsert.map(sid => ({ incident_id, service_id: sid })));
         if (insErr) throw insErr;
       }
     },
