@@ -44,9 +44,9 @@ export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, 
   const startDay = new Date(startTime);
   startDay.setHours(0, 0, 0, 0);
 
-  // If first datapoint is between 13:00-21:00, noon of that day is already past
-  // so we won't get a label for it — add one at the first datapoint instead
-  const needsFirstDayLabel = startHour >= 13 && startHour <= 21;
+  // If first datapoint is between 12:01-21:00, noon label may be missing or too close
+  const startMinute = startDate.getMinutes();
+  const needsFirstDayLabel = (startHour >= 13 && startHour <= 21) || (startHour === 12 && startMinute >= 1);
 
   for (let d = new Date(startDay); d.getTime() <= endTime + 24 * 60 * 60 * 1000; d.setDate(d.getDate() + 1)) {
     const noon = new Date(d);
