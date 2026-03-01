@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Plus, ChevronDown, Trash2, MessageSquarePlus, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
@@ -126,19 +127,32 @@ export default function AdminIncidents() {
                               <p className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</p>
                             </div>
                             <p className="text-muted-foreground flex-1">{u.message}</p>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0"
-                              onClick={async () => {
-                                try {
-                                  await deleteUpdate.mutateAsync(u.id);
-                                  toast.success('Update deleted');
-                                } catch { toast.error('Failed to delete update'); }
-                              }}
-                            >
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete update?</AlertDialogTitle>
+                                  <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={async () => {
+                                    try {
+                                      await deleteUpdate.mutateAsync(u.id);
+                                      toast.success('Update deleted');
+                                    } catch { toast.error('Failed to delete update'); }
+                                  }}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         );
                       })}
