@@ -36,6 +36,7 @@ export default function AdminIncidents() {
   const updateTitle = useUpdateIncidentTitle();
   const editUpdate = useEditIncidentUpdate();
   const [createOpen, setCreateOpen] = useState(false);
+  const [openIncidents, setOpenIncidents] = useState<Set<string>>(new Set());
   const [updateDialogId, setUpdateDialogId] = useState<string | null>(null);
   const [servicesDialogId, setServicesDialogId] = useState<string | null>(null);
   const [impactDialogId, setImpactDialogId] = useState<string | null>(null);
@@ -103,7 +104,7 @@ export default function AdminIncidents() {
             const sCfg = incidentStatusConfig[derivedStatus as IncidentStatus];
             const impactCfg = impactToServiceStatus[incident.impact] || impactToServiceStatus.none;
             return (
-              <Collapsible key={incident.id}>
+              <Collapsible key={incident.id} open={openIncidents.has(incident.id)} onOpenChange={(open) => setOpenIncidents(prev => { const next = new Set(prev); if (open) next.add(incident.id); else next.delete(incident.id); return next; })}>
                 <Card>
                   <CollapsibleTrigger className="w-full group">
                     <CardHeader className="py-3">
@@ -142,11 +143,13 @@ export default function AdminIncidents() {
                         ) : (
                           <div className="flex items-center gap-1.5">
                             <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
-                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => {
-                              e.stopPropagation();
-                              setEditTitleId(incident.id);
-                              setEditTitleValue(incident.title);
-                            }}><Pencil className="h-3 w-3 text-muted-foreground" /></Button>
+                            {openIncidents.has(incident.id) && (
+                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => {
+                                e.stopPropagation();
+                                setEditTitleId(incident.id);
+                                setEditTitleValue(incident.title);
+                              }}><Pencil className="h-3 w-3 text-muted-foreground" /></Button>
+                            )}
                           </div>
                         )}
                         <div className="flex items-center gap-2 shrink-0">
