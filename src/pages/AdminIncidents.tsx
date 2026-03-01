@@ -129,14 +129,27 @@ export default function AdminIncidents() {
                             </div>
                             <p className="text-muted-foreground flex-1">{u.message}</p>
                             {updates.length <= 1 ? (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0"
-                                onClick={() => toast.error('Cannot delete the last update. Delete the incident instead.')}
-                              >
-                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Cannot delete last update</AlertDialogTitle>
+                                    <AlertDialogDescription>Every incident must have at least one update. Would you like to delete the entire incident instead?</AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDelete(incident.id)}>Delete Incident</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             ) : (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
