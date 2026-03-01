@@ -8,7 +8,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { ChevronDown, Activity, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format, subMonths, startOfMonth } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
 const impactToServiceStatus: Record<string, { label: string; color: string }> = {
@@ -22,6 +22,8 @@ const IncidentHistory = () => {
   const { data: incidents = [] } = useIncidents();
   const { data: services = [] } = useServices();
   const { data: settings } = useSiteSettings();
+
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const getDerivedStatus = (incident: any) => {
     const updates = (incident.incident_updates || []).sort(
