@@ -129,7 +129,7 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
           <Label>Description</Label>
           <span className={`text-xs transition-opacity ${descFocused ? 'opacity-100' : 'opacity-0'} ${description.length > 100 ? 'text-destructive' : 'text-muted-foreground'}`}>{description.length} / 100</span>
         </div>
-        <Textarea value={description} onChange={e => { if (e.target.value.length <= 100) setDescription(e.target.value); }} onFocus={() => setDescFocused(true)} onBlur={() => setDescFocused(false)} />
+        <Textarea rows={2} className="min-h-0 resize-none" value={description} onChange={e => { if (e.target.value.length <= 100) setDescription(e.target.value); }} onFocus={() => setDescFocused(true)} onBlur={() => setDescFocused(false)} />
       </div>
       <div className="space-y-2">
         <Label>Category</Label>
