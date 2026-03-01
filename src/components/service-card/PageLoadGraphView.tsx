@@ -14,12 +14,7 @@ function generatePoints(serviceId: string): GraphPoint[] {
     hash = (hash << 5) - hash + serviceId.charCodeAt(i) | 0;
   }
   const now = new Date();
-  // Find the most recent Monday at 18:00
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0, 0);
-  const dayOfWeek = start.getDay(); // 0=Sun, 1=Mon
-  const daysBack = (dayOfWeek + 6) % 7; // days since last Monday
-  start.setDate(start.getDate() - daysBack);
-  if (start.getTime() > now.getTime()) start.setDate(start.getDate() - 7);
+  const currentHour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours());
   const points: GraphPoint[] = [];
   for (let i = 0; i < 168; i++) {
     hash = (hash * 1103515245 + 12345) & 0x7fffffff;
@@ -29,7 +24,7 @@ function generatePoints(serviceId: string): GraphPoint[] {
     const gaussian = (r1 + r2) / 2;
     const ms = 1500 + (gaussian - 0.5) * 1200 + Math.sin(i * 0.5) * 100;
     const clamped = Math.max(300, Math.min(3500, ms));
-    const time = new Date(start.getTime() + i * 60 * 60 * 1000);
+    const time = new Date(currentHour.getTime() - (167 - i) * 60 * 60 * 1000);
     points.push({ time, value: clamped / 1000 });
   }
   return points;
