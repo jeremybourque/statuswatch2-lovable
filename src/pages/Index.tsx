@@ -131,26 +131,40 @@ const Index = () => {
               {/* Service Status Summary + Navigation */}
               {!searchResults && (
                 <div className="space-y-4">
-                  {/* Service status grid */}
-                  <div className="space-y-2">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Service Status</h3>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {services.map(s => {
-                        const cfg = statusConfig[s.status as ServiceStatus] || statusConfig.operational;
-                        return (
-                          <button
-                            key={s.id}
-                            onClick={() => { setDrawerOpen(false); setSearchQuery(''); document.getElementById(`service-${s.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
-                            className="flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-accent text-left transition-colors"
-                          >
-                            <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.dotClass}`} />
-                            <span className="text-sm text-foreground truncate">{s.name}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
+                  {(() => {
+                    const disrupted = services.filter(s => s.status !== 'operational');
+                    const healthy = services.filter(s => s.status === 'operational');
+                    const ServiceButton = ({ s }: { s: any }) => {
+                      const cfg = statusConfig[s.status as ServiceStatus] || statusConfig.operational;
+                      return (
+                        <button
+                          onClick={() => { setDrawerOpen(false); setSearchQuery(''); document.getElementById(`service-${s.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
+                          className="flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-accent text-left transition-colors"
+                        >
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.dotClass}`} />
+                          <span className="text-sm text-foreground truncate">{s.name}</span>
+                        </button>
+                      );
+                    };
+                    return (
+                      <>
+                        {disrupted.length > 0 && (
+                          <div className="space-y-2">
+                            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Disrupted Services</h3>
+                            <div className="grid grid-cols-2 gap-1.5">
+                              {disrupted.map(s => <ServiceButton key={s.id} s={s} />)}
+                            </div>
+                          </div>
+                        )}
+                        <div className="space-y-2">
+                          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Healthy Services</h3>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {healthy.map(s => <ServiceButton key={s.id} s={s} />)}
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </div>
