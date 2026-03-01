@@ -157,7 +157,7 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
           <div>
             <h3 className="font-semibold text-card-foreground">{incident.title}</h3>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <Badge className={`text-xs py-0 px-1.5 border-0 ${impactCfg.color}`}>
+              <Badge className={`text-xs border-0 ${impactCfg.color}`}>
                 {impactCfg.label}
               </Badge>
               <span className="text-sm text-muted-foreground">
@@ -167,7 +167,7 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
                 <>
                   <span className="text-muted-foreground">·</span>
                   {affectedServices.map(s => (
-                    <Badge key={s.id} variant="outline" className="text-xs py-0 px-1.5">
+                    <Badge key={s.id} variant="outline" className="text-xs">
                       {s.name}
                     </Badge>
                   ))}
