@@ -32,7 +32,13 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <Activity className="h-7 w-7 text-primary" />
             <h1 className="text-xl font-bold text-foreground tracking-tight">
-              {settings?.page_title || 'StatusWatch'}
+              {settings?.page_title ? (
+                settings.page_title.includes('Watch') ? (
+                  <>{settings.page_title.split('Watch')[0]}<span className="bg-gradient-to-r from-[hsl(200,80%,50%)] to-[hsl(170,70%,45%)] bg-clip-text text-transparent">Watch</span>{settings.page_title.split('Watch').slice(1).join('Watch')}</>
+                ) : settings.page_title
+              ) : (
+                <>Status<span className="bg-gradient-to-r from-[hsl(200,80%,50%)] to-[hsl(170,70%,45%)] bg-clip-text text-transparent">Watch</span></>
+              )}
             </h1>
           </div>
           <div className="flex items-center gap-2">
