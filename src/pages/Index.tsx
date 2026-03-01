@@ -70,19 +70,12 @@ const Index = () => {
             </Link>
           </div>
         </div>
-        {/* Drawer handle */}
-        <button
-          onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
-          className="flex justify-center w-full pb-1 -mt-1 group"
-          aria-label="Toggle navigation drawer"
-        >
-          <div className={`w-[7.5rem] h-1 rounded-full transition-colors bg-border group-hover:bg-muted-foreground`} />
-        </button>
 
         {/* Drawer */}
         <div
-          className={`border-t border-border bg-card overflow-hidden transition-all duration-300 ease-in-out ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 border-t-0'}`}
+          className={`bg-card overflow-hidden transition-all duration-300 ease-in-out ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
         >
+
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
               {/* Search */}
               <div className="relative">
@@ -168,6 +161,14 @@ const Index = () => {
               )}
             </div>
         </div>
+        {/* Drawer handle */}
+        <button
+          onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
+          className="flex justify-center w-full pt-1 pb-1 group"
+          aria-label="Toggle navigation drawer"
+        >
+          <div className={`w-[7.5rem] h-1 rounded-full transition-colors bg-border group-hover:bg-muted-foreground`} />
+        </button>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
