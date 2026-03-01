@@ -13,17 +13,21 @@ const impactToServiceStatus: Record<string, { label: string; color: string }> = 
 import { Badge } from '@/components/ui/badge';
 import { ServiceFlipCard } from '@/components/ServiceFlipCard';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { ChevronDown, Activity, Settings } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ChevronDown, Activity, Settings, Menu, Search, History, Server, AlertTriangle, X } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 const Index = () => {
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const { data: services = [] } = useServices();
   const { data: incidents = [] } = useIncidents();
   const { data: settings } = useSiteSettings();
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const overallStatus = getOverallStatus(services.map(s => s.status as ServiceStatus));
   const banner = getOverallBanner(overallStatus);
@@ -40,12 +44,27 @@ const Index = () => {
   const activeIncidents = incidents.filter(i => getDerivedStatus(i) !== 'resolved');
   const recentResolved = incidents.filter(i => getDerivedStatus(i) === 'resolved').slice(0, 3);
 
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return null;
+    const q = searchQuery.toLowerCase();
+    const matchedServices = services.filter(s => s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q));
+    const matchedIncidents = incidents.filter(i => i.title.toLowerCase().includes(q));
+    return { services: matchedServices, incidents: matchedIncidents };
+  }, [searchQuery, services, incidents]);
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="max-w-3xl mx-auto px-4 py-6 flex items-center justify-between">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
+              className="text-muted-foreground hover:text-foreground transition-colors -ml-1 p-1 rounded-md hover:bg-accent"
+              aria-label="Toggle navigation drawer"
+            >
+              {drawerOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
             <Activity className="h-7 w-7 text-primary" />
             <h1 className="text-xl font-bold text-foreground tracking-tight">
               {settings?.page_title || 'StatusWatch'}
@@ -58,6 +77,96 @@ const Index = () => {
             </Link>
           </div>
         </div>
+
+        {/* Drawer */}
+        {drawerOpen && (
+          <div className="border-t border-border bg-card">
+            <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search services and incidents…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                  autoFocus
+                />
+              </div>
+
+              {/* Search Results */}
+              {searchResults && (
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {searchResults.services.length === 0 && searchResults.incidents.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No results found.</p>
+                  )}
+                  {searchResults.services.map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => { setDrawerOpen(false); setSearchQuery(''); document.getElementById(`service-${s.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
+                      className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground"
+                    >
+                      <Server className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span>{s.name}</span>
+                      <span className="text-xs text-muted-foreground ml-auto">{s.category}</span>
+                    </button>
+                  ))}
+                  {searchResults.incidents.map(i => (
+                    <button
+                      key={i.id}
+                      onClick={() => { setDrawerOpen(false); setSearchQuery(''); document.getElementById(`incident-${i.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
+                      className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground"
+                    >
+                      <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span className="truncate">{i.title}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Navigation Links */}
+              {!searchResults && (
+                <nav className="flex flex-col gap-1">
+                  <a
+                    href="#services"
+                    onClick={() => setDrawerOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
+                  >
+                    <Server className="h-4 w-4 text-muted-foreground" />
+                    Services
+                  </a>
+                  {activeIncidents.length > 0 && (
+                    <a
+                      href="#active-incidents"
+                      onClick={() => setDrawerOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
+                    >
+                      <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                      Active Incidents
+                      <Badge variant="secondary" className="ml-auto text-xs">{activeIncidents.length}</Badge>
+                    </a>
+                  )}
+                  <a
+                    href="#past-incidents"
+                    onClick={() => setDrawerOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
+                  >
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    Past Incidents
+                  </a>
+                  <Link
+                    to="/history"
+                    onClick={() => setDrawerOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
+                  >
+                    <History className="h-4 w-4 text-muted-foreground" />
+                    Incident History
+                  </Link>
+                </nav>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
@@ -69,16 +178,18 @@ const Index = () => {
 
         {/* Active Incidents */}
         {activeIncidents.length > 0 && (
-          <section className="space-y-3">
+          <section id="active-incidents" className="space-y-3 scroll-mt-20">
             <h2 className="text-xl font-semibold text-foreground">{activeIncidents.length} Active Incident{activeIncidents.length !== 1 ? 's' : ''}</h2>
             {activeIncidents.map(incident => (
-              <IncidentCard key={incident.id} incident={incident} services={services} showLatestUpdate />
+              <div key={incident.id} id={`incident-${incident.id}`} className="scroll-mt-20">
+                <IncidentCard incident={incident} services={services} showLatestUpdate />
+              </div>
             ))}
           </section>
         )}
 
         {/* Services by category */}
-        <section className="space-y-6">
+        <section id="services" className="space-y-6 scroll-mt-20">
           <h2 className="text-xl font-semibold text-foreground">Services</h2>
           {categories.map(cat => {
             const catServices = services.filter(s => s.category === cat);
@@ -89,7 +200,7 @@ const Index = () => {
                 </div>
                 <div className="space-y-2">
                   {catServices.map((service) => (
-                    <div key={service.id}>
+                    <div key={service.id} id={`service-${service.id}`} className="scroll-mt-20">
                       <ServiceFlipCard service={service} />
                     </div>
                   ))}
@@ -101,7 +212,7 @@ const Index = () => {
 
         {/* Past incidents */}
         {recentResolved.length > 0 && (
-          <Collapsible defaultOpen={false}>
+          <Collapsible id="past-incidents" className="scroll-mt-20" defaultOpen={false}>
             <CollapsibleTrigger className="flex items-center gap-2 group w-full">
               <h2 className="text-xl font-semibold text-foreground">Past Incidents</h2>
               <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
