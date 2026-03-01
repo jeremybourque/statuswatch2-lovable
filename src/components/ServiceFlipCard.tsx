@@ -184,11 +184,11 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           {backView !== 'graph' && (
             <div className="mt-auto -mt-1 h-5">
               {hoveredDay ? (() => {
-                const parts = hoveredDay.split(' — ');
+                const parts = hoveredDay.split(' ● ');
                 return (
                   <span className="text-xs inline-flex whitespace-nowrap">
                     <span className="text-muted-foreground w-[6em]">{parts[0]}</span>
-                    <span className="text-muted-foreground mx-1.5">—</span>
+                    <span className="text-muted-foreground mx-1.5">●</span>
                     <span className="font-semibold text-foreground w-[7em]">{parts[1]}</span>
                   </span>
                 );
