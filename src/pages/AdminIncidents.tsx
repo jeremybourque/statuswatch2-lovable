@@ -143,13 +143,11 @@ export default function AdminIncidents() {
                         ) : (
                           <div className="flex items-center gap-1.5">
                             <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
-                            {openIncidents.has(incident.id) && (
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => {
-                                e.stopPropagation();
-                                setEditTitleId(incident.id);
-                                setEditTitleValue(incident.title);
-                              }}><Pencil className="h-3 w-3 text-muted-foreground" /></Button>
-                            )}
+                            <Button variant="ghost" size="sm" className={`h-6 w-6 p-0 transition-opacity ${openIncidents.has(incident.id) ? 'opacity-0 group-hover:opacity-100' : 'invisible'}`} onClick={(e) => {
+                              e.stopPropagation();
+                              setEditTitleId(incident.id);
+                              setEditTitleValue(incident.title);
+                            }}><Pencil className="h-3 w-3 text-muted-foreground" /></Button>
                           </div>
                         )}
                         <div className="flex items-center gap-2 shrink-0">
