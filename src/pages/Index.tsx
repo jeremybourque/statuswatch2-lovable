@@ -17,9 +17,10 @@ import { ChevronDown, Activity, Settings } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const Index = () => {
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   const { data: services = [] } = useServices();
   const { data: incidents = [] } = useIncidents();
   const { data: settings } = useSiteSettings();
