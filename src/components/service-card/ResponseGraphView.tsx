@@ -63,9 +63,9 @@ export function ResponseGraphView({ serviceId, onHover, onAvgChange }: ResponseG
       {yTicks.map((t, i) => {
         const y = getY(t);
         return (
-           <text key={i} x={oX + chartW + 3} y={y + 2} textAnchor="start" className="fill-muted-foreground" style={{ fontSize: '7px' }}>
-             {t} s
-           </text>
+          <text key={i} x={oX + chartW + 3} y={y + 2} textAnchor="start" className="fill-muted-foreground" style={{ fontSize: '7px' }}>
+            {t}
+          </text>
         );
       })}
       {dayLabels.map((d, i) => (
