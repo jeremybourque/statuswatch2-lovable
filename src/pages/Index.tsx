@@ -27,6 +27,7 @@ const Index = () => {
   const { data: settings } = useSiteSettings();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showBorder, setShowBorder] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const overallStatus = getOverallStatus(services.map(s => s.status as ServiceStatus));
@@ -72,7 +73,16 @@ const Index = () => {
         </div>
         {/* Drawer handle */}
         <button
-          onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
+          onClick={() => {
+            if (!drawerOpen) {
+              setShowBorder(true);
+              requestAnimationFrame(() => setDrawerOpen(true));
+            } else {
+              setDrawerOpen(false);
+              setSearchQuery('');
+              setTimeout(() => setShowBorder(false), 300);
+            }
+          }}
           className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-10 px-2 py-1 group"
           aria-label="Toggle navigation drawer"
         >
@@ -81,7 +91,7 @@ const Index = () => {
 
         {/* Drawer */}
         <div
-          className={`border-t border-border bg-card overflow-hidden transition-all duration-300 ease-in-out ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 border-t-0'}`}
+          className={`bg-card overflow-hidden transition-all duration-300 ease-in-out ${showBorder ? 'border-t border-border' : 'border-t border-transparent'} ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
         >
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
               {/* Search */}
