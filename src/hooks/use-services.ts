@@ -28,12 +28,20 @@ export function useServices() {
         .order('display_order');
       if (error) throw error;
 
-      // Fetch active (unresolved) incidents with their linked services
-      const { data: activeIncidents, error: incErr } = await supabase
+      // Fetch all incidents with their linked services and updates
+      const { data: allIncidents, error: incErr } = await supabase
         .from('incidents')
-        .select('id, impact, incident_services(service_id)')
-        .neq('status', 'resolved');
+        .select('id, impact, incident_services(service_id), incident_updates(status, created_at)');
       if (incErr) throw incErr;
+
+      // Derive actual status from latest update and filter to active only
+      const activeIncidents = (allIncidents || []).filter(incident => {
+        const updates = (incident.incident_updates || []).sort(
+          (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        const derivedStatus = updates.length > 0 ? updates[0].status : 'investigating';
+        return derivedStatus !== 'resolved';
+      });
 
       // Build a map: service_id → worst impact status
       const worstByService: Record<string, ServiceStatus> = {};
