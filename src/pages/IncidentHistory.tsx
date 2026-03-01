@@ -55,13 +55,29 @@ const IncidentHistory = () => {
 
         {resolvedIncidents.length === 0 ? (
           <p className="text-sm text-muted-foreground">No past incidents.</p>
-        ) : (
-          <div className="space-y-3">
-            {resolvedIncidents.map(incident => (
-              <IncidentCard key={incident.id} incident={incident} services={services} />
-            ))}
-          </div>
-        )}
+        ) : (() => {
+          const grouped = resolvedIncidents.reduce<Record<string, typeof resolvedIncidents>>((acc, incident) => {
+            const key = format(new Date(incident.created_at), 'MMMM yyyy');
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(incident);
+            return acc;
+          }, {});
+
+          return (
+            <div className="space-y-8">
+              {Object.entries(grouped).map(([month, items]) => (
+                <div key={month}>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">{month}</h3>
+                  <div className="space-y-3">
+                    {items.map(incident => (
+                      <IncidentCard key={incident.id} incident={incident} services={services} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
       </main>
 
       <footer className="border-t border-border mt-16">
