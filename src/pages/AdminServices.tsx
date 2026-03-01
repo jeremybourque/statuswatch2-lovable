@@ -9,8 +9,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, CheckCircle, AlertTriangle, AlertOctagon, XOctagon } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
+
+const statusIcons: Record<ServiceStatus, typeof CheckCircle> = {
+  operational: CheckCircle,
+  degraded: AlertTriangle,
+  partial_outage: AlertOctagon,
+  major_outage: XOctagon,
+};
+
+const statusOrder: ServiceStatus[] = ['operational', 'degraded', 'partial_outage', 'major_outage'];
 
 export default function AdminServices() {
   const { data: services = [], isLoading } = useServices();
@@ -19,6 +29,17 @@ export default function AdminServices() {
   const deleteService = useDeleteService();
   const [editService, setEditService] = useState<any>(null);
   const [open, setOpen] = useState(false);
+
+  const cycleStatus = async (service: any) => {
+    const currentIdx = statusOrder.indexOf(service.status as ServiceStatus);
+    const nextStatus = statusOrder[(currentIdx + 1) % statusOrder.length];
+    try {
+      await updateService.mutateAsync({ id: service.id, status: nextStatus });
+      toast.success(`Status changed to ${statusConfig[nextStatus].label}`);
+    } catch {
+      toast.error('Failed to update status');
+    }
+  };
 
   const handleSave = async (formData: any) => {
     try {
@@ -68,6 +89,7 @@ export default function AdminServices() {
         <div className="space-y-2">
           {services.map(service => {
             const cfg = statusConfig[service.status as ServiceStatus];
+            const StatusIcon = statusIcons[service.status as ServiceStatus];
             return (
               <Card key={service.id}>
                 <CardContent className="flex items-center justify-between py-4 px-6">
@@ -78,11 +100,40 @@ export default function AdminServices() {
                       <p className="text-xs text-muted-foreground">{service.category} · {cfg.label}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => { setEditService(service); setOpen(true); }}>
+                  <div className="flex items-center gap-1">
+                    <TooltipProvider delayDuration={200}>
+                      {statusOrder.map((s) => {
+                        const Icon = statusIcons[s];
+                        const scfg = statusConfig[s];
+                        const isActive = service.status === s;
+                        return (
+                          <Tooltip key={s}>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`h-8 w-8 ${isActive ? scfg.color : 'text-muted-foreground/40 hover:text-muted-foreground'}`}
+                                onClick={() => {
+                                  if (!isActive) {
+                                    updateService.mutateAsync({ id: service.id, status: s })
+                                      .then(() => toast.success(`Status → ${scfg.label}`))
+                                      .catch(() => toast.error('Failed to update status'));
+                                  }
+                                }}
+                              >
+                                <Icon className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="text-xs">{scfg.label}</TooltipContent>
+                          </Tooltip>
+                        );
+                      })}
+                    </TooltipProvider>
+                    <div className="w-px h-5 bg-border mx-1" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditService(service); setOpen(true); }}>
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(service.id)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(service.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
