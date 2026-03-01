@@ -98,7 +98,10 @@ export default function AdminIncidents() {
                   <CollapsibleTrigger className="w-full">
                     <CardHeader className="py-3">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
+                          <Badge className={`${impactCfg.color} border-0 text-xs`}>{impactCfg.label}</Badge>
+                        </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <span className="text-xs text-muted-foreground">{format(new Date(incident.created_at), 'MMM d, HH:mm')}</span>
                           <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -106,7 +109,6 @@ export default function AdminIncidents() {
                       </div>
                       <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
                         <Badge className={`${sCfg.color} border-0 text-xs`}>{sCfg.label}</Badge>
-                        <Badge className={`${impactCfg.color} border-0 text-xs`}>{impactCfg.label}</Badge>
                         {(incident.incident_services || []).map((link: any) => {
                           const svc = services.find(s => s.id === link.service_id);
                           return svc ? <Badge key={svc.id} variant="outline" className="text-xs py-0 px-1.5">{svc.name}</Badge> : null;
