@@ -70,17 +70,25 @@ const Index = () => {
             </Link>
           </div>
         </div>
-        {/* Drawer handle */}
-        <button
-          onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
-          className="flex justify-center w-full pb-1 -mt-1 group"
-          aria-label="Toggle navigation drawer"
-        >
-          <div className={`w-[7.5rem] h-1 rounded-full transition-colors bg-border group-hover:bg-muted-foreground`} />
-        </button>
+        {/* Drawer handle - top (only when closed) */}
+        {!drawerOpen && (
+          <button
+            onClick={() => { setDrawerOpen(true); setSearchQuery(''); }}
+            className="flex justify-center w-full pb-1 -mt-1 group"
+            aria-label="Open navigation drawer"
+          >
+            <div className="w-[7.5rem] h-1 rounded-full transition-colors bg-border group-hover:bg-muted-foreground" />
+          </button>
+        )}
 
         {/* Drawer */}
-        {drawerOpen && (
+        <div
+          className="overflow-hidden transition-all duration-300 ease-out"
+          style={{
+            maxHeight: drawerOpen ? '400px' : '0px',
+            opacity: drawerOpen ? 1 : 0,
+          }}
+        >
           <div className="border-t border-border bg-card">
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
               {/* Search */}
@@ -167,7 +175,16 @@ const Index = () => {
               )}
             </div>
           </div>
-        )}
+
+          {/* Drawer handle - bottom (when open) */}
+          <button
+            onClick={() => { setDrawerOpen(false); setSearchQuery(''); }}
+            className="flex justify-center w-full py-1 group bg-card border-t border-border"
+            aria-label="Close navigation drawer"
+          >
+            <div className="w-[7.5rem] h-1 rounded-full transition-colors bg-border group-hover:bg-muted-foreground" />
+          </button>
+        </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
