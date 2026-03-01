@@ -128,3 +128,25 @@ export function useDeleteIncidentUpdate() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['incidents'] }),
   });
 }
+
+export function useUpdateIncidentTitle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, title }: { id: string; title: string }) => {
+      const { error } = await supabase.from('incidents').update({ title }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['incidents'] }),
+  });
+}
+
+export function useEditIncidentUpdate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, message, status }: { id: string; message: string; status: string }) => {
+      const { error } = await supabase.from('incident_updates').update({ message, status }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['incidents'] }),
+  });
+}
