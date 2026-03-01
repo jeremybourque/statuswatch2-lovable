@@ -80,8 +80,9 @@ const Index = () => {
         </button>
 
         {/* Drawer */}
-        {drawerOpen && (
-          <div className="border-t border-border bg-card">
+        <div
+          className={`border-t border-border bg-card overflow-hidden transition-all duration-300 ease-in-out ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 border-t-0'}`}
+        >
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
               {/* Search */}
               <div className="relative">
@@ -166,8 +167,7 @@ const Index = () => {
                 </nav>
               )}
             </div>
-          </div>
-        )}
+        </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
