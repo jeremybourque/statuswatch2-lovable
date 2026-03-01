@@ -100,7 +100,7 @@ export default function AdminIncidents() {
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
                         <div className="flex items-center gap-2 shrink-0">
-                          <Badge className={`${impactCfg.color} border-0 text-xs`}>{impactCfg.label}</Badge>
+                          <Badge className={`${impactCfg.color} border-0 text-xs mr-1`}>{impactCfg.label}</Badge>
                           <span className="text-xs text-muted-foreground">{format(new Date(incident.created_at), 'MMM d, HH:mm')}</span>
                           <ChevronDown className="h-4 w-4 text-muted-foreground" />
                         </div>
