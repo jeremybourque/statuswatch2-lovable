@@ -63,7 +63,7 @@ const Index = () => {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-foreground">Active Incidents</h2>
             {activeIncidents.map(incident => (
-              <IncidentCard key={incident.id} incident={incident} services={services} />
+              <IncidentCard key={incident.id} incident={incident} services={services} showLatestUpdate />
             ))}
           </section>
         )}
@@ -110,7 +110,7 @@ const Index = () => {
   );
 };
 
-function IncidentCard({ incident, services = [] }: { incident: any; services?: any[] }) {
+function IncidentCard({ incident, services = [], showLatestUpdate = false }: { incident: any; services?: any[]; showLatestUpdate?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const updates = (incident.incident_updates || []).sort(
     (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -162,8 +162,20 @@ function IncidentCard({ incident, services = [] }: { incident: any; services?: a
             </div>
           </div>
         </div>
-        <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ${expanded ? 'rotate-180' : ''}`} />
       </button>
+
+      {!expanded && showLatestUpdate && updates.length > 0 && (
+        <div className="px-4 pb-3 -mt-1">
+          <p className="text-sm text-muted-foreground ml-[1.625rem] line-clamp-2">
+            <span className={`font-medium capitalize ${updateStatusColor[updates[0].status] || 'text-muted-foreground'}`}>
+              {updates[0].status}
+            </span>
+            {' — '}
+            {updates[0].message}
+          </p>
+        </div>
+      )}
 
       {expanded && (
         <div className="px-4 pb-4">
