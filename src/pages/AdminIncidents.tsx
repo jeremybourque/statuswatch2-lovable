@@ -215,9 +215,23 @@ export default function AdminIncidents() {
                             />
                           </DialogContent>
                         </Dialog>
-                        <Button variant="ghost" size="sm" onClick={() => handleDelete(incident.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive mr-1" /> Delete
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <Trash2 className="h-4 w-4 text-destructive mr-1" /> Delete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete incident?</AlertDialogTitle>
+                              <AlertDialogDescription>This will permanently delete the incident and all its updates.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(incident.id)}>Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </CardContent>
                   </CollapsibleContent>
