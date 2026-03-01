@@ -153,7 +153,7 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
         className={`w-full flex items-start justify-between p-4 text-left ${expanded ? 'hover:bg-accent/50 transition-colors cursor-pointer' : ''}`}
       >
         <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div className={`w-1.5 h-8 rounded-full shrink-0 mt-1 ${updateStatusBg[latestStatus] || 'bg-muted'}`} />
+          <div className={`w-1.5 h-8 rounded-full shrink-0 mt-1.5 ${updateStatusBg[latestStatus] || 'bg-muted'}`} />
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2">
               <h3 className="font-semibold text-card-foreground truncate">{incident.title}</h3>
