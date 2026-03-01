@@ -114,8 +114,11 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
         <Input value={name} onChange={e => setName(e.target.value)} required />
       </div>
       <div className="space-y-2">
-        <Label>Description</Label>
-        <Textarea value={description} onChange={e => setDescription(e.target.value)} />
+        <div className="flex items-center justify-between">
+          <Label>Description</Label>
+          <span className={`text-xs ${description.length > 100 ? 'text-destructive' : 'text-muted-foreground'}`}>{description.length}/100</span>
+        </div>
+        <Textarea value={description} onChange={e => { if (e.target.value.length <= 100) setDescription(e.target.value); }} />
       </div>
       <div className="space-y-2">
         <Label>Category</Label>
