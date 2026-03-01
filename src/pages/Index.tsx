@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { ServiceFlipCard } from '@/components/ServiceFlipCard';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Input } from '@/components/ui/input';
-import { ChevronDown, Activity, Settings, Menu, Search, History, Server, AlertTriangle, X } from 'lucide-react';
+import { ChevronDown, Activity, Settings, Search, History, Server, AlertTriangle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
@@ -56,7 +56,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Activity className="h-7 w-7 text-primary" />
             <h1 className="text-xl font-bold text-foreground tracking-tight">
@@ -70,12 +70,13 @@ const Index = () => {
             </Link>
           </div>
         </div>
+        {/* Drawer handle */}
         <button
           onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
-          className="w-full flex justify-center py-0.5 hover:bg-accent/60 transition-colors cursor-pointer"
+          className="flex justify-center w-full pb-1 -mt-1 group"
           aria-label="Toggle navigation drawer"
         >
-          <div className={`w-12 h-1 rounded-full bg-muted-foreground/40 transition-colors ${drawerOpen ? 'bg-primary' : ''}`} />
+          <div className={`w-10 h-1 rounded-full transition-colors ${drawerOpen ? 'bg-primary' : 'bg-border group-hover:bg-muted-foreground'}`} />
         </button>
 
         {/* Drawer */}
