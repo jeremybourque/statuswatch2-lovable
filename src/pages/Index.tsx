@@ -166,7 +166,7 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
                 {format(new Date(incident.created_at), 'MMM d, yyyy · h:mm a')}
               </span>
               {affectedServices.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-x-2 gap-y-1 flex-wrap">
                   {affectedServices.map(s => (
                     <Badge key={s.id} variant="outline" className="text-xs">
                       {s.name}
