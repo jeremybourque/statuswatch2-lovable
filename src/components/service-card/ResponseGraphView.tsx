@@ -19,7 +19,8 @@ export function ResponseGraphView({ serviceId, onHover, onAvgChange }: ResponseG
   const currentHour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours());
   for (let i = 0; i < 168; i++) {
     hash = (hash * 1103515245 + 12345) & 0x7fffffff;
-    const ms = 200 + (hash % 800) + Math.sin(i * 0.5) * 100;
+    const base = 300 + (hash % 3200) + Math.sin(i * 0.5) * 150;
+    const ms = Math.max(300, Math.min(3500, base));
     const time = new Date(currentHour.getTime() - (167 - i) * 60 * 60 * 1000);
     points.push({ time, value: ms / 1000 });
   }
@@ -28,14 +29,14 @@ export function ResponseGraphView({ serviceId, onHover, onAvgChange }: ResponseG
   useEffect(() => { onAvgChange?.(avgLast10); }, [avgLast10, onAvgChange]);
 
   const minVal = 0;
-  const padded = 2;
+  const padded = 4;
   const chartH = 32;
   const chartW = 540;
   const oX = 4;
   const oY = 2;
   const vbW = oX + chartW + 10;
   const vbH = chartH + 10;
-  const yTicks = [0, 1, 2];
+  const yTicks = [0, 2, 4];
   const total = points.length;
 
   const getX = (i: number) => oX + (i / (total - 1)) * chartW;
