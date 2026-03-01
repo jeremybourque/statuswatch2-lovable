@@ -6,6 +6,12 @@ export interface GraphPoint {
   value: number;
 }
 
+export interface OutageOverlay {
+  startTime: number;
+  endTime: number;
+  color: string; // CSS color string
+}
+
 export interface BaseGraphViewProps {
   points: GraphPoint[];
   yTicks: number[];
@@ -13,9 +19,10 @@ export interface BaseGraphViewProps {
   formatLabel: (point: GraphPoint) => string;
   formatYTick?: (tick: number) => string;
   onHover: (label: string | null) => void;
+  overlays?: OutageOverlay[];
 }
 
-export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, onHover }: BaseGraphViewProps) {
+export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, onHover, overlays }: BaseGraphViewProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const minVal = 0;
@@ -106,6 +113,18 @@ export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, 
       {midnightTicks.map((x, i) => (
         <line key={`mt-${i}`} x1={x} x2={x} y1={oY + chartH} y2={oY + chartH + 3} className="stroke-muted-foreground" strokeWidth="0.5" opacity="0.5" />
       ))}
+      {overlays?.map((ov, i) => {
+        const x1 = Math.max(oX, getXFromTime(ov.startTime));
+        const x2 = Math.min(oX + chartW, getXFromTime(ov.endTime));
+        if (x2 <= x1) return null;
+        return (
+          <rect
+            key={`ov-${i}`}
+            x={x1} y={oY} width={x2 - x1} height={chartH}
+            fill={ov.color} opacity="0.12" pointerEvents="none"
+          />
+        );
+      })}
       <path d={areaPath} fill="hsl(var(--primary))" opacity="0.1" />
       <polyline fill="none" stroke="hsl(var(--primary))" strokeWidth="1" points={svgPoints} />
 
