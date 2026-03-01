@@ -61,12 +61,7 @@ const IncidentHistory = () => {
               {settings?.page_title || 'StatusWatch'}
             </h1>
           </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
-              <Settings className="h-4 w-4" />
-            </Link>
-          </div>
+          <ThemeToggle />
         </div>
       </header>
 
