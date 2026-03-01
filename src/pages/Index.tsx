@@ -13,12 +13,11 @@ const impactToServiceStatus: Record<string, { label: string; color: string }> = 
 import { Badge } from '@/components/ui/badge';
 import { ServiceFlipCard } from '@/components/ServiceFlipCard';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { Input } from '@/components/ui/input';
-import { ChevronDown, Activity, Settings, Search, History, Server, AlertTriangle } from 'lucide-react';
+import { ChevronDown, Activity, Settings, AlertTriangle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 const Index = () => {
   useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -27,7 +26,6 @@ const Index = () => {
   const { data: settings } = useSiteSettings();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const overallStatus = getOverallStatus(services.map(s => s.status as ServiceStatus));
   const banner = getOverallBanner(overallStatus);
@@ -43,14 +41,6 @@ const Index = () => {
 
   const activeIncidents = incidents.filter(i => getDerivedStatus(i) !== 'resolved');
   const recentResolved = incidents.filter(i => getDerivedStatus(i) === 'resolved').slice(0, 3);
-
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return null;
-    const q = searchQuery.toLowerCase();
-    const matchedServices = services.filter(s => s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q));
-    const matchedIncidents = incidents.filter(i => i.title.toLowerCase().includes(q));
-    return { services: matchedServices, incidents: matchedIncidents };
-  }, [searchQuery, services, incidents]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,7 +64,7 @@ const Index = () => {
         <hr className="border-t border-border m-0" />
         {/* Drawer handle */}
         <button
-          onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
+          onClick={() => setDrawerOpen(!drawerOpen)}
           className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-10 px-2 py-1 group"
           aria-label="Toggle navigation drawer"
         >
@@ -86,50 +76,7 @@ const Index = () => {
           className={`bg-card overflow-hidden transition-all duration-300 ease-in-out ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
         >
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search services and incidents…"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                  autoFocus
-                />
-              </div>
-
-              {/* Search Results */}
-              {searchResults && (
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {searchResults.services.length === 0 && searchResults.incidents.length === 0 && (
-                    <p className="text-sm text-muted-foreground">No results found.</p>
-                  )}
-                  {searchResults.services.map(s => (
-                    <button
-                      key={s.id}
-                      onClick={() => { setDrawerOpen(false); setSearchQuery(''); document.getElementById(`service-${s.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
-                      className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground"
-                    >
-                      <Server className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                      <span>{s.name}</span>
-                      <span className="text-xs text-muted-foreground ml-auto">{s.category}</span>
-                    </button>
-                  ))}
-                  {searchResults.incidents.map(i => (
-                    <button
-                      key={i.id}
-                      onClick={() => { setDrawerOpen(false); setSearchQuery(''); document.getElementById(`incident-${i.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
-                      className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground"
-                    >
-                      <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                      <span className="truncate">{i.title}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Service Status Summary + Navigation */}
-              {!searchResults && (
+              {/* Service Status Summary */}
                 <div className="space-y-4">
                   {(() => {
                     const disrupted = services.filter(s => s.status !== 'operational');
@@ -138,7 +85,7 @@ const Index = () => {
                       const cfg = statusConfig[s.status as ServiceStatus] || statusConfig.operational;
                       return (
                         <button
-                          onClick={() => { setDrawerOpen(false); setSearchQuery(''); document.getElementById(`service-${s.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
+                          onClick={() => { setDrawerOpen(false); document.getElementById(`service-${s.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
                           className="flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-accent text-left transition-colors"
                         >
                           <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.dotClass}`} />
@@ -166,7 +113,6 @@ const Index = () => {
                     );
                   })()}
                 </div>
-              )}
             </div>
         </div>
         {/* Moving border - travels with bottom of drawer */}
