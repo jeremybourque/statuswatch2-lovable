@@ -73,7 +73,7 @@ const Index = () => {
         {/* Drawer handle */}
         <button
           onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
-          className="absolute left-1/2 -translate-x-1/2 -bottom-2 z-10 px-2 py-1 group"
+          className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-10 px-2 py-1 group"
           aria-label="Toggle navigation drawer"
         >
           <div className={`w-[7.5rem] h-1 rounded-full transition-colors bg-border group-hover:bg-muted-foreground`} />
