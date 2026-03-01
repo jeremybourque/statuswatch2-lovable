@@ -55,7 +55,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 relative">
         <div className="max-w-3xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Activity className="h-7 w-7 text-primary" />
@@ -73,7 +73,7 @@ const Index = () => {
         {/* Drawer handle */}
         <button
           onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
-          className="flex justify-center w-full pb-1 -mt-1 group"
+          className="absolute left-1/2 -translate-x-1/2 -bottom-2 z-10 px-2 py-1 group"
           aria-label="Toggle navigation drawer"
         >
           <div className={`w-[7.5rem] h-1 rounded-full transition-colors bg-border group-hover:bg-muted-foreground`} />
