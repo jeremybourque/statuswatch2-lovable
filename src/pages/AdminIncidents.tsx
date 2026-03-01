@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident } from '@/hooks/use-incidents';
+import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useUpdateIncidentServices } from '@/hooks/use-incidents';
 import { useServices } from '@/hooks/use-services';
 import { incidentStatusConfig, impactConfig, type IncidentStatus, type IncidentImpact } from '@/lib/status-helpers';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Plus, ChevronDown, Trash2, MessageSquarePlus } from 'lucide-react';
+import { Plus, ChevronDown, Trash2, MessageSquarePlus, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -22,8 +22,10 @@ export default function AdminIncidents() {
   const createIncident = useCreateIncident();
   const addUpdate = useAddIncidentUpdate();
   const deleteIncident = useDeleteIncident();
+  const updateServices = useUpdateIncidentServices();
   const [createOpen, setCreateOpen] = useState(false);
   const [updateDialogId, setUpdateDialogId] = useState<string | null>(null);
+  const [servicesDialogId, setServicesDialogId] = useState<string | null>(null);
 
   const handleCreate = async (data: any) => {
     try {
@@ -86,10 +88,14 @@ export default function AdminIncidents() {
                 <Card>
                   <CollapsibleTrigger className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
                         <Badge className={`${sCfg.color} border-0 text-xs`}>{sCfg.label}</Badge>
                         <Badge className={`${iCfg.color} border-0 text-xs`}>{iCfg.label}</Badge>
+                        {(incident.incident_services || []).map((link: any) => {
+                          const svc = services.find(s => s.id === link.service_id);
+                          return svc ? <Badge key={svc.id} variant="outline" className="text-xs py-0 px-1.5">{svc.name}</Badge> : null;
+                        })}
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">{format(new Date(incident.created_at), 'MMM d, HH:mm')}</span>
@@ -111,7 +117,7 @@ export default function AdminIncidents() {
                           </div>
                         );
                       })}
-                      <div className="flex gap-2 pt-2">
+                      <div className="flex gap-2 pt-2 flex-wrap">
                         <Dialog open={updateDialogId === incident.id} onOpenChange={v => setUpdateDialogId(v ? incident.id : null)}>
                           <DialogTrigger asChild>
                             <Button variant="outline" size="sm"><MessageSquarePlus className="h-4 w-4 mr-1" /> Add Update</Button>
@@ -119,6 +125,25 @@ export default function AdminIncidents() {
                           <DialogContent>
                             <DialogHeader><DialogTitle>Add Update</DialogTitle></DialogHeader>
                             <AddUpdateForm incidentId={incident.id} currentStatus={incident.status} onSave={handleAddUpdate} />
+                          </DialogContent>
+                        </Dialog>
+                        <Dialog open={servicesDialogId === incident.id} onOpenChange={v => setServicesDialogId(v ? incident.id : null)}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm"><Pencil className="h-4 w-4 mr-1" /> Services</Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Affected Services</DialogTitle></DialogHeader>
+                            <EditServicesForm
+                              services={services}
+                              currentServiceIds={(incident.incident_services || []).map((l: any) => l.service_id)}
+                              onSave={async (ids) => {
+                                try {
+                                  await updateServices.mutateAsync({ incident_id: incident.id, service_ids: ids });
+                                  toast.success('Services updated');
+                                  setServicesDialogId(null);
+                                } catch { toast.error('Failed to update services'); }
+                              }}
+                            />
                           </DialogContent>
                         </Dialog>
                         <Button variant="ghost" size="sm" onClick={() => handleDelete(incident.id)}>
@@ -223,6 +248,28 @@ function AddUpdateForm({ incidentId, currentStatus, onSave }: { incidentId: stri
         <Textarea value={message} onChange={e => setMessage(e.target.value)} required />
       </div>
       <Button type="submit" className="w-full">Add Update</Button>
+    </form>
+  );
+}
+
+function EditServicesForm({ services, currentServiceIds, onSave }: { services: any[]; currentServiceIds: string[]; onSave: (ids: string[]) => void }) {
+  const [selected, setSelected] = useState<string[]>(currentServiceIds);
+
+  const toggle = (id: string) => {
+    setSelected(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+  };
+
+  return (
+    <form onSubmit={e => { e.preventDefault(); onSave(selected); }} className="space-y-4">
+      <div className="space-y-2 max-h-60 overflow-y-auto">
+        {services.map(s => (
+          <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer">
+            <Checkbox checked={selected.includes(s.id)} onCheckedChange={() => toggle(s.id)} />
+            {s.name}
+          </label>
+        ))}
+      </div>
+      <Button type="submit" className="w-full">Save</Button>
     </form>
   );
 }
