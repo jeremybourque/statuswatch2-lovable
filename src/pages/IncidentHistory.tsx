@@ -5,7 +5,7 @@ import { incidentStatusConfig } from '@/lib/status-helpers';
 import type { IncidentStatus } from '@/lib/status-helpers';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { ChevronDown, Activity, ArrowLeft, Settings } from 'lucide-react';
+import { ChevronDown, Activity, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { useState, useEffect } from 'react';
