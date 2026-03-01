@@ -53,7 +53,7 @@ export default function AdminServices() {
           <DialogTrigger asChild>
             <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Add Service</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-xl">
             <DialogHeader>
               <DialogTitle>{editService ? 'Edit Service' : 'New Service'}</DialogTitle>
             </DialogHeader>
@@ -119,23 +119,20 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3">
         <Label>Name</Label>
         <Input value={name} onChange={e => setName(e.target.value)} required />
-      </div>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>Description</Label>
-          <span className={`text-xs transition-opacity ${descFocused ? 'opacity-100' : 'opacity-0'} ${description.length > 100 ? 'text-destructive' : 'text-muted-foreground'}`}>{description.length} / 100</span>
+
+        <Label className="self-start pt-2">Description</Label>
+        <div className="space-y-1">
+          <Textarea rows={2} className="min-h-0 resize-none" value={description} onChange={e => { if (e.target.value.length <= 100) setDescription(e.target.value); }} onFocus={() => setDescFocused(true)} onBlur={() => setDescFocused(false)} />
+          <span className={`text-xs transition-opacity block text-right ${descFocused ? 'opacity-100' : 'opacity-0'} ${description.length > 100 ? 'text-destructive' : 'text-muted-foreground'}`}>{description.length} / 100</span>
         </div>
-        <Textarea rows={2} className="min-h-0 resize-none" value={description} onChange={e => { if (e.target.value.length <= 100) setDescription(e.target.value); }} onFocus={() => setDescFocused(true)} onBlur={() => setDescFocused(false)} />
-      </div>
-      <div className="space-y-2">
+
         <Label>Category</Label>
         <Input value={category} onChange={e => setCategory(e.target.value)} />
-      </div>
-      <div className="space-y-2">
+
         <Label>Status</Label>
         <Select value={status} onValueChange={setStatus}>
           <SelectTrigger><SelectValue /></SelectTrigger>
@@ -146,25 +143,20 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
             <SelectItem value="major_outage">Major Outage</SelectItem>
           </SelectContent>
         </Select>
-      </div>
-      <div className="space-y-2">
+
         <Label>Display Order</Label>
         <Input type="number" value={displayOrder} onChange={e => setDisplayOrder(e.target.value)} />
       </div>
 
-      <div className="border-t border-border pt-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="chart-toggle">Chart View</Label>
-          <Switch id="chart-toggle" checked={chartEnabled} onCheckedChange={setChartEnabled} />
-        </div>
+      <div className="border-t border-border pt-3 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3">
+        <Label htmlFor="chart-toggle">Chart View</Label>
+        <Switch id="chart-toggle" checked={chartEnabled} onCheckedChange={setChartEnabled} />
         {chartEnabled && (
           <>
-            <div className="space-y-2">
-              <Label>Chart Label</Label>
-              <Input value={chartLabel} onChange={e => setChartLabel(e.target.value)} placeholder="e.g. page load time" />
-            </div>
-            <div className="space-y-2">
-              <Label>Data Format</Label>
+            <Label>Chart Label</Label>
+            <Input value={chartLabel} onChange={e => setChartLabel(e.target.value)} placeholder="e.g. page load time" />
+            <Label>Data Format</Label>
+            <div className="space-y-1">
               <Input value={chartDataFormat} onChange={e => setChartDataFormat(e.target.value)} placeholder="e.g. {value}s or {value}ms" />
               <p className="text-xs text-muted-foreground">Use <code className="bg-muted px-1 rounded">{'{value}'}</code> as a placeholder.</p>
             </div>
