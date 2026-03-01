@@ -37,7 +37,7 @@ const Index = () => {
   };
 
   const activeIncidents = incidents.filter(i => getDerivedStatus(i) !== 'resolved');
-  const recentResolved = incidents.filter(i => getDerivedStatus(i) === 'resolved').slice(0, 5);
+  const recentResolved = incidents.filter(i => getDerivedStatus(i) === 'resolved').slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,6 +110,9 @@ const Index = () => {
                 {recentResolved.map(incident => (
                   <IncidentCard key={incident.id} incident={incident} services={services} />
                 ))}
+                <Link to="/history" className="text-sm text-primary hover:underline inline-block mt-1">
+                  View all past incidents →
+                </Link>
               </div>
             </CollapsibleContent>
           </Collapsible>
