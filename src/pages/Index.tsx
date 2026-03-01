@@ -32,7 +32,7 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <Activity className="h-7 w-7 text-primary" />
             <h1 className="text-xl font-bold tracking-tight">
-              <span className="text-foreground">Status</span><span className="text-primary">Watch</span>
+              <span className="text-foreground">Status</span><span className="text-[hsl(220,70%,50%)] dark:text-[hsl(215,80%,60%)]">Watch</span>
             </h1>
           </div>
           <div className="flex items-center gap-2">
