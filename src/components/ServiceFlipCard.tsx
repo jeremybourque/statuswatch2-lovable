@@ -69,7 +69,12 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
     }, 150);
   };
   const cfg = statusConfig[service.status as ServiceStatus];
-  const uptimeDays = useMemo(() => generateMockUptime(service.id), [service.id]);
+  const statusToUptime: Record<string, number> = { major_outage: 0, partial_outage: 1, degraded: 2, operational: 3 };
+  const uptimeDays = useMemo(() => {
+    const days = generateMockUptime(service.id);
+    days[days.length - 1] = statusToUptime[service.status] ?? 3;
+    return days;
+  }, [service.id, service.status]);
 
   const uptimePercent = useMemo(() => {
     const good = uptimeDays.filter((d) => d >= 2).length;
