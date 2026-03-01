@@ -46,7 +46,7 @@ export function AdminSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              <SidebarMenuItem>
+              <SidebarMenuItem className="mt-4">
                 <SidebarMenuButton asChild>
                   <NavLink to="/" className="hover:bg-muted/50" activeClassName="">
                     <ArrowLeft className="mr-2 h-4 w-4" />
