@@ -151,12 +151,7 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
           </SelectContent>
         </Select>
 
-        <Label>Display Order</Label>
-        <Input type="number" value={displayOrder} onChange={e => setDisplayOrder(e.target.value)} />
-      </div>
-
-      <div className="border-t border-border pt-3 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3">
-        <Label>Chart</Label>
+        <Label>Metric</Label>
         <Select value={chartMode} onValueChange={setChartMode}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -165,6 +160,9 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
             <SelectItem value="none">(none)</SelectItem>
           </SelectContent>
         </Select>
+
+        <Label>Display Order</Label>
+        <Input type="number" value={displayOrder} onChange={e => setDisplayOrder(e.target.value)} />
       </div>
 
       <Button type="submit" className="w-full">Save</Button>
