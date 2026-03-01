@@ -73,14 +73,7 @@ const Index = () => {
                 <div className="space-y-2">
                   {catServices.map((service) => (
                     <div key={service.id}>
-                      <ServiceFlipCard
-                        service={service}
-                        chartSettings={{
-                          enabled: settings?.chart_enabled !== 'false',
-                          label: settings?.chart_label || 'page load time',
-                          dataFormat: settings?.chart_data_format || '{value}s',
-                        }}
-                      />
+                      <ServiceFlipCard service={service} />
                     </div>
                   ))}
                 </div>

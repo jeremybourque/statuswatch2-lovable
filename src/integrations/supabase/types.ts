@@ -106,6 +106,9 @@ export type Database = {
       services: {
         Row: {
           category: string
+          chart_data_format: string
+          chart_enabled: boolean
+          chart_label: string
           created_at: string
           description: string | null
           display_order: number
@@ -115,6 +118,9 @@ export type Database = {
         }
         Insert: {
           category?: string
+          chart_data_format?: string
+          chart_enabled?: boolean
+          chart_label?: string
           created_at?: string
           description?: string | null
           display_order?: number
@@ -124,6 +130,9 @@ export type Database = {
         }
         Update: {
           category?: string
+          chart_data_format?: string
+          chart_enabled?: boolean
+          chart_label?: string
           created_at?: string
           description?: string | null
           display_order?: number

@@ -7,20 +7,16 @@ import { UptimeBarsView } from './service-card/UptimeBarsView';
 import { CalendarView } from './service-card/CalendarView';
 import { ResponseGraphView } from './service-card/ResponseGraphView';
 
-interface ChartSettings {
-  enabled: boolean;
-  label: string;
-  dataFormat: string;
-}
-
 interface ServiceFlipCardProps {
   service: {
     id: string;
     name: string;
     description?: string | null;
     status: string;
+    chart_enabled?: boolean;
+    chart_label?: string;
+    chart_data_format?: string;
   };
-  chartSettings?: ChartSettings;
 }
 
 function StatusDot({ status }: {status: ServiceStatus;}) {
@@ -51,11 +47,11 @@ function generateMockUptime(serviceId: string): number[] {
 }
 
 
-export function ServiceFlipCard({ service, chartSettings }: ServiceFlipCardProps) {
+export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   const [rotationX, setRotationX] = useState(0);
   const [hovered, setHovered] = useState(false);
   const [mouseInTopHalf, setMouseInTopHalf] = useState(true);
-  const chartEnabled = chartSettings?.enabled !== false;
+  const chartEnabled = service.chart_enabled !== false;
   const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
   const [viewKey, setViewKey] = useState(0);
   const [fading, setFading] = useState(false);
@@ -165,7 +161,7 @@ export function ServiceFlipCard({ service, chartSettings }: ServiceFlipCardProps
                 )}
               </div>
             </div>
-            <span className="text-xs font-medium text-muted-foreground">{backView === 'graph' ? <>{chartSettings?.label || 'page load time'} <span className="text-foreground">{graphAvg !== null ? (chartSettings?.dataFormat || '{value}s').replace('{value}', graphAvg.toFixed(2)) : '—'}</span></> : <>uptime <span className="text-foreground">{uptimePercent}%</span></>}</span>
+            <span className="text-xs font-medium text-muted-foreground">{backView === 'graph' ? <>{service.chart_label || 'page load time'} <span className="text-foreground">{graphAvg !== null ? (service.chart_data_format || '{value}s').replace('{value}', graphAvg.toFixed(2)) : '—'}</span></> : <>uptime <span className="text-foreground">{uptimePercent}%</span></>}</span>
           </div>
           <div className={`relative w-full flex-1 flex flex-col transition-opacity duration-150 ${fading ? 'opacity-0' : 'opacity-100'}`} onMouseLeave={() => setHoveredDay(null)}>
               {backView === 'bars' && (
