@@ -27,7 +27,6 @@ const Index = () => {
   const { data: settings } = useSiteSettings();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [showBorder, setShowBorder] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const overallStatus = getOverallStatus(services.map(s => s.status as ServiceStatus));
@@ -56,7 +55,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 relative">
+      <header className="sticky top-0 z-50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 relative">
         <div className="max-w-3xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Activity className="h-7 w-7 text-primary" />
@@ -71,17 +70,11 @@ const Index = () => {
             </Link>
           </div>
         </div>
+        {/* Fixed border - always at bottom of header */}
+        <hr className="border-t border-border m-0" />
         {/* Drawer handle */}
         <button
-          onClick={() => {
-            if (!drawerOpen) {
-              setShowBorder(true);
-              setTimeout(() => setDrawerOpen(true), 16);
-            } else {
-              setDrawerOpen(false);
-              setSearchQuery('');
-            }
-          }}
+          onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
           className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-10 px-2 py-1 group"
           aria-label="Toggle navigation drawer"
         >
@@ -90,8 +83,7 @@ const Index = () => {
 
         {/* Drawer */}
         <div
-          onTransitionEnd={() => { if (!drawerOpen) setShowBorder(false); }}
-          className={`bg-card overflow-hidden transition-all duration-300 ease-in-out ${showBorder ? 'border-t border-border' : ''} ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+          className={`bg-card overflow-hidden transition-all duration-300 ease-in-out ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
         >
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
               {/* Search */}
@@ -178,6 +170,8 @@ const Index = () => {
               )}
             </div>
         </div>
+        {/* Moving border - travels with bottom of drawer */}
+        <hr className="border-t border-border m-0" />
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
