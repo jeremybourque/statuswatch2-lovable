@@ -55,7 +55,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 relative">
+      <header className="sticky top-0 z-50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 relative">
         <div className="max-w-3xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Activity className="h-7 w-7 text-primary" />
@@ -71,6 +71,7 @@ const Index = () => {
           </div>
         </div>
         {/* Fixed border - always at bottom of header */}
+        <hr className="border-t border-border m-0" />
         {/* Drawer handle */}
         <button
           onClick={() => { setDrawerOpen(!drawerOpen); setSearchQuery(''); }}
@@ -82,9 +83,8 @@ const Index = () => {
 
         {/* Drawer */}
         <div
-          className={`bg-card overflow-hidden transition-all duration-300 ease-in-out border-b border-border -mb-px ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+          className={`bg-card overflow-hidden transition-all duration-300 ease-in-out ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
         >
-            <hr className="border-t border-border m-0" />
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
               {/* Search */}
               <div className="relative">
@@ -170,6 +170,8 @@ const Index = () => {
               )}
             </div>
         </div>
+        {/* Moving border - travels with bottom of drawer */}
+        <hr className="border-t border-border m-0" />
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
