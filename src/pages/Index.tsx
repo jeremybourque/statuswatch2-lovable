@@ -30,9 +30,9 @@ const Index = () => {
       <header className="border-b border-border bg-card">
         <div className="max-w-3xl mx-auto px-4 py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Activity className="h-7 w-7" style={{ color: 'hsl(195, 85%, 45%)' }} />
+            <Activity className="h-7 w-7 text-primary" />
             <h1 className="text-xl font-bold tracking-tight">
-              <span className="text-foreground">Status</span><span className="bg-gradient-to-br from-[hsl(173,80%,50%)] to-[hsl(190,80%,45%)] bg-clip-text text-transparent">Watch</span>
+              <span className="text-foreground">Status</span><span className="text-primary">Watch</span>
             </h1>
           </div>
           <div className="flex items-center gap-2">
