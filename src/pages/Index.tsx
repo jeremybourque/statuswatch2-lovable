@@ -45,31 +45,33 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 relative">
-        <div className="max-w-3xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Activity className="h-7 w-7 text-primary" />
-            <h1 className="text-xl font-bold text-foreground tracking-tight">
-              {settings?.page_title || 'StatusWatch'}
-            </h1>
+      <header className="sticky top-0 z-50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+        <div className="relative">
+          <div className="max-w-3xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Activity className="h-7 w-7 text-primary" />
+              <h1 className="text-xl font-bold text-foreground tracking-tight">
+                {settings?.page_title || 'StatusWatch'}
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Settings className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
-              <Settings className="h-4 w-4" />
-            </Link>
-          </div>
+          {/* Fixed border - always at bottom of header */}
+          <hr className="border-t border-border m-0" />
+          {/* Drawer handle - anchored to the fixed border */}
+          <button
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-10 px-2 py-1 group"
+            aria-label="Toggle navigation drawer"
+          >
+            <div className={`w-[11.25rem] h-[5px] rounded-full transition-colors bg-border group-hover:bg-muted-foreground`} />
+          </button>
         </div>
-        {/* Fixed border - always at bottom of header */}
-        <hr className="border-t border-border m-0" />
-        {/* Drawer handle */}
-        <button
-          onClick={() => setDrawerOpen(!drawerOpen)}
-          className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-10 px-2 py-1 group"
-          aria-label="Toggle navigation drawer"
-        >
-          <div className={`w-[11.25rem] h-[5px] rounded-full transition-colors bg-border group-hover:bg-muted-foreground`} />
-        </button>
 
         {/* Drawer */}
         <div
