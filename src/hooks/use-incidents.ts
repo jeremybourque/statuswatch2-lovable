@@ -64,6 +64,32 @@ export function useAddIncidentUpdate() {
   });
 }
 
+export function useUpdateIncidentServices() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ incident_id, service_ids }: { incident_id: string; service_ids: string[] }) => {
+      // Delete existing links
+      const { error: delErr } = await supabase
+        .from('incident_services')
+        .delete()
+        .eq('incident_id', incident_id);
+      if (delErr) throw delErr;
+
+      // Insert new links
+      if (service_ids.length > 0) {
+        const { error: insErr } = await supabase
+          .from('incident_services')
+          .insert(service_ids.map(sid => ({ incident_id, service_id: sid })));
+        if (insErr) throw insErr;
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['incidents'] });
+      qc.invalidateQueries({ queryKey: ['services'] });
+    },
+  });
+}
+
 export function useDeleteIncident() {
   const qc = useQueryClient();
   return useMutation({
