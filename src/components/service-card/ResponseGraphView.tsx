@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 
 interface ResponseGraphViewProps {
   serviceId: string;
   onHover: (label: string | null) => void;
+  onAvgChange?: (avg: number) => void;
 }
 
-export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps) {
+export function ResponseGraphView({ serviceId, onHover, onAvgChange }: ResponseGraphViewProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const points: { time: Date; value: number }[] = [];
@@ -22,6 +23,9 @@ export function ResponseGraphView({ serviceId, onHover }: ResponseGraphViewProps
     const time = new Date(currentHour.getTime() - (167 - i) * 60 * 60 * 1000);
     points.push({ time, value: ms / 1000 });
   }
+
+  const avgLast10 = points.slice(-10).reduce((s, p) => s + p.value, 0) / 10;
+  useEffect(() => { onAvgChange?.(avgLast10); }, [avgLast10, onAvgChange]);
 
   const minVal = 0;
   const padded = 2;
