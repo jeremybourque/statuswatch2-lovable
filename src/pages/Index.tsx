@@ -56,7 +56,7 @@ const Index = () => {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-foreground">Active Incidents</h2>
             {activeIncidents.map(incident => (
-              <IncidentCard key={incident.id} incident={incident} />
+              <IncidentCard key={incident.id} incident={incident} services={services} />
             ))}
           </section>
         )}
@@ -87,7 +87,7 @@ const Index = () => {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-foreground">Past Incidents</h2>
             {recentResolved.map(incident => (
-              <IncidentCard key={incident.id} incident={incident} />
+              <IncidentCard key={incident.id} incident={incident} services={services} />
             ))}
           </section>
         )}
@@ -103,7 +103,7 @@ const Index = () => {
   );
 };
 
-function IncidentCard({ incident }: { incident: any }) {
+function IncidentCard({ incident, services = [] }: { incident: any; services?: any[] }) {
   const [expanded, setExpanded] = useState(false);
   const statusCfg = incidentStatusConfig[incident.status as IncidentStatus];
   const updates = (incident.incident_updates || []).sort(
@@ -111,6 +111,9 @@ function IncidentCard({ incident }: { incident: any }) {
   );
 
   const latestStatus = updates.length > 0 ? updates[0].status : incident.status;
+
+  const affectedServiceIds = (incident.incident_services || []).map((s: any) => s.service_id);
+  const affectedServices = services.filter(s => affectedServiceIds.includes(s.id));
 
   const updateStatusBg: Record<string, string> = {
     investigating: 'bg-status-major-outage',
@@ -136,9 +139,21 @@ function IncidentCard({ incident }: { incident: any }) {
           <div className={`w-1.5 h-8 rounded-full ${updateStatusBg[latestStatus] || 'bg-muted'}`} />
           <div>
             <h3 className="font-semibold text-card-foreground">{incident.title}</h3>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {format(new Date(incident.created_at), 'MMM d, yyyy · h:mm a')}
-            </p>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              <span className="text-sm text-muted-foreground">
+                {format(new Date(incident.created_at), 'MMM d, yyyy · h:mm a')}
+              </span>
+              {affectedServices.length > 0 && (
+                <>
+                  <span className="text-muted-foreground">·</span>
+                  {affectedServices.map(s => (
+                    <Badge key={s.id} variant="outline" className="text-xs py-0 px-1.5">
+                      {s.name}
+                    </Badge>
+                  ))}
+                </>
+              )}
+            </div>
           </div>
         </div>
         <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
