@@ -7,6 +7,12 @@ import { UptimeBarsView } from './service-card/UptimeBarsView';
 import { CalendarView } from './service-card/CalendarView';
 import { ResponseGraphView } from './service-card/ResponseGraphView';
 
+interface ChartSettings {
+  enabled: boolean;
+  label: string;
+  dataFormat: string;
+}
+
 interface ServiceFlipCardProps {
   service: {
     id: string;
@@ -14,6 +20,7 @@ interface ServiceFlipCardProps {
     description?: string | null;
     status: string;
   };
+  chartSettings?: ChartSettings;
 }
 
 function StatusDot({ status }: {status: ServiceStatus;}) {
@@ -44,10 +51,11 @@ function generateMockUptime(serviceId: string): number[] {
 }
 
 
-export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
+export function ServiceFlipCard({ service, chartSettings }: ServiceFlipCardProps) {
   const [rotationX, setRotationX] = useState(0);
   const [hovered, setHovered] = useState(false);
   const [mouseInTopHalf, setMouseInTopHalf] = useState(true);
+  const chartEnabled = chartSettings?.enabled !== false;
   const [backView, setBackView] = useState<'bars' | 'calendar' | 'graph'>('bars');
   const [viewKey, setViewKey] = useState(0);
   const [fading, setFading] = useState(false);
@@ -146,16 +154,18 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 >
                   <CalendarDays size={14} />
                 </button>
-                <button
-                  onClick={() => switchView('graph')}
-                  className={`p-2 -m-1 rounded transition-colors ${backView === 'graph' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                  title="Response time"
-                >
-                  <Activity size={14} />
-                </button>
+                {chartEnabled && (
+                  <button
+                    onClick={() => switchView('graph')}
+                    className={`p-2 -m-1 rounded transition-colors ${backView === 'graph' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                    title="Response time"
+                  >
+                    <Activity size={14} />
+                  </button>
+                )}
               </div>
             </div>
-            <span className="text-xs font-medium text-muted-foreground">{backView === 'graph' ? <>page load time <span className="text-foreground">{graphAvg !== null ? graphAvg.toFixed(2) : '—'}s</span></> : <>uptime <span className="text-foreground">{uptimePercent}%</span></>}</span>
+            <span className="text-xs font-medium text-muted-foreground">{backView === 'graph' ? <>{chartSettings?.label || 'page load time'} <span className="text-foreground">{graphAvg !== null ? (chartSettings?.dataFormat || '{value}s').replace('{value}', graphAvg.toFixed(2)) : '—'}</span></> : <>uptime <span className="text-foreground">{uptimePercent}%</span></>}</span>
           </div>
           <div className={`relative w-full flex-1 flex flex-col transition-opacity duration-150 ${fading ? 'opacity-0' : 'opacity-100'}`} onMouseLeave={() => setHoveredDay(null)}>
               {backView === 'bars' && (
