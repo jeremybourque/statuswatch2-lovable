@@ -175,7 +175,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               return (
                 <span className="absolute top-0 left-0 text-xs bg-card/80 px-1 rounded pointer-events-none inline-flex">
                   <span className="text-muted-foreground w-[5.5em] whitespace-nowrap">{parts[0]}</span>
-                  {parts[1] && <span className="font-semibold text-foreground w-[4.5em] text-right whitespace-nowrap">{parts[1]}</span>}
+                  {parts[1] && <><span className="text-muted-foreground mx-0.5">●</span><span className="font-semibold text-foreground w-[4.5em] text-right whitespace-nowrap">{parts[1]}</span></>}
                 </span>
               );
             })()}
