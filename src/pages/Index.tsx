@@ -1,8 +1,15 @@
 import { useServices } from '@/hooks/use-services';
 import { useIncidents } from '@/hooks/use-incidents';
 import { useSiteSettings } from '@/hooks/use-site-settings';
-import { getOverallStatus, getOverallBanner, statusConfig, incidentStatusConfig, impactConfig } from '@/lib/status-helpers';
+import { getOverallStatus, getOverallBanner, statusConfig, incidentStatusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus, IncidentStatus, IncidentImpact } from '@/lib/status-helpers';
+
+const impactToServiceStatus: Record<string, { label: string; color: string }> = {
+  none: { label: 'No Impact', color: 'bg-muted text-muted-foreground' },
+  minor: { label: statusConfig.degraded.label, color: 'bg-status-degraded/20 text-status-degraded' },
+  major: { label: statusConfig.partial_outage.label, color: 'bg-status-partial-outage/20 text-status-partial-outage' },
+  critical: { label: statusConfig.major_outage.label, color: 'bg-status-major-outage/20 text-status-major-outage' },
+};
 import { Badge } from '@/components/ui/badge';
 import { ServiceFlipCard } from '@/components/ServiceFlipCard';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -120,7 +127,7 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
 
   const affectedServiceIds = (incident.incident_services || []).map((s: any) => s.service_id);
   const affectedServices = services.filter(s => affectedServiceIds.includes(s.id));
-  const impactCfg = impactConfig[incident.impact as IncidentImpact] || impactConfig.none;
+  const impactCfg = impactToServiceStatus[incident.impact] || impactToServiceStatus.none;
 
   const updateStatusBg: Record<string, string> = {
     investigating: 'bg-status-major-outage',
