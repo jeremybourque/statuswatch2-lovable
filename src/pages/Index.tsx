@@ -171,7 +171,7 @@ const Index = () => {
             </div>
         </div>
         {/* Moving border - travels with bottom of drawer */}
-        <hr className="border-t border-border m-0" />
+        <hr className="border-t border-border m-0 -mt-px" />
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
