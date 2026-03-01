@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useDeleteIncidentUpdate, useUpdateIncidentServices, useUpdateIncidentImpact } from '@/hooks/use-incidents';
+import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useDeleteIncidentUpdate, useUpdateIncidentServices, useUpdateIncidentImpact, useUpdateIncidentTitle, useEditIncidentUpdate } from '@/hooks/use-incidents';
 import { useServices } from '@/hooks/use-services';
 import { incidentStatusConfig, statusConfig, type IncidentStatus, type IncidentImpact } from '@/lib/status-helpers';
 
@@ -20,7 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Plus, ChevronDown, Trash2, MessageSquarePlus, Pencil } from 'lucide-react';
+import { Plus, ChevronDown, Trash2, MessageSquarePlus, Pencil, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -33,10 +33,17 @@ export default function AdminIncidents() {
   const updateServices = useUpdateIncidentServices();
   const updateImpact = useUpdateIncidentImpact();
   const deleteUpdate = useDeleteIncidentUpdate();
+  const updateTitle = useUpdateIncidentTitle();
+  const editUpdate = useEditIncidentUpdate();
   const [createOpen, setCreateOpen] = useState(false);
   const [updateDialogId, setUpdateDialogId] = useState<string | null>(null);
   const [servicesDialogId, setServicesDialogId] = useState<string | null>(null);
   const [impactDialogId, setImpactDialogId] = useState<string | null>(null);
+  const [editTitleId, setEditTitleId] = useState<string | null>(null);
+  const [editTitleValue, setEditTitleValue] = useState('');
+  const [editUpdateId, setEditUpdateId] = useState<string | null>(null);
+  const [editUpdateMessage, setEditUpdateMessage] = useState('');
+  const [editUpdateStatus, setEditUpdateStatus] = useState('');
 
   const handleCreate = async (data: any) => {
     try {
@@ -98,10 +105,50 @@ export default function AdminIncidents() {
             return (
               <Collapsible key={incident.id}>
                 <Card>
-                  <CollapsibleTrigger className="w-full">
+                  <CollapsibleTrigger className="w-full group">
                     <CardHeader className="py-3">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
+                        {editTitleId === incident.id ? (
+                          <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+                            <Input
+                              value={editTitleValue}
+                              onChange={e => setEditTitleValue(e.target.value)}
+                              className="h-7 text-sm"
+                              autoFocus
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                  updateTitle.mutateAsync({ id: incident.id, title: editTitleValue }).then(() => {
+                                    toast.success('Title updated');
+                                    setEditTitleId(null);
+                                  }).catch(() => toast.error('Failed to update title'));
+                                } else if (e.key === 'Escape') {
+                                  setEditTitleId(null);
+                                }
+                              }}
+                            />
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                await updateTitle.mutateAsync({ id: incident.id, title: editTitleValue });
+                                toast.success('Title updated');
+                                setEditTitleId(null);
+                              } catch { toast.error('Failed to update title'); }
+                            }}><Check className="h-3.5 w-3.5" /></Button>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {
+                              e.stopPropagation();
+                              setEditTitleId(null);
+                            }}><X className="h-3.5 w-3.5" /></Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5">
+                            <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => {
+                              e.stopPropagation();
+                              setEditTitleId(incident.id);
+                              setEditTitleValue(incident.title);
+                            }}><Pencil className="h-3 w-3 text-muted-foreground" /></Button>
+                          </div>
+                        )}
                         <div className="flex items-center gap-2 shrink-0">
                           <Badge className={`${impactCfg.color} border-0 text-xs mr-1`}>{impactCfg.label}</Badge>
                           <span className="text-xs text-muted-foreground">{format(new Date(incident.created_at), 'MMM d, HH:mm')}</span>
@@ -123,11 +170,53 @@ export default function AdminIncidents() {
                         const uCfg = incidentStatusConfig[u.status as IncidentStatus] || { label: u.status, color: '' };
                         return (
                           <div key={u.id} className="flex gap-3 text-sm border-l-2 border-border pl-4 py-1 group">
-                            <div className="shrink-0 space-y-1">
-                              <Badge className={`${uCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center`}>{uCfg.label}</Badge>
-                              <p className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</p>
-                            </div>
-                            <p className="text-muted-foreground flex-1">{u.message}</p>
+                            {editUpdateId === u.id ? (
+                              <>
+                                <div className="shrink-0 space-y-1">
+                                  <Select value={editUpdateStatus} onValueChange={setEditUpdateStatus}>
+                                    <SelectTrigger className="h-6 w-[6.5rem] text-xs">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="investigating">Investigating</SelectItem>
+                                      <SelectItem value="identified">Identified</SelectItem>
+                                      <SelectItem value="monitoring">Monitoring</SelectItem>
+                                      <SelectItem value="resolved">Resolved</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <p className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</p>
+                                </div>
+                                <Textarea
+                                  value={editUpdateMessage}
+                                  onChange={e => setEditUpdateMessage(e.target.value)}
+                                  className="flex-1 text-sm min-h-[2.5rem]"
+                                  autoFocus
+                                />
+                                <div className="flex flex-col gap-1 shrink-0">
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={async () => {
+                                    try {
+                                      await editUpdate.mutateAsync({ id: u.id, message: editUpdateMessage, status: editUpdateStatus });
+                                      toast.success('Update edited');
+                                      setEditUpdateId(null);
+                                    } catch { toast.error('Failed to edit update'); }
+                                  }}><Check className="h-3.5 w-3.5" /></Button>
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setEditUpdateId(null)}>
+                                    <X className="h-3.5 w-3.5" />
+                                  </Button>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="shrink-0 space-y-1">
+                                  <Badge className={`${uCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center`}>{uCfg.label}</Badge>
+                                  <p className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</p>
+                                </div>
+                                <p className="text-muted-foreground flex-1">{u.message}</p>
+                                <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0" onClick={() => {
+                                  setEditUpdateId(u.id);
+                                  setEditUpdateMessage(u.message);
+                                  setEditUpdateStatus(u.status);
+                                }}><Pencil className="h-3.5 w-3.5 text-muted-foreground" /></Button>
                             {updates.length <= 1 ? (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -177,6 +266,8 @@ export default function AdminIncidents() {
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
+                            )}
+                              </>
                             )}
                           </div>
                         );
