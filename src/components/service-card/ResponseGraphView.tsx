@@ -29,7 +29,7 @@ export function ResponseGraphView({ serviceId, onHover, onAvgChange }: ResponseG
 
   const minVal = 0;
   const padded = 2;
-  const chartH = 26;
+  const chartH = 32;
   const chartW = 540;
   const oX = 4;
   const oY = 2;
