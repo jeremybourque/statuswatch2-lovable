@@ -82,6 +82,23 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
   }, [uptimeDays]);
 
   const statusLabels = ['Major Outage', 'Partial Outage', 'Degraded', 'Operational'];
+
+  const calendarNeeds6Rows = useMemo(() => {
+    const today = new Date();
+    const monthsSet: Date[] = [];
+    for (let i = 89; i >= 0; i--) {
+      const d = subDays(today, i);
+      const key = format(d, 'yyyy-MM');
+      if (!monthsSet.find(m => format(m, 'yyyy-MM') === key)) {
+        monthsSet.push(new Date(d.getFullYear(), d.getMonth(), 1));
+      }
+    }
+    return monthsSet.some(ms => {
+      const daysInMonth = new Date(ms.getFullYear(), ms.getMonth() + 1, 0).getDate();
+      const startDow = ms.getDay();
+      return startDow + daysInMonth > 35;
+    });
+  }, []);
   const isFlipped = Math.abs(Math.round(rotationX / 180)) % 2 === 1;
   const frontHeight = 64;
   const backHeight = 110;
@@ -194,7 +211,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
             })()}
           </div>
           {backView !== 'graph' && (
-            <div className="mt-auto h-5 -mt-1">
+            <div className={`mt-auto h-5 ${backView === 'calendar' && !calendarNeeds6Rows ? '-mt-1.5' : '-mt-1'}`}>
               {hoveredDay ? (() => {
                 const parts = hoveredDay.split(' ● ');
                 return (
