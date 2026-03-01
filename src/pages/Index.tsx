@@ -120,6 +120,7 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
 
   const affectedServiceIds = (incident.incident_services || []).map((s: any) => s.service_id);
   const affectedServices = services.filter(s => affectedServiceIds.includes(s.id));
+  const impactCfg = impactConfig[incident.impact as IncidentImpact] || impactConfig.none;
 
   const updateStatusBg: Record<string, string> = {
     investigating: 'bg-status-major-outage',
@@ -149,6 +150,9 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
           <div>
             <h3 className="font-semibold text-card-foreground">{incident.title}</h3>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              <Badge className={`text-xs py-0 px-1.5 border-0 ${impactCfg.color}`}>
+                {impactCfg.label}
+              </Badge>
               <span className="text-sm text-muted-foreground">
                 {format(new Date(incident.created_at), 'MMM d, yyyy · h:mm a')}
               </span>
