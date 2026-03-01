@@ -77,6 +77,7 @@ const Index = () => {
 
         {/* Services by category */}
         <section className="space-y-6">
+          <h2 className="text-xl font-semibold text-foreground">Services</h2>
           {categories.map(cat => {
             const catServices = services.filter(s => s.category === cat);
             return (
