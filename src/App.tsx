@@ -8,6 +8,7 @@ import AdminLayout from "./pages/AdminLayout";
 import AdminServices from "./pages/AdminServices";
 import AdminIncidents from "./pages/AdminIncidents";
 import AdminSettings from "./pages/AdminSettings";
+import AdminAnalytics from "./pages/AdminAnalytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="incidents" replace />} />
             <Route path="services" element={<AdminServices />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="incidents" element={<AdminIncidents />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
