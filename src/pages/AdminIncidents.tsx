@@ -361,7 +361,7 @@ function CreateIncidentForm({ services, onSave }: { services: any[]; onSave: (d:
   };
 
   return (
-    <form onSubmit={e => { e.preventDefault(); onSave({ title, status, impact, message, service_ids: selectedServices }); }} className="space-y-4">
+    <form onSubmit={e => { e.preventDefault(); if (selectedServices.length === 0) { toast.error('Select at least one affected service'); return; } onSave({ title, status, impact, message, service_ids: selectedServices }); }} className="space-y-4">
       <div className="space-y-2">
         <Label>Title</Label>
         <Input value={title} onChange={e => setTitle(e.target.value)} required />
@@ -447,7 +447,7 @@ function EditServicesForm({ services, currentServiceIds, onSave }: { services: a
   };
 
   return (
-    <form onSubmit={e => { e.preventDefault(); onSave(selected); }} className="space-y-4">
+    <form onSubmit={e => { e.preventDefault(); if (selected.length === 0) { toast.error('Select at least one service'); return; } onSave(selected); }} className="space-y-4">
       <div className="space-y-2 max-h-60 overflow-y-auto">
         {services.map(s => (
           <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer">
