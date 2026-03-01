@@ -136,10 +136,10 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
   };
 
   return (
-    <div className="border border-border rounded-lg bg-card overflow-hidden">
+    <div className="border border-border rounded-lg bg-card overflow-hidden hover:bg-accent/50 transition-colors">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-accent/50 transition-colors"
+        className="w-full flex items-center justify-between p-4 text-left"
       >
         <div className="flex items-center gap-3">
           <div className={`w-1.5 h-8 rounded-full ${updateStatusBg[latestStatus] || 'bg-muted'}`} />
@@ -167,7 +167,7 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
 
       {!expanded && showLatestUpdate && updates.length > 0 && (
         <div className="px-4 pb-3 -mt-1">
-          <p className="text-sm text-muted-foreground ml-[1.625rem] line-clamp-2">
+          <p className="text-sm text-muted-foreground ml-[1.125rem] line-clamp-2">
             <span className={`font-medium capitalize ${updateStatusColor[updates[0].status] || 'text-muted-foreground'}`}>
               {updates[0].status}
             </span>
