@@ -104,8 +104,9 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
   const [status, setStatus] = useState(initial?.status || 'operational');
   const [displayOrder, setDisplayOrder] = useState(initial?.display_order?.toString() || '0');
   const chartModeFromInitial = () => {
-    if (initial?.chart_enabled === false) return 'none';
-    if (initial?.chart_label === 'response time') return 'response';
+    if (!initial) return 'none';
+    if (initial.chart_enabled === false) return 'none';
+    if (initial.chart_label === 'response time') return 'response';
     return 'page_load';
   };
   const [chartMode, setChartMode] = useState(chartModeFromInitial());
@@ -161,7 +162,7 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
           <SelectContent>
             <SelectItem value="page_load">Page Load Time</SelectItem>
             <SelectItem value="response">Response Time</SelectItem>
-            <SelectItem value="none">No Chart</SelectItem>
+            <SelectItem value="none">(none)</SelectItem>
           </SelectContent>
         </Select>
       </div>
