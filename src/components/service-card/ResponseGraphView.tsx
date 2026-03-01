@@ -117,7 +117,7 @@ export function ResponseGraphView({ serviceId, onHover, onAvgChange }: ResponseG
       {/* Invisible hit targets */}
       {points.map((p, i) => {
         const x = getX(i);
-        const label = `${format(p.time, 'EEE H:mm')} ● ${(p.value * 1000).toFixed(0)}ms`;
+        const label = `${format(p.time, 'EEE H:mm')} ● ${p.value.toFixed(2)}s`;
         return (
           <circle
             key={i}
