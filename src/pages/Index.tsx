@@ -76,11 +76,10 @@ const Index = () => {
           onClick={() => {
             if (!drawerOpen) {
               setShowBorder(true);
-              requestAnimationFrame(() => setDrawerOpen(true));
+              setTimeout(() => setDrawerOpen(true), 16);
             } else {
               setDrawerOpen(false);
               setSearchQuery('');
-              setTimeout(() => setShowBorder(false), 300);
             }
           }}
           className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-10 px-2 py-1 group"
@@ -91,7 +90,8 @@ const Index = () => {
 
         {/* Drawer */}
         <div
-          className={`bg-card overflow-hidden transition-all duration-300 ease-in-out ${showBorder ? 'border-t border-border' : 'border-t border-transparent'} ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+          onTransitionEnd={() => { if (!drawerOpen) setShowBorder(false); }}
+          className={`bg-card overflow-hidden transition-all duration-300 ease-in-out ${showBorder ? 'border-t border-border' : ''} ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
         >
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
               {/* Search */}
