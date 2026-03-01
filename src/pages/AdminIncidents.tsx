@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useUpdateIncidentServices, useUpdateIncidentImpact } from '@/hooks/use-incidents';
+import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useDeleteIncidentUpdate, useUpdateIncidentServices, useUpdateIncidentImpact } from '@/hooks/use-incidents';
 import { useServices } from '@/hooks/use-services';
 import { incidentStatusConfig, statusConfig, type IncidentStatus, type IncidentImpact } from '@/lib/status-helpers';
 
@@ -31,6 +31,7 @@ export default function AdminIncidents() {
   const deleteIncident = useDeleteIncident();
   const updateServices = useUpdateIncidentServices();
   const updateImpact = useUpdateIncidentImpact();
+  const deleteUpdate = useDeleteIncidentUpdate();
   const [createOpen, setCreateOpen] = useState(false);
   const [updateDialogId, setUpdateDialogId] = useState<string | null>(null);
   const [servicesDialogId, setServicesDialogId] = useState<string | null>(null);
@@ -119,12 +120,25 @@ export default function AdminIncidents() {
                       {updates.map((u: any) => {
                         const uCfg = incidentStatusConfig[u.status as IncidentStatus] || { label: u.status, color: '' };
                         return (
-                          <div key={u.id} className="flex gap-3 text-sm border-l-2 border-border pl-4 py-1">
+                          <div key={u.id} className="flex gap-3 text-sm border-l-2 border-border pl-4 py-1 group">
                             <div className="shrink-0 space-y-1">
                               <Badge className={`${uCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center`}>{uCfg.label}</Badge>
                               <p className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</p>
                             </div>
-                            <p className="text-muted-foreground">{u.message}</p>
+                            <p className="text-muted-foreground flex-1">{u.message}</p>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0"
+                              onClick={async () => {
+                                try {
+                                  await deleteUpdate.mutateAsync(u.id);
+                                  toast.success('Update deleted');
+                                } catch { toast.error('Failed to delete update'); }
+                              }}
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                            </Button>
                           </div>
                         );
                       })}

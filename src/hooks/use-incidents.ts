@@ -114,3 +114,14 @@ export function useDeleteIncident() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['incidents'] }),
   });
 }
+
+export function useDeleteIncidentUpdate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('incident_updates').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['incidents'] }),
+  });
+}
