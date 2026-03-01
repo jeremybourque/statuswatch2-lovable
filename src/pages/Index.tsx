@@ -68,7 +68,7 @@ const Index = () => {
         {/* Active Incidents */}
         {activeIncidents.length > 0 && (
           <section className="space-y-3">
-            <h2 className="text-xl font-semibold text-foreground">Active Incidents</h2>
+            <h2 className="text-xl font-semibold text-foreground">Active Incidents ({activeIncidents.length})</h2>
             {activeIncidents.map(incident => (
               <IncidentCard key={incident.id} incident={incident} services={services} showLatestUpdate />
             ))}
