@@ -150,7 +150,7 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
     >
       <button
         onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-        className={`w-full flex items-center justify-between p-4 text-left ${expanded ? 'hover:bg-accent/50 transition-colors cursor-pointer' : ''}`}
+        className={`w-full flex items-start justify-between p-4 text-left ${expanded ? 'hover:bg-accent/50 transition-colors cursor-pointer' : ''}`}
       >
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className={`w-1.5 h-8 rounded-full shrink-0 ${updateStatusBg[latestStatus] || 'bg-muted'}`} />
