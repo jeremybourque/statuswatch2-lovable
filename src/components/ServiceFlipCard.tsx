@@ -110,21 +110,17 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           className="group absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden"
           style={{ backfaceVisibility: 'hidden' }}>
 
-          <div className="p-4 flex flex-col justify-center h-full">
-            {service.description && (
-              <p className="text-sm invisible pl-6">&nbsp;</p>
-            )}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 min-w-0">
-                <StatusDot status={service.status as ServiceStatus} />
-                <span className="text-lg font-medium text-card-foreground truncate">{service.name}</span>
-                <Info size={16} className="text-muted-foreground shrink-0" />
+          <div className="p-4 flex items-center justify-between h-full">
+            <div className="flex items-center gap-3 min-w-0">
+              <StatusDot status={service.status as ServiceStatus} />
+              <div className="min-w-0">
+                <span className="text-lg font-medium text-card-foreground truncate block">{service.name}</span>
+                {service.description && (
+                  <p className="text-sm text-muted-foreground truncate opacity-0 group-hover:opacity-100 transition-opacity duration-[400ms] delay-0 group-hover:delay-200">{service.description}</p>
+                )}
               </div>
-              <span className={`text-base font-medium ${cfg.color}`}>{cfg.label}</span>
             </div>
-            {service.description && (
-              <p className="text-sm text-muted-foreground truncate pl-6 opacity-0 group-hover:opacity-100 transition-opacity duration-[400ms] delay-0 group-hover:delay-200">{service.description}</p>
-            )}
+            <span className={`text-base font-medium ${cfg.color} shrink-0`}>{cfg.label}</span>
           </div>
         </div>
 
