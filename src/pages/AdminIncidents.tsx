@@ -37,6 +37,7 @@ export default function AdminIncidents() {
   const editUpdate = useEditIncidentUpdate();
   const [createOpen, setCreateOpen] = useState(false);
   const [openIncidents, setOpenIncidents] = useState<Set<string>>(new Set());
+  const [resolvedOpen, setResolvedOpen] = useState(false);
   const [updateDialogId, setUpdateDialogId] = useState<string | null>(null);
   const [servicesDialogId, setServicesDialogId] = useState<string | null>(null);
   const [impactDialogId, setImpactDialogId] = useState<string | null>(null);
@@ -94,9 +95,17 @@ export default function AdminIncidents() {
 
       {isLoading ? (
         <p className="text-muted-foreground text-sm">Loading...</p>
-      ) : (
-        <div className="space-y-3">
-          {incidents.map(incident => {
+      ) : (() => {
+        const getDerivedStatus = (incident: any) => {
+          const updates = (incident.incident_updates || []).sort(
+            (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+          return updates.length > 0 ? updates[0].status : incident.status;
+        };
+        const activeIncidents = incidents.filter(i => getDerivedStatus(i) !== 'resolved');
+        const resolvedIncidents = incidents.filter(i => getDerivedStatus(i) === 'resolved');
+
+        const renderIncident = (incident: any) => {
             const updates = (incident.incident_updates || []).sort(
               (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
             );
@@ -223,11 +232,7 @@ export default function AdminIncidents() {
                             {updates.length <= 1 ? (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0"
-                                  >
+                                  <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0">
                                     <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                   </Button>
                                 </AlertDialogTrigger>
@@ -245,11 +250,7 @@ export default function AdminIncidents() {
                             ) : (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0"
-                                  >
+                                  <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0">
                                     <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                   </Button>
                                 </AlertDialogTrigger>
@@ -345,9 +346,32 @@ export default function AdminIncidents() {
                 </Card>
               </Collapsible>
             );
-          })}
-        </div>
-      )}
+        };
+
+        return (
+          <div className="space-y-6">
+            <div className="space-y-3">
+              {activeIncidents.map(renderIncident)}
+              {activeIncidents.length === 0 && (
+                <p className="text-sm text-muted-foreground">No active incidents.</p>
+              )}
+            </div>
+            {resolvedIncidents.length > 0 && (
+              <Collapsible open={resolvedOpen} onOpenChange={setResolvedOpen}>
+                <CollapsibleTrigger className="flex items-center gap-2 w-full group">
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Resolved ({resolvedIncidents.length})</h3>
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${resolvedOpen ? 'rotate-180' : ''}`} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="space-y-3 mt-3">
+                    {resolvedIncidents.map(renderIncident)}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
