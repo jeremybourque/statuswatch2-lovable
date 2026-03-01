@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { ServiceFlipCard } from '@/components/ServiceFlipCard';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { ChevronDown, Activity, Settings } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { useState } from 'react';
@@ -99,12 +100,19 @@ const Index = () => {
 
         {/* Past incidents */}
         {recentResolved.length > 0 && (
-          <section className="space-y-3">
-            <h2 className="text-xl font-semibold text-foreground">Past Incidents</h2>
-            {recentResolved.map(incident => (
-              <IncidentCard key={incident.id} incident={incident} services={services} />
-            ))}
-          </section>
+          <Collapsible defaultOpen={false}>
+            <CollapsibleTrigger className="flex items-center gap-2 group w-full">
+              <h2 className="text-xl font-semibold text-foreground">Past Incidents</h2>
+              <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="space-y-3 mt-3">
+                {recentResolved.map(incident => (
+                  <IncidentCard key={incident.id} incident={incident} services={services} />
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         )}
       </main>
 
