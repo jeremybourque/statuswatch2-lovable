@@ -106,7 +106,7 @@ export default function AdminIncidents() {
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
-                        <Badge className={`${sCfg.color} border-0 text-xs min-w-[5.5rem] text-center justify-center`}>{sCfg.label}</Badge>
+                        <Badge className={`${sCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center`}>{sCfg.label}</Badge>
                         {(incident.incident_services || []).map((link: any) => {
                           const svc = services.find(s => s.id === link.service_id);
                           return svc ? <Badge key={svc.id} variant="outline" className="text-xs py-0 px-1.5">{svc.name}</Badge> : null;
@@ -121,7 +121,7 @@ export default function AdminIncidents() {
                         return (
                           <div key={u.id} className="flex gap-3 text-sm border-l-2 border-border pl-4 py-1">
                             <div className="shrink-0 space-y-1">
-                              <Badge className={`${uCfg.color} border-0 text-xs`}>{uCfg.label}</Badge>
+                              <Badge className={`${uCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center`}>{uCfg.label}</Badge>
                               <p className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</p>
                             </div>
                             <p className="text-muted-foreground">{u.message}</p>
