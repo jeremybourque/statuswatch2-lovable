@@ -5,7 +5,8 @@ import { format, subDays } from 'date-fns';
 import { BarChart3, CalendarDays, Activity, Info } from 'lucide-react';
 import { UptimeBarsView } from './service-card/UptimeBarsView';
 import { CalendarView } from './service-card/CalendarView';
-import { ResponseGraphView } from './service-card/ResponseGraphView';
+import { PageLoadGraphView } from './service-card/PageLoadGraphView';
+import { ResponseTimeGraphView } from './service-card/ResponseTimeGraphView';
 
 interface ServiceFlipCardProps {
   service: {
@@ -170,8 +171,11 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               {backView === 'calendar' && (
                 <CalendarView uptimeDays={uptimeDays} onHover={setHoveredDay} />
               )}
-              {backView === 'graph' && (
-                <ResponseGraphView serviceId={service.id} onHover={setHoveredDay} onAvgChange={setGraphAvg} />
+              {backView === 'graph' && service.chart_label === 'response time' && (
+                <ResponseTimeGraphView serviceId={service.id} onHover={setHoveredDay} onAvgChange={setGraphAvg} />
+              )}
+              {backView === 'graph' && service.chart_label !== 'response time' && (
+                <PageLoadGraphView serviceId={service.id} onHover={setHoveredDay} onAvgChange={setGraphAvg} />
               )}
             {backView === 'graph' && hoveredDay && (() => {
               const parts = hoveredDay.split(' ● ');
