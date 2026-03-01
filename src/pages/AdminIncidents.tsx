@@ -98,11 +98,9 @@ export default function AdminIncidents() {
                   <CollapsibleTrigger className="w-full">
                     <CardHeader className="py-3">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
-                          <Badge className={`${impactCfg.color} border-0 text-xs`}>{impactCfg.label}</Badge>
-                        </div>
+                        <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
                         <div className="flex items-center gap-2 shrink-0">
+                          <Badge className={`${impactCfg.color} border-0 text-xs`}>{impactCfg.label}</Badge>
                           <span className="text-xs text-muted-foreground">{format(new Date(incident.created_at), 'MMM d, HH:mm')}</span>
                           <ChevronDown className="h-4 w-4 text-muted-foreground" />
                         </div>
