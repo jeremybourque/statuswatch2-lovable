@@ -21,8 +21,15 @@ const Index = () => {
 
   const categories = [...new Set(services.map(s => s.category))];
 
-  const activeIncidents = incidents.filter(i => i.status !== 'resolved');
-  const recentResolved = incidents.filter(i => i.status === 'resolved').slice(0, 5);
+  const getDerivedStatus = (incident: any) => {
+    const updates = (incident.incident_updates || []).sort(
+      (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    return updates.length > 0 ? updates[0].status : incident.status;
+  };
+
+  const activeIncidents = incidents.filter(i => getDerivedStatus(i) !== 'resolved');
+  const recentResolved = incidents.filter(i => getDerivedStatus(i) === 'resolved').slice(0, 5);
 
   return (
     <div className="min-h-screen bg-background">
