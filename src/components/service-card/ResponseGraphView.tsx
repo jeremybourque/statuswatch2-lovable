@@ -77,6 +77,10 @@ export function ResponseGraphView({ serviceId, onHover, onAvgChange }: ResponseG
         const y = getY(t);
         return <line key={i} x1={oX} x2={oX + chartW} y1={y} y2={y} className="stroke-border" strokeWidth="0.3" />;
       })}
+      {/* X-axis bottom line */}
+      <line x1={oX} x2={oX + chartW} y1={oY + chartH} y2={oY + chartH} className="stroke-border" strokeWidth="0.5" />
+      {/* Y-axis right line */}
+      <line x1={oX + chartW} x2={oX + chartW} y1={oY} y2={oY + chartH} className="stroke-border" strokeWidth="0.5" />
       <path d={areaPath} fill="hsl(var(--primary))" opacity="0.1" />
       <polyline fill="none" stroke="hsl(var(--primary))" strokeWidth="1" points={svgPoints} />
 
