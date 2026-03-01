@@ -145,23 +145,24 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
           <div className={`w-1.5 h-8 rounded-full ${updateStatusBg[latestStatus] || 'bg-muted'}`} />
           <div>
             <h3 className="font-semibold text-card-foreground">{incident.title}</h3>
-            {affectedServices.length > 0 && (
-              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                {affectedServices.map(s => (
-                  <Badge key={s.id} variant="outline" className="text-xs py-0 px-1.5">
-                    {s.name}
-                  </Badge>
-                ))}
-              </div>
-            )}
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              <span className="text-sm text-muted-foreground">
+                {format(new Date(incident.created_at), 'MMM d, yyyy · h:mm a')}
+              </span>
+              {affectedServices.length > 0 && (
+                <>
+                  <span className="text-muted-foreground">·</span>
+                  {affectedServices.map(s => (
+                    <Badge key={s.id} variant="outline" className="text-xs py-0 px-1.5">
+                      {s.name}
+                    </Badge>
+                  ))}
+                </>
+              )}
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-muted-foreground">
-            {format(new Date(incident.created_at), 'MMM d, h:mm a')}
-          </span>
-          <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
-        </div>
+        <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ${expanded ? 'rotate-180' : ''}`} />
       </button>
 
       {!expanded && showLatestUpdate && updates.length > 0 && (
