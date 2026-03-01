@@ -30,12 +30,28 @@ export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, 
   const getX = (i: number) => oX + (i / (total - 1)) * chartW;
   const getY = (v: number) => oY + chartH - ((v - minVal) / yMax) * chartH;
 
-  const now = new Date();
+  const startTime = points[0].time.getTime();
+  const endTime = points[total - 1].time.getTime();
+  const timeSpan = endTime - startTime;
+  const getXFromTime = (t: number) => oX + ((t - startTime) / timeSpan) * chartW;
+
   const dayLabels: { x: number; label: string }[] = [];
-  for (let d = 6; d >= 0; d--) {
-    const day = new Date(now.getTime() - d * 24 * 60 * 60 * 1000);
-    const frac = 1 - d / 6;
-    dayLabels.push({ x: oX + frac * chartW, label: format(day, 'EEE') });
+  const midnightTicks: number[] = [];
+
+  // Walk through each day in range, place labels at 12:00 and ticks at 0:00
+  const startDay = new Date(startTime);
+  startDay.setHours(0, 0, 0, 0);
+  for (let d = new Date(startDay); d.getTime() <= endTime + 24 * 60 * 60 * 1000; d.setDate(d.getDate() + 1)) {
+    const noon = new Date(d);
+    noon.setHours(12, 0, 0, 0);
+    const noonT = noon.getTime();
+    if (noonT >= startTime && noonT <= endTime) {
+      dayLabels.push({ x: getXFromTime(noonT), label: format(noon, 'EEE') });
+    }
+    const midnightT = d.getTime();
+    if (midnightT > startTime && midnightT <= endTime) {
+      midnightTicks.push(getXFromTime(midnightT));
+    }
   }
 
   const svgPoints = points.map((p, i) => `${getX(i)},${getY(p.value)}`).join(' ');
@@ -67,6 +83,9 @@ export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, 
         return <line key={i} x1={oX} x2={oX + chartW} y1={y} y2={y} className="stroke-border" strokeWidth="0.3" />;
       })}
       <line x1={oX} x2={oX + chartW} y1={oY + chartH} y2={oY + chartH} className="stroke-muted-foreground" strokeWidth="0.5" opacity="0.5" />
+      {midnightTicks.map((x, i) => (
+        <line key={`mt-${i}`} x1={x} x2={x} y1={oY + chartH} y2={oY + chartH + 3} className="stroke-muted-foreground" strokeWidth="0.5" opacity="0.5" />
+      ))}
       <path d={areaPath} fill="hsl(var(--primary))" opacity="0.1" />
       <polyline fill="none" stroke="hsl(var(--primary))" strokeWidth="1" points={svgPoints} />
 
