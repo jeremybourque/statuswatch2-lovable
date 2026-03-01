@@ -7,8 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { ChevronDown, Activity, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { format } from 'date-fns';
+import { format, subMonths, startOfMonth } from 'date-fns';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 const impactToServiceStatus: Record<string, { label: string; color: string }> = {
   none: { label: 'No Impact', color: 'bg-muted text-muted-foreground' },
@@ -30,6 +31,20 @@ const IncidentHistory = () => {
   };
 
   const resolvedIncidents = incidents.filter(i => getDerivedStatus(i) === 'resolved');
+  const [monthsToShow, setMonthsToShow] = useState(6);
+
+  const months: string[] = [];
+  for (let i = 0; i < monthsToShow; i++) {
+    const d = startOfMonth(subMonths(new Date(), i));
+    months.push(format(d, 'MMMM yyyy'));
+  }
+
+  const grouped = resolvedIncidents.reduce<Record<string, typeof resolvedIncidents>>((acc, incident) => {
+    const key = format(new Date(incident.created_at), 'MMMM yyyy');
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(incident);
+    return acc;
+  }, {});
 
   return (
     <div className="min-h-screen bg-background">
@@ -53,31 +68,34 @@ const IncidentHistory = () => {
           <h2 className="text-xl font-semibold text-foreground">Incident History</h2>
         </div>
 
-        {resolvedIncidents.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No past incidents.</p>
-        ) : (() => {
-          const grouped = resolvedIncidents.reduce<Record<string, typeof resolvedIncidents>>((acc, incident) => {
-            const key = format(new Date(incident.created_at), 'MMMM yyyy');
-            if (!acc[key]) acc[key] = [];
-            acc[key].push(incident);
-            return acc;
-          }, {});
-
-          return (
-            <div className="space-y-8">
-              {Object.entries(grouped).map(([month, items]) => (
-                <div key={month}>
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">{month}</h3>
+        <div className="space-y-8">
+          {months.map(month => {
+            const items = grouped[month] || [];
+            return (
+              <div key={month}>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">{month}</h3>
+                {items.length > 0 ? (
                   <div className="space-y-3">
                     {items.map(incident => (
                       <IncidentCard key={incident.id} incident={incident} services={services} />
                     ))}
                   </div>
-                </div>
-              ))}
-            </div>
-          );
-        })()}
+                ) : (
+                  <p className="text-sm text-muted-foreground">No incidents reported.</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="outline"
+            onClick={() => setMonthsToShow(prev => prev + 6)}
+          >
+            Show more
+          </Button>
+        </div>
       </main>
 
       <footer className="border-t border-border mt-16">
