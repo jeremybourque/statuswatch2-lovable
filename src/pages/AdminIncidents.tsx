@@ -112,7 +112,7 @@ export default function AdminIncidents() {
                         <Badge className={`${sCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center mr-1.5`}>{sCfg.label}</Badge>
                         {(incident.incident_services || []).map((link: any) => {
                           const svc = services.find(s => s.id === link.service_id);
-                          return svc ? <Badge key={svc.id} variant="outline" className="text-xs py-0 px-1.5">{svc.name}</Badge> : null;
+                          return svc ? <Badge key={svc.id} variant="outline" className="text-xs">{svc.name}</Badge> : null;
                         })}
                       </div>
                     </CardHeader>
