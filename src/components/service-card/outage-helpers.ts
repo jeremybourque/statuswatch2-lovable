@@ -22,6 +22,7 @@ export function applyOutageEffects(
   uptimeDays: number[],
   yMax: number
 ): { modifiedPoints: GraphPoint[]; overlays: OutageOverlay[] } {
+  const lastPointTime = points[points.length - 1]?.time.getTime() ?? 0;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -42,7 +43,12 @@ export function applyOutageEffects(
     const offsetHours = (i * 3 + 2) % 12 + 4; // 4-15
     const durationHours = status === 0 ? 6 : status === 1 ? 4 : 3;
     const ovStart = dayStart + offsetHours * 3600000;
-    const ovEnd = dayStart + (offsetHours + durationHours + 2) * 3600000; // extend 2 hours past spike
+    let ovEnd = dayStart + (offsetHours + durationHours + 2) * 3600000; // extend 2 hours past spike
+
+    // If this is the most recent day (today) with an active outage, extend overlay to the last datapoint
+    if (i === 89) {
+      ovEnd = Math.max(ovEnd, lastPointTime);
+    }
 
     overlays.push({
       startTime: ovStart,
