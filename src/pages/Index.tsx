@@ -84,6 +84,7 @@ const Index = () => {
         <div
           className={`bg-card overflow-hidden transition-all duration-300 ease-in-out border-b border-border -mb-px ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
         >
+            <hr className="border-t border-border m-0" />
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
               {/* Search */}
               <div className="relative">
