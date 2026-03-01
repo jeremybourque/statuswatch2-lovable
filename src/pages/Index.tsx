@@ -157,7 +157,7 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2">
               <h3 className="font-semibold text-card-foreground truncate">{incident.title}</h3>
-              <Badge className={`text-xs border-0 shrink-0 mr-2 ${impactCfg.color}`}>
+              <Badge className={`text-xs border-0 shrink-0 mr-2 -mt-0.5 ${impactCfg.color}`}>
                 {impactCfg.label}
               </Badge>
             </div>
