@@ -76,7 +76,7 @@ const Index = () => {
           className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-10 px-2 py-1 group"
           aria-label="Toggle navigation drawer"
         >
-          <div className={`w-[7.5rem] h-[5px] rounded-full transition-colors bg-border group-hover:bg-muted-foreground`} />
+          <div className={`w-[11.25rem] h-[5px] rounded-full transition-colors bg-border group-hover:bg-muted-foreground`} />
         </button>
 
         {/* Drawer */}
