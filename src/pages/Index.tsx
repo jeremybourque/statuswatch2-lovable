@@ -128,45 +128,60 @@ const Index = () => {
                 </div>
               )}
 
-              {/* Navigation Links */}
+              {/* Service Status Summary + Navigation */}
               {!searchResults && (
-                <nav className="flex flex-col gap-1">
-                  <a
-                    href="#services"
-                    onClick={() => setDrawerOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
-                  >
-                    <Server className="h-4 w-4 text-muted-foreground" />
-                    Services
-                  </a>
-                  {activeIncidents.length > 0 && (
+                <div className="space-y-4">
+                  {/* Service status grid */}
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Service Status</h3>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {services.map(s => {
+                        const cfg = statusConfig[s.status as ServiceStatus] || statusConfig.operational;
+                        return (
+                          <button
+                            key={s.id}
+                            onClick={() => { setDrawerOpen(false); setSearchQuery(''); document.getElementById(`service-${s.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
+                            className="flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-accent text-left transition-colors"
+                          >
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.dotClass}`} />
+                            <span className="text-sm text-foreground truncate">{s.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Quick links */}
+                  <nav className="flex flex-col gap-1 border-t border-border pt-3">
+                    {activeIncidents.length > 0 && (
+                      <a
+                        href="#active-incidents"
+                        onClick={() => setDrawerOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
+                      >
+                        <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                        Active Incidents
+                        <Badge variant="secondary" className="ml-auto text-xs">{activeIncidents.length}</Badge>
+                      </a>
+                    )}
                     <a
-                      href="#active-incidents"
+                      href="#past-incidents"
                       onClick={() => setDrawerOpen(false)}
                       className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
                     >
-                      <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-                      Active Incidents
-                      <Badge variant="secondary" className="ml-auto text-xs">{activeIncidents.length}</Badge>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      Past Incidents
                     </a>
-                  )}
-                  <a
-                    href="#past-incidents"
-                    onClick={() => setDrawerOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
-                  >
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    Past Incidents
-                  </a>
-                  <Link
-                    to="/history"
-                    onClick={() => setDrawerOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
-                  >
-                    <History className="h-4 w-4 text-muted-foreground" />
-                    Incident History
-                  </Link>
-                </nav>
+                    <Link
+                      to="/history"
+                      onClick={() => setDrawerOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent text-sm text-foreground transition-colors"
+                    >
+                      <History className="h-4 w-4 text-muted-foreground" />
+                      Incident History
+                    </Link>
+                  </nav>
+                </div>
               )}
             </div>
         </div>
