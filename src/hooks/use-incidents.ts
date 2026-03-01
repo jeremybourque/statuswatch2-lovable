@@ -64,6 +64,20 @@ export function useAddIncidentUpdate() {
   });
 }
 
+export function useUpdateIncidentImpact() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, impact }: { id: string; impact: string }) => {
+      const { error } = await supabase.from('incidents').update({ impact }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['incidents'] });
+      qc.invalidateQueries({ queryKey: ['services'] });
+    },
+  });
+}
+
 export function useUpdateIncidentServices() {
   const qc = useQueryClient();
   return useMutation({

@@ -1,7 +1,14 @@
 import { useState } from 'react';
-import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useUpdateIncidentServices } from '@/hooks/use-incidents';
+import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useUpdateIncidentServices, useUpdateIncidentImpact } from '@/hooks/use-incidents';
 import { useServices } from '@/hooks/use-services';
-import { incidentStatusConfig, impactConfig, type IncidentStatus, type IncidentImpact } from '@/lib/status-helpers';
+import { incidentStatusConfig, statusConfig, type IncidentStatus, type IncidentImpact } from '@/lib/status-helpers';
+
+const impactToServiceStatus: Record<string, { label: string; color: string }> = {
+  none: { label: 'No Impact', color: 'bg-muted text-muted-foreground' },
+  minor: { label: statusConfig.degraded.label, color: 'bg-status-degraded/20 text-status-degraded' },
+  major: { label: statusConfig.partial_outage.label, color: 'bg-status-partial-outage/20 text-status-partial-outage' },
+  critical: { label: statusConfig.major_outage.label, color: 'bg-status-major-outage/20 text-status-major-outage' },
+};
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,9 +30,11 @@ export default function AdminIncidents() {
   const addUpdate = useAddIncidentUpdate();
   const deleteIncident = useDeleteIncident();
   const updateServices = useUpdateIncidentServices();
+  const updateImpact = useUpdateIncidentImpact();
   const [createOpen, setCreateOpen] = useState(false);
   const [updateDialogId, setUpdateDialogId] = useState<string | null>(null);
   const [servicesDialogId, setServicesDialogId] = useState<string | null>(null);
+  const [impactDialogId, setImpactDialogId] = useState<string | null>(null);
 
   const handleCreate = async (data: any) => {
     try {
@@ -79,7 +88,7 @@ export default function AdminIncidents() {
         <div className="space-y-3">
           {incidents.map(incident => {
             const sCfg = incidentStatusConfig[incident.status as IncidentStatus];
-            const iCfg = impactConfig[incident.impact as IncidentImpact];
+            const impactCfg = impactToServiceStatus[incident.impact] || impactToServiceStatus.none;
             const updates = (incident.incident_updates || []).sort(
               (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
             );
@@ -91,7 +100,7 @@ export default function AdminIncidents() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
                         <Badge className={`${sCfg.color} border-0 text-xs`}>{sCfg.label}</Badge>
-                        <Badge className={`${iCfg.color} border-0 text-xs`}>{iCfg.label}</Badge>
+                        <Badge className={`${impactCfg.color} border-0 text-xs`}>{impactCfg.label}</Badge>
                         {(incident.incident_services || []).map((link: any) => {
                           const svc = services.find(s => s.id === link.service_id);
                           return svc ? <Badge key={svc.id} variant="outline" className="text-xs py-0 px-1.5">{svc.name}</Badge> : null;
@@ -146,6 +155,24 @@ export default function AdminIncidents() {
                             />
                           </DialogContent>
                         </Dialog>
+                        <Dialog open={impactDialogId === incident.id} onOpenChange={v => setImpactDialogId(v ? incident.id : null)}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm"><Pencil className="h-4 w-4 mr-1" /> Impact</Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Service Impact</DialogTitle></DialogHeader>
+                            <EditImpactForm
+                              currentImpact={incident.impact}
+                              onSave={async (impact) => {
+                                try {
+                                  await updateImpact.mutateAsync({ id: incident.id, impact });
+                                  toast.success('Impact updated');
+                                  setImpactDialogId(null);
+                                } catch { toast.error('Failed to update impact'); }
+                              }}
+                            />
+                          </DialogContent>
+                        </Dialog>
                         <Button variant="ghost" size="sm" onClick={() => handleDelete(incident.id)}>
                           <Trash2 className="h-4 w-4 text-destructive mr-1" /> Delete
                         </Button>
@@ -193,14 +220,14 @@ function CreateIncidentForm({ services, onSave }: { services: any[]; onSave: (d:
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Impact</Label>
+          <Label>Service Impact</Label>
           <Select value={impact} onValueChange={setImpact}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">None</SelectItem>
-              <SelectItem value="minor">Minor</SelectItem>
-              <SelectItem value="major">Major</SelectItem>
-              <SelectItem value="critical">Critical</SelectItem>
+              <SelectItem value="none">No Impact</SelectItem>
+              <SelectItem value="minor">{statusConfig.degraded.label}</SelectItem>
+              <SelectItem value="major">{statusConfig.partial_outage.label}</SelectItem>
+              <SelectItem value="critical">{statusConfig.major_outage.label}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -268,6 +295,28 @@ function EditServicesForm({ services, currentServiceIds, onSave }: { services: a
             {s.name}
           </label>
         ))}
+      </div>
+      <Button type="submit" className="w-full">Save</Button>
+    </form>
+  );
+}
+
+function EditImpactForm({ currentImpact, onSave }: { currentImpact: string; onSave: (impact: string) => void }) {
+  const [impact, setImpact] = useState(currentImpact);
+
+  return (
+    <form onSubmit={e => { e.preventDefault(); onSave(impact); }} className="space-y-4">
+      <div className="space-y-2">
+        <Label>Service Impact</Label>
+        <Select value={impact} onValueChange={setImpact}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No Impact</SelectItem>
+            <SelectItem value="minor">{statusConfig.degraded.label}</SelectItem>
+            <SelectItem value="major">{statusConfig.partial_outage.label}</SelectItem>
+            <SelectItem value="critical">{statusConfig.major_outage.label}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <Button type="submit" className="w-full">Save</Button>
     </form>
