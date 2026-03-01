@@ -35,18 +35,21 @@ const IncidentHistory = () => {
   const resolvedIncidents = incidents.filter(i => getDerivedStatus(i) === 'resolved');
   const [monthsToShow, setMonthsToShow] = useState(6);
 
-  const months: string[] = [];
-  for (let i = 0; i < monthsToShow; i++) {
-    const d = startOfMonth(subMonths(new Date(), i));
-    months.push(format(d, 'MMMM yyyy'));
-  }
-
   const grouped = resolvedIncidents.reduce<Record<string, typeof resolvedIncidents>>((acc, incident) => {
     const key = format(new Date(incident.created_at), 'MMMM yyyy');
     if (!acc[key]) acc[key] = [];
     acc[key].push(incident);
     return acc;
   }, {});
+
+  const currentMonth = format(new Date(), 'MMMM yyyy');
+  const months: string[] = [];
+  for (let i = 0; i < monthsToShow; i++) {
+    const d = startOfMonth(subMonths(new Date(), i));
+    const label = format(d, 'MMMM yyyy');
+    if (label === currentMonth && !(grouped[label]?.length)) continue;
+    months.push(label);
+  }
 
   return (
     <div className="min-h-screen bg-background">
