@@ -136,10 +136,13 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
   };
 
   return (
-    <div className={`border border-border rounded-lg bg-card overflow-hidden ${!expanded ? 'hover:bg-accent/50 transition-colors' : ''}`}>
+    <div
+      className={`border border-border rounded-lg bg-card overflow-hidden ${!expanded ? 'hover:bg-accent/50 transition-colors cursor-pointer' : ''}`}
+      onClick={!expanded ? () => setExpanded(true) : undefined}
+    >
       <button
-        onClick={() => setExpanded(!expanded)}
-        className={`w-full flex items-center justify-between p-4 text-left ${expanded ? 'hover:bg-accent/50 transition-colors' : ''}`}
+        onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+        className={`w-full flex items-center justify-between p-4 text-left ${expanded ? 'hover:bg-accent/50 transition-colors cursor-pointer' : ''}`}
       >
         <div className="flex items-center gap-3">
           <div className={`w-1.5 h-8 rounded-full ${updateStatusBg[latestStatus] || 'bg-muted'}`} />
