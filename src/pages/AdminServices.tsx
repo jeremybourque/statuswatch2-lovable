@@ -103,18 +103,24 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
   const [category, setCategory] = useState(initial?.category || 'General');
   const [status, setStatus] = useState(initial?.status || 'operational');
   const [displayOrder, setDisplayOrder] = useState(initial?.display_order?.toString() || '0');
-  const [chartEnabled, setChartEnabled] = useState(initial?.chart_enabled !== false);
-  const [chartLabel, setChartLabel] = useState(initial?.chart_label || 'page load time');
-  const [chartDataFormat, setChartDataFormat] = useState(initial?.chart_data_format || '{value}s');
+  const chartModeFromInitial = () => {
+    if (initial?.chart_enabled === false) return 'none';
+    if (initial?.chart_label === 'response time') return 'response';
+    return 'page_load';
+  };
+  const [chartMode, setChartMode] = useState(chartModeFromInitial());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const chartSettings = chartMode === 'none'
+      ? { chart_enabled: false, chart_label: 'page load time', chart_data_format: '{value}s' }
+      : chartMode === 'response'
+        ? { chart_enabled: true, chart_label: 'response time', chart_data_format: '{value}ms' }
+        : { chart_enabled: true, chart_label: 'page load time', chart_data_format: '{value}s' };
     onSave({
       name, description, category, status,
       display_order: parseInt(displayOrder) || 0,
-      chart_enabled: chartEnabled,
-      chart_label: chartLabel,
-      chart_data_format: chartDataFormat,
+      ...chartSettings,
     });
   };
 
@@ -149,19 +155,15 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
       </div>
 
       <div className="border-t border-border pt-3 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3">
-        <Label htmlFor="chart-toggle">Chart View</Label>
-        <Switch id="chart-toggle" checked={chartEnabled} onCheckedChange={setChartEnabled} />
-        {chartEnabled && (
-          <>
-            <Label>Chart Label</Label>
-            <Input value={chartLabel} onChange={e => setChartLabel(e.target.value)} placeholder="e.g. page load time" />
-            <Label>Data Format</Label>
-            <div className="space-y-1">
-              <Input value={chartDataFormat} onChange={e => setChartDataFormat(e.target.value)} placeholder="e.g. {value}s or {value}ms" />
-              <p className="text-xs text-muted-foreground">Use <code className="bg-muted px-1 rounded">{'{value}'}</code> as a placeholder.</p>
-            </div>
-          </>
-        )}
+        <Label>Chart</Label>
+        <Select value={chartMode} onValueChange={setChartMode}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="page_load">Page Load Time</SelectItem>
+            <SelectItem value="response">Response Time</SelectItem>
+            <SelectItem value="none">No Chart</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <Button type="submit" className="w-full">Save</Button>
