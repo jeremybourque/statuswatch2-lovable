@@ -189,7 +189,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                   <span className="text-xs inline-flex whitespace-nowrap">
                     <span className="text-muted-foreground w-[6em]">{parts[0]}</span>
                     <span className="text-muted-foreground mx-1.5">●</span>
-                    <span className="font-semibold text-foreground w-[7em]">{parts[1]}</span>
+                    <span className="font-semibold text-foreground w-[7em] pl-0.5">{parts[1]}</span>
                   </span>
                 );
               })() : <span className="text-xs">&nbsp;</span>}
