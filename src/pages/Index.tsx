@@ -152,14 +152,16 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
         onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
         className={`w-full flex items-center justify-between p-4 text-left ${expanded ? 'hover:bg-accent/50 transition-colors cursor-pointer' : ''}`}
       >
-        <div className="flex items-center gap-3">
-          <div className={`w-1.5 h-8 rounded-full ${updateStatusBg[latestStatus] || 'bg-muted'}`} />
-          <div>
-            <h3 className="font-semibold text-card-foreground">{incident.title}</h3>
-            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <Badge className={`text-xs border-0 ${impactCfg.color}`}>
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className={`w-1.5 h-8 rounded-full shrink-0 ${updateStatusBg[latestStatus] || 'bg-muted'}`} />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-semibold text-card-foreground truncate">{incident.title}</h3>
+              <Badge className={`text-xs border-0 shrink-0 ${impactCfg.color}`}>
                 {impactCfg.label}
               </Badge>
+            </div>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
               <span className="text-sm text-muted-foreground">
                 {format(new Date(incident.created_at), 'MMM d, yyyy · h:mm a')}
               </span>
