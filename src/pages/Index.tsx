@@ -167,7 +167,6 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
               </span>
               {affectedServices.length > 0 && (
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-muted-foreground">·</span>
                   {affectedServices.map(s => (
                     <Badge key={s.id} variant="outline" className="text-xs">
                       {s.name}
