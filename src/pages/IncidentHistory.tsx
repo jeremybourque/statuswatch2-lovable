@@ -5,7 +5,7 @@ import { incidentStatusConfig } from '@/lib/status-helpers';
 import type { IncidentStatus } from '@/lib/status-helpers';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { ChevronDown, Activity, ArrowLeft } from 'lucide-react';
+import { ChevronDown, Activity, ArrowLeft, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { useState, useEffect } from 'react';
@@ -61,7 +61,12 @@ const IncidentHistory = () => {
               {settings?.page_title || 'StatusWatch'}
             </h1>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Settings className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </header>
 
