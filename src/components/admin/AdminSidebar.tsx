@@ -1,4 +1,4 @@
-import { Server, AlertTriangle, Settings, ArrowLeft } from 'lucide-react';
+import { Server, AlertTriangle, Settings, ArrowLeft, BarChart3 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import {
@@ -16,6 +16,7 @@ import {
 const items = [
   { title: 'Incidents', url: '/admin/incidents', icon: AlertTriangle },
   { title: 'Services', url: '/admin/services', icon: Server },
+  { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Settings', url: '/admin/settings', icon: Settings },
 ];
 
