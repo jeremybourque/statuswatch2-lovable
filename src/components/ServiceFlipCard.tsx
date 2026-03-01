@@ -159,7 +159,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
                 </button>
               </div>
             </div>
-            <span className="text-xs font-medium text-muted-foreground" style={{ fontFamily: 'Inconsolata, monospace' }}>{backView === 'graph' ? <>page load time <span className="text-foreground">{graphAvg !== null ? graphAvg.toFixed(2) : '—'}s</span></> : <>uptime <span className="text-foreground">{uptimePercent}%</span></>}</span>
+            <span className="text-sm font-medium text-muted-foreground" style={{ fontFamily: 'Inconsolata, monospace' }}>{backView === 'graph' ? <>page load time <span className="text-foreground">{graphAvg !== null ? graphAvg.toFixed(2) : '—'}s</span></> : <>uptime <span className="text-foreground">{uptimePercent}%</span></>}</span>
           </div>
           <div className={`relative w-full flex-1 flex flex-col transition-opacity duration-150 ${fading ? 'opacity-0' : 'opacity-100'}`} onMouseLeave={() => setHoveredDay(null)}>
               {backView === 'bars' && (
