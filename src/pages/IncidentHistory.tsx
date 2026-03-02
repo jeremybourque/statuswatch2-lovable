@@ -20,7 +20,7 @@ const impactToServiceStatus: Record<string, { label: string; color: string }> = 
 
 const IncidentHistory = () => {
   const { slug } = useParams<{ slug: string }>();
-  const backLink = slug ? `/status/${slug}` : '/';
+  const backLink = slug ? `/${slug}` : '/';
   const { data: incidents = [] } = useIncidents();
   const { data: services = [] } = useServices();
   const { data: settings } = useSiteSettings();
