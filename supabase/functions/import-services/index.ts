@@ -90,9 +90,10 @@ Deno.serve(async (req) => {
             role: 'system',
             content: `You are an expert at analyzing web pages. You will receive the markdown content of a web page. Your task is to:
 1. Classify it as one of: "status_page" (a service status/uptime page), "system_diagram" (architecture/infrastructure diagram or documentation), or "unknown" (anything else).
-2. If it's a status_page or system_diagram, extract the services/components with their name, a brief description, and category/group.
-3. Do NOT prepend the category/group name to the service name.
-4. Minimize the number of categories/groups. Only create separate categories when services are truly distinct in purpose. When in doubt, group services together under a broader category rather than splitting them into many small ones.${existingContext}
+2. If it's a status_page or system_diagram, extract ALL services/components thoroughly — do not skip or omit any. Include every distinct service, endpoint, or component mentioned.
+3. For each service, provide a brief description (one short sentence). Prefer concise descriptions over lengthy ones.
+4. Do NOT prepend the category/group name to the service name.
+5. Minimize the number of categories/groups. Only create separate categories when services are truly distinct in purpose (e.g. "API" vs "Website" vs "Infrastructure"). Do NOT artificially flatten everything into a single group — use your judgment to find a natural, minimal grouping.${existingContext}
 
 Call the extract_services function with your findings.`,
           },
