@@ -113,6 +113,7 @@ export type Database = {
           description: string | null
           display_order: number
           id: string
+          is_test: boolean
           name: string
         }
         Insert: {
@@ -124,6 +125,7 @@ export type Database = {
           description?: string | null
           display_order?: number
           id?: string
+          is_test?: boolean
           name: string
         }
         Update: {
@@ -135,6 +137,7 @@ export type Database = {
           description?: string | null
           display_order?: number
           id?: string
+          is_test?: boolean
           name?: string
         }
         Relationships: []
