@@ -186,58 +186,19 @@ export default function AdminIncidents() {
                         const uCfg = incidentStatusConfig[u.status as IncidentStatus] || { label: u.status, color: '' };
                         return (
                           <div key={u.id} className="flex gap-3 text-sm border-l-2 border-border pl-4 py-1 group">
-                            {editUpdateId === u.id ? (
-                              <>
-                                <div className="flex-1 space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <Select value={editUpdateStatus} onValueChange={setEditUpdateStatus}>
-                                      <SelectTrigger className="h-6 w-[6.5rem] text-xs">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="investigating">Investigating</SelectItem>
-                                        <SelectItem value="identified">Identified</SelectItem>
-                                        <SelectItem value="monitoring">Monitoring</SelectItem>
-                                        <SelectItem value="resolved">Resolved</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <Input type="datetime-local" className="h-6 text-xs w-auto" value={editUpdateTimestamp} onChange={e => setEditUpdateTimestamp(e.target.value)} />
-                                  </div>
-                                  <Textarea
-                                    value={editUpdateMessage}
-                                    onChange={e => setEditUpdateMessage(e.target.value)}
-                                    className="text-sm min-h-[2.5rem]"
-                                    autoFocus
-                                  />
-                                </div>
-                                <div className="flex flex-col gap-1 shrink-0">
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={async () => {
-                                    try {
-                                      await editUpdate.mutateAsync({ id: u.id, message: editUpdateMessage, status: editUpdateStatus, created_at: new Date(editUpdateTimestamp).toISOString() });
-                                      toast.success('Update edited');
-                                      setEditUpdateId(null);
-                                    } catch { toast.error('Failed to edit update'); }
-                                  }}><Check className="h-3.5 w-3.5" /></Button>
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setEditUpdateId(null)}>
-                                    <X className="h-3.5 w-3.5" />
-                                  </Button>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <div className="flex-1 space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <Badge className={`${uCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center`}>{uCfg.label}</Badge>
-                                    <span className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</span>
-                                  </div>
-                                  <p className="text-muted-foreground">{u.message}</p>
-                                </div>
-                                <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0" onClick={() => {
-                                  setEditUpdateId(u.id);
-                                  setEditUpdateMessage(u.message);
-                                  setEditUpdateStatus(u.status);
-                                  setEditUpdateTimestamp(format(new Date(u.created_at), "yyyy-MM-dd'T'HH:mm"));
-                                }}><Pencil className="h-3.5 w-3.5 text-muted-foreground" /></Button>
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Badge className={`${uCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center`}>{uCfg.label}</Badge>
+                                <span className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</span>
+                              </div>
+                              <p className="text-muted-foreground">{u.message}</p>
+                            </div>
+                            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0" onClick={() => {
+                              setEditUpdateId(u.id);
+                              setEditUpdateMessage(u.message);
+                              setEditUpdateStatus(u.status);
+                              setEditUpdateTimestamp(format(new Date(u.created_at), "yyyy-MM-dd'T'HH:mm"));
+                            }}><Pencil className="h-3.5 w-3.5 text-muted-foreground" /></Button>
                             {updates.length <= 1 ? (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -280,11 +241,45 @@ export default function AdminIncidents() {
                                 </AlertDialogContent>
                               </AlertDialog>
                             )}
-                              </>
-                            )}
                           </div>
                         );
                       })}
+                      <Dialog open={editUpdateId !== null && updates.some((u: any) => u.id === editUpdateId)} onOpenChange={v => { if (!v) setEditUpdateId(null); }}>
+                        <DialogContent>
+                          <DialogHeader><DialogTitle>Edit Update</DialogTitle></DialogHeader>
+                          <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            if (!editUpdateId) return;
+                            try {
+                              await editUpdate.mutateAsync({ id: editUpdateId, message: editUpdateMessage, status: editUpdateStatus, created_at: new Date(editUpdateTimestamp).toISOString() });
+                              toast.success('Update edited');
+                              setEditUpdateId(null);
+                            } catch { toast.error('Failed to edit update'); }
+                          }} className="space-y-4">
+                            <div className="space-y-2">
+                              <Label>Status</Label>
+                              <Select value={editUpdateStatus} onValueChange={setEditUpdateStatus}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="investigating">Investigating</SelectItem>
+                                  <SelectItem value="identified">Identified</SelectItem>
+                                  <SelectItem value="monitoring">Monitoring</SelectItem>
+                                  <SelectItem value="resolved">Resolved</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Timestamp</Label>
+                              <Input type="datetime-local" value={editUpdateTimestamp} onChange={e => setEditUpdateTimestamp(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Message</Label>
+                              <Textarea value={editUpdateMessage} onChange={e => setEditUpdateMessage(e.target.value)} required />
+                            </div>
+                            <Button type="submit" className="w-full">Save Update</Button>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
                       <div className="flex gap-2 pt-2 flex-wrap">
                         <Dialog open={updateDialogId === incident.id} onOpenChange={v => setUpdateDialogId(v ? incident.id : null)}>
                           <DialogTrigger asChild>
