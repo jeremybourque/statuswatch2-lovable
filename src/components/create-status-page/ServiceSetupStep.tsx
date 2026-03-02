@@ -5,7 +5,7 @@ import {
   Draggable,
   type DropResult,
 } from '@hello-pangea/dnd';
-import { Plus, X, GripVertical, FolderPlus } from 'lucide-react';
+import { Plus, X, GripVertical, FolderPlus, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -151,13 +151,14 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
                 ) : (
                   <button
                     type="button"
-                    className="text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors cursor-text"
+                    className="group/cat flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors cursor-text"
                     onClick={() => {
                       setEditingCategory(category);
                       setEditCategoryName(category);
                     }}
                   >
                     {category}
+                    <Pencil className="h-3 w-3 opacity-0 group-hover/cat:opacity-50 transition-opacity" />
                   </button>
                 )}
                 <div className="flex items-center gap-1">
