@@ -121,13 +121,13 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           className="group absolute inset-0 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors overflow-hidden"
           style={{ backfaceVisibility: 'hidden' }}>
 
-          <div className="p-4 flex items-center h-full">
-            <div className="flex items-center gap-3 shrink-0">
+          <div className="p-4 flex items-baseline h-full">
+            <div className="flex items-baseline gap-3 shrink-0">
               <StatusDot status={service.status as ServiceStatus} />
               <span className="text-lg font-medium text-card-foreground whitespace-nowrap">{service.name}</span>
             </div>
             {service.description && (
-              <span className="text-sm text-muted-foreground min-w-0 flex-1 ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-[400ms] delay-0 group-hover:delay-200 line-clamp-2 self-baseline">{service.description}</span>
+              <span className="text-sm text-muted-foreground min-w-0 flex-1 ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-[400ms] delay-0 group-hover:delay-200 line-clamp-2">{service.description}</span>
             )}
             <span className={`text-base font-medium ${cfg.color} shrink-0 ml-auto pl-4`}>{cfg.label}</span>
           </div>
