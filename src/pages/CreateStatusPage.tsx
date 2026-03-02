@@ -133,15 +133,22 @@ const CreateStatusPage = () => {
     deduplicateSlug(value);
   };
 
+  const pendingStepRef = useRef<number | null>(null);
+
   const goTo = (nextStep: number) => {
     if (animating) return;
     setHasNavigated(true);
     setDirection(nextStep > step ? 'forward' : 'back');
+    pendingStepRef.current = nextStep;
     setAnimating(true);
-    setTimeout(() => {
-      setStep(nextStep);
+  };
+
+  const handleSlideAnimationEnd = () => {
+    if (animating && pendingStepRef.current !== null) {
+      setStep(pendingStepRef.current);
+      pendingStepRef.current = null;
       setAnimating(false);
-    }, 300);
+    }
   };
 
   const handleNext = (e: React.FormEvent) => {
@@ -232,7 +239,7 @@ const CreateStatusPage = () => {
           </div>
         </div>
 
-        <div className={`${slideClass}`}>
+        <div className={`${slideClass}`} onAnimationEnd={handleSlideAnimationEnd}>
           {step === 0 && (
             <form onSubmit={handleNext} className="space-y-8">
               <div>
