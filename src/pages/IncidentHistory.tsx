@@ -5,11 +5,12 @@ import { incidentStatusConfig } from '@/lib/status-helpers';
 import type { IncidentStatus } from '@/lib/status-helpers';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { ChevronDown, Activity, ArrowLeft } from 'lucide-react';
+import { ChevronDown, Activity, ArrowLeft, Search, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format, subMonths, startOfMonth } from 'date-fns';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const impactToServiceStatus: Record<string, { label: string; color: string }> = {
   none: { label: 'No Impact', color: 'bg-muted text-muted-foreground' },
@@ -35,8 +36,23 @@ const IncidentHistory = () => {
 
   const resolvedIncidents = incidents.filter(i => getDerivedStatus(i) === 'resolved');
   const [monthsToShow, setMonthsToShow] = useState(6);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const grouped = resolvedIncidents.reduce<Record<string, typeof resolvedIncidents>>((acc, incident) => {
+  const filteredIncidents = useMemo(() => {
+    if (!searchQuery.trim()) return resolvedIncidents;
+    const q = searchQuery.toLowerCase();
+    return resolvedIncidents.filter(incident => {
+      if (incident.title.toLowerCase().includes(q)) return true;
+      const affectedServiceIds = (incident.incident_services || []).map((s: any) => s.service_id);
+      const affectedServiceNames = services.filter(s => affectedServiceIds.includes(s.id)).map(s => s.name.toLowerCase());
+      if (affectedServiceNames.some(name => name.includes(q))) return true;
+      const updates = incident.incident_updates || [];
+      if (updates.some((u: any) => u.message?.toLowerCase().includes(q))) return true;
+      return false;
+    });
+  }, [resolvedIncidents, searchQuery, services]);
+
+  const grouped = filteredIncidents.reduce<Record<string, typeof filteredIncidents>>((acc, incident) => {
     const key = format(new Date(incident.created_at), 'MMMM yyyy');
     if (!acc[key]) acc[key] = [];
     acc[key].push(incident);
@@ -72,6 +88,24 @@ const IncidentHistory = () => {
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <h2 className="text-xl font-semibold text-foreground">Incident History</h2>
+        </div>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search incidents..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <div className="space-y-8">
