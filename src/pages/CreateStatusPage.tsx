@@ -177,7 +177,7 @@ const CreateStatusPage = () => {
                   type="button"
                   onClick={(e) => handleGoToPreview(e as any)}
                 >
-                  Preview <ArrowRight className="h-4 w-4 ml-1" />
+                  Review & Create <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
             </div>
