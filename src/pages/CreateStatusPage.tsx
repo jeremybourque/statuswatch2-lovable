@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { Activity, ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
+import { useState } from 'react';
+import { Activity, ArrowLeft, ArrowRight, Plus, X, CheckCircle2, Globe } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Input } from '@/components/ui/input';
@@ -70,13 +70,18 @@ const CreateStatusPage = () => {
     setServices(prev => prev.filter(s => s.id !== id));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleGoToPreview = (e: React.FormEvent) => {
     e.preventDefault();
     const validServices = services.filter(s => s.name.trim());
     if (validServices.length === 0) {
       toast.error('Add at least one service');
       return;
     }
+    goTo(2);
+  };
+
+  const handleSubmit = async () => {
+    const validServices = services.filter(s => s.name.trim());
 
     setSaving(true);
     try {
@@ -129,7 +134,7 @@ const CreateStatusPage = () => {
       <main className="max-w-3xl mx-auto px-4 py-8 overflow-hidden">
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2">
-            {[0, 1].map(i => (
+            {[0, 1, 2].map(i => (
               <div
                 key={i}
                 className={`h-2 rounded-full transition-all duration-300 ${
@@ -176,7 +181,7 @@ const CreateStatusPage = () => {
           )}
 
           {step === 1 && (
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleGoToPreview} className="space-y-8">
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -231,11 +236,82 @@ const CreateStatusPage = () => {
                 <Button type="button" variant="outline" onClick={() => goTo(0)}>
                   <ArrowLeft className="h-4 w-4 mr-1" /> Back
                 </Button>
-                <Button type="submit" disabled={saving}>
-                  {saving ? 'Creating…' : 'Create Status Page'}
+                <Button type="submit">
+                  Preview <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
             </form>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Preview</h2>
+                <p className="text-sm text-muted-foreground">Review your status page before creating it.</p>
+              </div>
+
+              {/* Preview card */}
+              <div className="border border-border rounded-xl overflow-hidden bg-card">
+                {/* Mock header */}
+                <div className="border-b border-border px-6 py-4 flex items-center gap-3">
+                  <Activity className="h-5 w-5 text-primary" />
+                  <span className="font-semibold text-foreground">{name}</span>
+                </div>
+
+                <div className="px-6 py-5 space-y-5">
+                  {/* Overall status banner */}
+                  <div className="flex items-center gap-2 rounded-lg bg-status-operational/10 border border-status-operational/20 px-4 py-3">
+                    <CheckCircle2 className="h-5 w-5 text-status-operational" />
+                    <span className="text-sm font-medium text-status-operational">All Systems Operational</span>
+                  </div>
+
+                  {description && (
+                    <p className="text-sm text-muted-foreground">{description}</p>
+                  )}
+
+                  {/* Services preview */}
+                  <div className="space-y-2">
+                    {Object.entries(
+                      services.filter(s => s.name.trim()).reduce<Record<string, ServiceEntry[]>>((acc, s) => {
+                        const cat = s.category.trim() || 'General';
+                        (acc[cat] = acc[cat] || []).push(s);
+                        return acc;
+                      }, {})
+                    ).map(([category, items]) => (
+                      <div key={category} className="space-y-1">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{category}</p>
+                        {items.map(svc => (
+                          <div key={svc.id} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+                            <div>
+                              <span className="text-sm font-medium text-foreground">{svc.name}</span>
+                              {svc.description && (
+                                <p className="text-xs text-muted-foreground mt-0.5">{svc.description}</p>
+                              )}
+                            </div>
+                            <span className="text-xs font-medium text-status-operational">Operational</span>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* URL preview */}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t border-border">
+                    <Globe className="h-3.5 w-3.5" />
+                    <span>/{slug}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <Button type="button" variant="outline" onClick={() => goTo(1)}>
+                  <ArrowLeft className="h-4 w-4 mr-1" /> Back
+                </Button>
+                <Button onClick={handleSubmit} disabled={saving}>
+                  {saving ? 'Creating…' : 'Create Status Page'}
+                </Button>
+              </div>
+            </div>
           )}
         </div>
       </main>
