@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Activity, ArrowLeft, ArrowRight, Plus, X, CheckCircle2, Globe } from 'lucide-react';
+import { Activity, ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Input } from '@/components/ui/input';
@@ -246,60 +246,58 @@ const CreateStatusPage = () => {
           {step === 2 && (
             <div className="space-y-8">
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-2">Preview</h2>
-                <p className="text-sm text-muted-foreground">Review your status page before creating it.</p>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Review & Create</h2>
+                <p className="text-sm text-muted-foreground">Confirm your details before creating the status page.</p>
               </div>
 
-              {/* Preview card */}
-              <div className="border border-border rounded-xl overflow-hidden bg-card">
-                {/* Mock header */}
-                <div className="border-b border-border px-6 py-4 flex items-center gap-3">
-                  <Activity className="h-5 w-5 text-primary" />
-                  <span className="font-semibold text-foreground">{name}</span>
+              {/* Page details */}
+              <div className="border border-border rounded-lg bg-card p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-foreground">Page Details</h3>
+                  <Button type="button" variant="ghost" size="sm" className="text-xs h-7" onClick={() => goTo(0)}>
+                    Edit
+                  </Button>
                 </div>
-
-                <div className="px-6 py-5 space-y-5">
-                  {/* Overall status banner */}
-                  <div className="flex items-center gap-2 rounded-lg bg-status-operational/10 border border-status-operational/20 px-4 py-3">
-                    <CheckCircle2 className="h-5 w-5 text-status-operational" />
-                    <span className="text-sm font-medium text-status-operational">All Systems Operational</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Name</span>
+                    <p className="font-medium text-foreground">{name}</p>
                   </div>
+                  <div>
+                    <span className="text-muted-foreground">Slug</span>
+                    <p className="font-medium text-foreground">/{slug}</p>
+                  </div>
+                </div>
+                {description && (
+                  <div className="text-sm">
+                    <span className="text-muted-foreground">Description</span>
+                    <p className="font-medium text-foreground">{description}</p>
+                  </div>
+                )}
+              </div>
 
-                  {description && (
-                    <p className="text-sm text-muted-foreground">{description}</p>
-                  )}
-
-                  {/* Services preview */}
-                  <div className="space-y-2">
-                    {Object.entries(
-                      services.filter(s => s.name.trim()).reduce<Record<string, ServiceEntry[]>>((acc, s) => {
-                        const cat = s.category.trim() || 'General';
-                        (acc[cat] = acc[cat] || []).push(s);
-                        return acc;
-                      }, {})
-                    ).map(([category, items]) => (
-                      <div key={category} className="space-y-1">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{category}</p>
-                        {items.map(svc => (
-                          <div key={svc.id} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
-                            <div>
-                              <span className="text-sm font-medium text-foreground">{svc.name}</span>
-                              {svc.description && (
-                                <p className="text-xs text-muted-foreground mt-0.5">{svc.description}</p>
-                              )}
-                            </div>
-                            <span className="text-xs font-medium text-status-operational">Operational</span>
-                          </div>
-                        ))}
+              {/* Services summary */}
+              <div className="border border-border rounded-lg bg-card p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Services <span className="text-muted-foreground font-normal">({services.filter(s => s.name.trim()).length})</span>
+                  </h3>
+                  <Button type="button" variant="ghost" size="sm" className="text-xs h-7" onClick={() => goTo(1)}>
+                    Edit
+                  </Button>
+                </div>
+                <div className="divide-y divide-border">
+                  {services.filter(s => s.name.trim()).map(svc => (
+                    <div key={svc.id} className="py-2.5 first:pt-0 last:pb-0 flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground">{svc.name}</p>
+                        {svc.description && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{svc.description}</p>
+                        )}
                       </div>
-                    ))}
-                  </div>
-
-                  {/* URL preview */}
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t border-border">
-                    <Globe className="h-3.5 w-3.5" />
-                    <span>/{slug}</span>
-                  </div>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">{svc.category || 'General'}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
