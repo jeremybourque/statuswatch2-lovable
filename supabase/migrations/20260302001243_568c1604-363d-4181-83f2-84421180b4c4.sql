@@ -1,0 +1,1 @@
+ALTER TABLE public.services ADD COLUMN is_test boolean NOT NULL DEFAULT false;
