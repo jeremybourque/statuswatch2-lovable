@@ -135,9 +135,11 @@ const CreateStatusPage = () => {
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2">
             {[0, 1, 2].map(i => (
-              <div
+              <button
                 key={i}
-                className={`h-2 rounded-full transition-all duration-300 ${
+                type="button"
+                onClick={() => goTo(i)}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer hover:opacity-80 ${
                   i === step ? 'w-6 bg-primary' : 'w-2 bg-muted-foreground/30'
                 }`}
               />
