@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -74,8 +75,7 @@ const Index = () => {
     }
   };
 
-  const handleDelete = async (id: string, pageName: string) => {
-    if (!confirm(`Delete "${pageName}"?`)) return;
+  const handleDelete = async (id: string) => {
     try {
       await deletePage.mutateAsync(id);
       toast.success('Status page deleted');
@@ -165,16 +165,35 @@ const Index = () => {
                       Created {format(new Date(page.created_at), 'MMM d, yyyy')}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={e => { e.preventDefault(); e.stopPropagation(); handleDelete(page.id, page.name); }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <div className="flex items-center gap-2 shrink-0">
+                     {page.slug !== 'default' && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={e => { e.preventDefault(); e.stopPropagation(); }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent onClick={e => e.preventDefault()}>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete "{page.name}"?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently delete this status page and cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(page.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                     )}
                   </div>
                 </div>
               </Link>
