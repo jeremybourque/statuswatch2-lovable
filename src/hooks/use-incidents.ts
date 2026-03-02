@@ -157,8 +157,10 @@ export function useUpdateIncidentTitle() {
 export function useEditIncidentUpdate() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, message, status }: { id: string; message: string; status: string }) => {
-      const { error } = await supabase.from('incident_updates').update({ message, status }).eq('id', id);
+    mutationFn: async ({ id, message, status, created_at }: { id: string; message: string; status: string; created_at?: string }) => {
+      const update: Record<string, string> = { message, status };
+      if (created_at) update.created_at = created_at;
+      const { error } = await supabase.from('incident_updates').update(update).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['incidents'] }),
