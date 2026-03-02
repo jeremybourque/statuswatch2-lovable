@@ -4,18 +4,28 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Plus, Trash2, AlertTriangle, CheckCircle, RotateCcw } from 'lucide-react';
 
-const TEST_SERVICE_NAMES = ['Test Alpha', 'Test Beta', 'Test Gamma', 'Test Delta', 'Test Epsilon'];
+const SERVICE_GROUPS = [
+  { category: 'Cloud Infrastructure', services: ['Compute Engine', 'Load Balancer', 'Object Storage', 'DNS Management', 'CDN'] },
+  { category: 'Communication', services: ['Email Delivery', 'SMS Gateway', 'Push Notifications', 'Webhooks', 'Chat Service'] },
+  { category: 'Data Platform', services: ['PostgreSQL Cluster', 'Redis Cache', 'Search Index', 'Data Pipeline', 'Analytics Engine'] },
+  { category: 'Developer Tools', services: ['CI/CD Pipeline', 'Container Registry', 'API Gateway', 'Log Aggregation', 'Error Tracking'] },
+  { category: 'Identity & Security', services: ['Authentication', 'SSO Provider', 'Certificate Manager', 'Secrets Vault', 'Firewall'] },
+  { category: 'Media Services', services: ['Image Processing', 'Video Transcoding', 'Asset Storage', 'Streaming CDN', 'Thumbnail Generator'] },
+  { category: 'Payments', services: ['Payment Processing', 'Subscription Billing', 'Invoice Service', 'Fraud Detection', 'Payout Engine'] },
+  { category: 'Monitoring', services: ['Uptime Checker', 'Metrics Collector', 'Alerting Service', 'Status Dashboard', 'Incident Manager'] },
+];
 
 export default function AdminTesting() {
   const qc = useQueryClient();
 
   const addServices = async () => {
     try {
+      const group = SERVICE_GROUPS[Math.floor(Math.random() * SERVICE_GROUPS.length)];
       const { data: existing } = await supabase.from('services').select('display_order').order('display_order', { ascending: false }).limit(1);
       const maxOrder = existing?.[0]?.display_order ?? 0;
-      const rows = TEST_SERVICE_NAMES.map((name, i) => ({
+      const rows = group.services.map((name, i) => ({
         name,
-        category: 'Test',
+        category: group.category,
         display_order: maxOrder + i + 1,
         is_test: true,
         chart_enabled: false,
@@ -23,7 +33,7 @@ export default function AdminTesting() {
       const { error } = await supabase.from('services').insert(rows);
       if (error) throw error;
       qc.invalidateQueries({ queryKey: ['services'] });
-      toast.success('Added 5 test services');
+      toast.success(`Added "${group.category}" group with ${group.services.length} services`);
     } catch (e: any) {
       toast.error(e.message);
     }
