@@ -106,14 +106,16 @@ const CreateStatusPage = () => {
           <div>
             <h2 className="text-xl font-semibold text-foreground mb-4">Create Status Page</h2>
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Page Name</Label>
-                <Input id="name" placeholder="My App Status" value={name} onChange={e => autoSlug(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="slug">Slug</Label>
-                <Input id="slug" placeholder="my-app-status" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} />
-                <p className="text-xs text-muted-foreground">This will be the URL path: /{slug || '...'}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Page Name</Label>
+                  <Input id="name" placeholder="My App Status" value={name} onChange={e => autoSlug(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="slug">Slug</Label>
+                  <Input id="slug" placeholder="my-app-status" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} />
+                  <p className="text-xs text-muted-foreground">/{slug || '...'}</p>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Description (optional)</Label>
