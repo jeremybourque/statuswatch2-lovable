@@ -270,7 +270,7 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
             <div className="flex items-center justify-between gap-2">
               <h3 className="font-semibold text-card-foreground truncate">{incident.title}</h3>
               {latestStatus !== 'resolved' && (
-                <span className={`text-sm font-medium shrink-0 mr-2 ${impactCfg.color.replace(/bg-\S+/g, '').trim()}`}>
+                <span className={`text-sm font-semibold shrink-0 mr-2 ${impactCfg.color.replace(/bg-\S+/g, '').trim()}`}>
                   {impactCfg.label}
                 </span>
               )}
