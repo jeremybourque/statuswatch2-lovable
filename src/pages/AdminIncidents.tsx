@@ -475,9 +475,10 @@ function CreateIncidentForm({ services, onSave }: { services: any[]; onSave: (d:
 function AddUpdateForm({ incidentId, currentStatus, onSave }: { incidentId: string; currentStatus: string; onSave: (d: any) => void }) {
   const [status, setStatus] = useState(currentStatus);
   const [message, setMessage] = useState('');
+  const [timestamp, setTimestamp] = useState(() => format(new Date(), "yyyy-MM-dd'T'HH:mm"));
 
   return (
-    <form onSubmit={e => { e.preventDefault(); onSave({ incident_id: incidentId, status, message }); }} className="space-y-4">
+    <form onSubmit={e => { e.preventDefault(); onSave({ incident_id: incidentId, status, message, created_at: new Date(timestamp).toISOString() }); }} className="space-y-4">
       <div className="space-y-2">
         <Label>Status</Label>
         <Select value={status} onValueChange={setStatus}>
@@ -489,6 +490,10 @@ function AddUpdateForm({ incidentId, currentStatus, onSave }: { incidentId: stri
             <SelectItem value="resolved">Resolved</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+      <div className="space-y-2">
+        <Label>Timestamp</Label>
+        <Input type="datetime-local" value={timestamp} onChange={e => setTimestamp(e.target.value)} />
       </div>
       <div className="space-y-2">
         <Label>Message</Label>
