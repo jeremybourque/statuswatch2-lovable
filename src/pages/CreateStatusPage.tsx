@@ -254,21 +254,21 @@ const CreateStatusPage = () => {
 
               {/* Page details */}
               <div className="border border-border rounded-lg bg-card p-5 space-y-3">
-                <div className="flex items-center justify-end">
-                  <Button type="button" variant="ghost" size="sm" className="h-7 gap-1 px-2" onClick={() => goTo(0)}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm flex-1">
+                    <div>
+                      <span className="text-muted-foreground">Name</span>
+                      <p className="font-medium text-foreground">{name}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Slug</span>
+                      <p className="font-medium text-foreground">/{slug}</p>
+                    </div>
+                  </div>
+                  <Button type="button" variant="ghost" size="sm" className="h-7 gap-1 px-2 shrink-0" onClick={() => goTo(0)}>
                     <ArrowLeft className="h-3.5 w-3.5" />
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Name</span>
-                    <p className="font-medium text-foreground">{name}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Slug</span>
-                    <p className="font-medium text-foreground">/{slug}</p>
-                  </div>
                 </div>
                 {description && (
                   <div className="text-sm">
