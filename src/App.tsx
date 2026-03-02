@@ -13,7 +13,6 @@ import AdminSettings from "./pages/AdminSettings";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminTesting from "./pages/AdminTesting";
 import CreateStatusPage from "./pages/CreateStatusPage";
-import CreateServices from "./pages/CreateServices";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,7 +26,6 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/create" element={<CreateStatusPage />} />
-          <Route path="/create/services" element={<CreateServices />} />
           <Route path="/:slug" element={<StatusPage />} />
           <Route path="/:slug/history" element={<IncidentHistory />} />
           <Route path="/:slug/admin" element={<AdminLayout />}>
