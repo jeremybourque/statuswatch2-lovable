@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Activity, ArrowLeft, ArrowRight, Pencil, X } from 'lucide-react';
+import { Activity, ArrowLeft, ArrowRight, Pencil } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Input } from '@/components/ui/input';
@@ -111,7 +111,7 @@ const CreateStatusPage = () => {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 overflow-hidden">
-        <div className="flex items-center justify-center mb-8">
+        <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2">
             {[0, 1, 2].map(i => (
               <button
@@ -124,11 +124,6 @@ const CreateStatusPage = () => {
               />
             ))}
           </div>
-          <Button variant="ghost" size="icon" className="absolute right-4 h-8 w-8 text-muted-foreground hover:text-foreground" asChild>
-            <Link to="/">
-              <X className="h-4 w-4" />
-            </Link>
-          </Button>
         </div>
 
         <div className={`${slideClass}`}>
