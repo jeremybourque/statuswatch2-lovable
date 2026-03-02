@@ -180,27 +180,23 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
                             >
                               <GripVertical className="h-4 w-4" />
                             </div>
-                            <div className="flex-1 space-y-2">
-                              <div className="space-y-1">
-                                <Label className="text-xs">Name</Label>
-                                <Input
-                                  placeholder="e.g. API, Dashboard, CDN"
-                                  value={svc.name}
-                                  onChange={e =>
-                                    updateService(svc.id, 'name', e.target.value)
-                                  }
-                                />
-                              </div>
-                              <div className="space-y-1">
-                                <Label className="text-xs">Description (optional)</Label>
-                                <Input
-                                  placeholder="Brief description of this service"
-                                  value={svc.description}
-                                  onChange={e =>
-                                    updateService(svc.id, 'description', e.target.value)
-                                  }
-                                />
-                              </div>
+                            <div className="flex-1 flex items-baseline gap-3">
+                              <Input
+                                placeholder="Service name"
+                                value={svc.name}
+                                onChange={e =>
+                                  updateService(svc.id, 'name', e.target.value)
+                                }
+                                className="max-w-[180px] shrink-0"
+                              />
+                              <Input
+                                placeholder="Description (optional)"
+                                value={svc.description}
+                                onChange={e =>
+                                  updateService(svc.id, 'description', e.target.value)
+                                }
+                                className="flex-1"
+                              />
                             </div>
                             <Button
                               type="button"
