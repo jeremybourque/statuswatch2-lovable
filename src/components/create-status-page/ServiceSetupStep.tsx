@@ -34,7 +34,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
 
 
   const allCategories = Array.from(
-    new Set([...services.map(s => s.category), ...extraCategories])
+    new Set([...extraCategories, ...services.map(s => s.category)])
   );
 
   const addCategory = () => {
@@ -66,11 +66,18 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
         s.category === oldName ? { ...s, category: newName } : s
       )
     );
-    onExtraCategoriesChange(extraCategories.map(c => c === oldName ? newName : c));
+    onExtraCategoriesChange(
+      extraCategories.includes(oldName)
+        ? extraCategories.map(c => c === oldName ? newName : c)
+        : [...extraCategories, newName]
+    );
     setEditingCategory(null);
   };
 
   const addService = (category: string) => {
+    if (!extraCategories.includes(category)) {
+      onExtraCategoriesChange([...extraCategories, category]);
+    }
     onServicesChange([
       ...services,
       { id: crypto.randomUUID(), name: '', description: '', category },
@@ -301,7 +308,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => addService(allCategories[0] || 'General')}
+              onClick={() => addService(allCategories[0] ?? 'General')}
             >
               <Plus className="h-4 w-4 mr-1" /> Add Service
             </Button>
