@@ -153,6 +153,14 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
             <span className="font-medium text-foreground">{pageName}</span>
           </p>
         </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowImportDialog(true)}
+        >
+          <Upload className="h-4 w-4 mr-1" /> Import
+        </Button>
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -360,14 +368,6 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
               onClick={() => addService(allCategories[0] ?? 'General')}
             >
               <Plus className="h-4 w-4 mr-1" /> Add Service
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setShowImportDialog(true)}
-            >
-              <Upload className="h-4 w-4 mr-1" /> Import
             </Button>
           </div>
         )}
