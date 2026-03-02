@@ -83,6 +83,7 @@ export type Database = {
           impact: string
           resolved_at: string | null
           status: string
+          status_page_id: string
           title: string
         }
         Insert: {
@@ -91,6 +92,7 @@ export type Database = {
           impact?: string
           resolved_at?: string | null
           status?: string
+          status_page_id: string
           title: string
         }
         Update: {
@@ -99,9 +101,18 @@ export type Database = {
           impact?: string
           resolved_at?: string | null
           status?: string
+          status_page_id?: string
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "incidents_status_page_id_fkey"
+            columns: ["status_page_id"]
+            isOneToOne: false
+            referencedRelation: "status_pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {
@@ -115,6 +126,7 @@ export type Database = {
           id: string
           is_test: boolean
           name: string
+          status_page_id: string
         }
         Insert: {
           category?: string
@@ -127,6 +139,7 @@ export type Database = {
           id?: string
           is_test?: boolean
           name: string
+          status_page_id: string
         }
         Update: {
           category?: string
@@ -139,23 +152,43 @@ export type Database = {
           id?: string
           is_test?: boolean
           name?: string
+          status_page_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "services_status_page_id_fkey"
+            columns: ["status_page_id"]
+            isOneToOne: false
+            referencedRelation: "status_pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_settings: {
         Row: {
           key: string
+          status_page_id: string
           value: string
         }
         Insert: {
           key: string
+          status_page_id: string
           value: string
         }
         Update: {
           key?: string
+          status_page_id?: string
           value?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "site_settings_status_page_id_fkey"
+            columns: ["status_page_id"]
+            isOneToOne: false
+            referencedRelation: "status_pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       status_pages: {
         Row: {

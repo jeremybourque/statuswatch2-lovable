@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { useSiteSettings, useUpdateSiteSetting } from '@/hooks/use-site-settings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 
 export default function AdminSettings() {
-  const { data: settings, isLoading } = useSiteSettings();
+  const { statusPageId } = useOutletContext<{ statusPageId: string }>();
+  const { data: settings, isLoading } = useSiteSettings(statusPageId);
   const updateSetting = useUpdateSiteSetting();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -25,9 +27,9 @@ export default function AdminSettings() {
   const handleSave = async () => {
     try {
       await Promise.all([
-        updateSetting.mutateAsync({ key: 'page_title', value: title }),
-        updateSetting.mutateAsync({ key: 'page_description', value: description }),
-        updateSetting.mutateAsync({ key: 'logo_url', value: logoUrl }),
+        updateSetting.mutateAsync({ key: 'page_title', value: title, status_page_id: statusPageId }),
+        updateSetting.mutateAsync({ key: 'page_description', value: description, status_page_id: statusPageId }),
+        updateSetting.mutateAsync({ key: 'logo_url', value: logoUrl, status_page_id: statusPageId }),
       ]);
       toast.success('Settings saved');
     } catch {

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useDeleteIncidentUpdate, useUpdateIncidentServices, useUpdateIncidentImpact, useUpdateIncidentTitle, useEditIncidentUpdate, useUpdateIncidentTimestamp } from '@/hooks/use-incidents';
 import { useServices } from '@/hooks/use-services';
 import { incidentStatusConfig, statusConfig, type IncidentStatus, type IncidentImpact } from '@/lib/status-helpers';
@@ -25,8 +26,9 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 export default function AdminIncidents() {
-  const { data: incidents = [], isLoading } = useIncidents();
-  const { data: services = [] } = useServices();
+  const { statusPageId } = useOutletContext<{ statusPageId: string }>();
+  const { data: incidents = [], isLoading } = useIncidents(statusPageId);
+  const { data: services = [] } = useServices(statusPageId);
   const createIncident = useCreateIncident();
   const addUpdate = useAddIncidentUpdate();
   const deleteIncident = useDeleteIncident();
@@ -48,7 +50,7 @@ export default function AdminIncidents() {
 
   const handleCreate = async (data: any) => {
     try {
-      await createIncident.mutateAsync(data);
+      await createIncident.mutateAsync({ ...data, status_page_id: statusPageId });
       toast.success('Incident created');
       setCreateOpen(false);
     } catch {
@@ -56,9 +58,9 @@ export default function AdminIncidents() {
     }
   };
 
-  const handleAddUpdate = async (data: { incident_id: string; status: string; message: string }) => {
+  const handleAddUpdate = async (data: { incident_id: string; status: string; message: string; created_at?: string }) => {
     try {
-      await addUpdate.mutateAsync(data);
+      await addUpdate.mutateAsync({ ...data, status_page_id: statusPageId });
       toast.success('Update added');
       setUpdateDialogId(null);
     } catch {
@@ -68,7 +70,7 @@ export default function AdminIncidents() {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteIncident.mutateAsync(id);
+      await deleteIncident.mutateAsync({ id, status_page_id: statusPageId });
       toast.success('Incident deleted');
     } catch {
       toast.error('Failed to delete incident');
@@ -188,7 +190,7 @@ export default function AdminIncidents() {
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                                     <AlertDialogAction onClick={async () => {
                                       try {
-                                        await deleteUpdate.mutateAsync(u.id);
+                                        await deleteUpdate.mutateAsync({ id: u.id, status_page_id: statusPageId });
                                         toast.success('Update deleted');
                                       } catch { toast.error('Failed to delete update'); }
                                     }}>Delete</AlertDialogAction>
@@ -206,7 +208,7 @@ export default function AdminIncidents() {
                             e.preventDefault();
                             if (!editUpdateId) return;
                             try {
-                              await editUpdate.mutateAsync({ id: editUpdateId, message: editUpdateMessage, status: editUpdateStatus, created_at: new Date(editUpdateTimestamp).toISOString() });
+                              await editUpdate.mutateAsync({ id: editUpdateId, message: editUpdateMessage, status: editUpdateStatus, created_at: new Date(editUpdateTimestamp).toISOString(), status_page_id: statusPageId });
                               toast.success('Update edited');
                               setEditUpdateId(null);
                             } catch { toast.error('Failed to edit update'); }
@@ -256,10 +258,10 @@ export default function AdminIncidents() {
                               services={services}
                               onSave={async (data) => {
                                 try {
-                                  await updateTitle.mutateAsync({ id: incident.id, title: data.title });
-                                  await updateTimestamp.mutateAsync({ id: incident.id, created_at: new Date(data.timestamp).toISOString() });
-                                  await updateImpact.mutateAsync({ id: incident.id, impact: data.impact });
-                                  await updateServices.mutateAsync({ incident_id: incident.id, service_ids: data.service_ids });
+                                  await updateTitle.mutateAsync({ id: incident.id, title: data.title, status_page_id: statusPageId });
+                                  await updateTimestamp.mutateAsync({ id: incident.id, created_at: new Date(data.timestamp).toISOString(), status_page_id: statusPageId });
+                                  await updateImpact.mutateAsync({ id: incident.id, impact: data.impact, status_page_id: statusPageId });
+                                  await updateServices.mutateAsync({ incident_id: incident.id, service_ids: data.service_ids, status_page_id: statusPageId });
                                   toast.success('Incident updated');
                                   setEditIncidentDialogId(null);
                                 } catch { toast.error('Failed to update incident'); }
@@ -411,50 +413,6 @@ function AddUpdateForm({ incidentId, currentStatus, onSave }: { incidentId: stri
         <Textarea value={message} onChange={e => setMessage(e.target.value)} required />
       </div>
       <Button type="submit" className="w-full">Add Update</Button>
-    </form>
-  );
-}
-
-function EditServicesForm({ services, currentServiceIds, onSave }: { services: any[]; currentServiceIds: string[]; onSave: (ids: string[]) => void }) {
-  const [selected, setSelected] = useState<string[]>(currentServiceIds);
-
-  const toggle = (id: string) => {
-    setSelected(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
-  };
-
-  return (
-    <form onSubmit={e => { e.preventDefault(); if (selected.length === 0) { toast.error('Select at least one service'); return; } onSave(selected); }} className="space-y-4">
-      <div className="space-y-2 max-h-60 overflow-y-auto">
-        {services.map(s => (
-          <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer">
-            <Checkbox checked={selected.includes(s.id)} onCheckedChange={() => toggle(s.id)} />
-            {s.name}
-          </label>
-        ))}
-      </div>
-      <Button type="submit" className="w-full">Save</Button>
-    </form>
-  );
-}
-
-function EditImpactForm({ currentImpact, onSave }: { currentImpact: string; onSave: (impact: string) => void }) {
-  const [impact, setImpact] = useState(currentImpact);
-
-  return (
-    <form onSubmit={e => { e.preventDefault(); onSave(impact); }} className="space-y-4">
-      <div className="space-y-2">
-        <Label>Service Impact</Label>
-        <Select value={impact} onValueChange={setImpact}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">No Impact</SelectItem>
-            <SelectItem value="minor">{statusConfig.degraded.label}</SelectItem>
-            <SelectItem value="major">{statusConfig.partial_outage.label}</SelectItem>
-            <SelectItem value="critical">{statusConfig.major_outage.label}</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <Button type="submit" className="w-full">Save</Button>
     </form>
   );
 }

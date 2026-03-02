@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { IncidentImpact, ServiceStatus } from '@/lib/status-helpers';
 
-// Maps incident impact to a service status severity
 const impactToStatus: Record<string, ServiceStatus> = {
   critical: 'major_outage',
   major: 'partial_outage',
@@ -17,24 +16,25 @@ const statusSeverity: Record<ServiceStatus, number> = {
   major_outage: 3,
 };
 
-export function useServices() {
+export function useServices(statusPageId?: string) {
   return useQuery({
-    queryKey: ['services'],
+    queryKey: ['services', statusPageId],
     queryFn: async () => {
-      // Fetch services
+      if (!statusPageId) return [];
+
       const { data: services, error } = await supabase
         .from('services')
         .select('*')
+        .eq('status_page_id', statusPageId)
         .order('display_order');
       if (error) throw error;
 
-      // Fetch all incidents with their linked services and updates
       const { data: allIncidents, error: incErr } = await supabase
         .from('incidents')
-        .select('id, impact, incident_services(service_id), incident_updates(status, created_at)');
+        .select('id, impact, incident_services(service_id), incident_updates(status, created_at)')
+        .eq('status_page_id', statusPageId);
       if (incErr) throw incErr;
 
-      // Derive actual status from latest update and filter to active only
       const activeIncidents = (allIncidents || []).filter(incident => {
         const updates = (incident.incident_updates || []).sort(
           (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -43,7 +43,6 @@ export function useServices() {
         return derivedStatus !== 'resolved';
       });
 
-      // Build a map: service_id → worst impact status
       const worstByService: Record<string, ServiceStatus> = {};
       for (const incident of activeIncidents || []) {
         const mapped = impactToStatus[incident.impact] || 'degraded';
@@ -55,24 +54,24 @@ export function useServices() {
         }
       }
 
-      // Override each service's status with the derived value
       return (services || []).map(s => ({
         ...s,
         status: worstByService[s.id] || 'operational',
       }));
     },
+    enabled: !!statusPageId,
   });
 }
 
 export function useCreateService() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (service: { name: string; description?: string; category: string; display_order: number; chart_enabled?: boolean; chart_label?: string; chart_data_format?: string }) => {
+    mutationFn: async (service: { name: string; description?: string; category: string; display_order: number; chart_enabled?: boolean; chart_label?: string; chart_data_format?: string; status_page_id: string }) => {
       const { data, error } = await supabase.from('services').insert(service).select().single();
       if (error) throw error;
       return data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['services'] }),
+    onSuccess: (data) => qc.invalidateQueries({ queryKey: ['services', data.status_page_id] }),
   });
 }
 
@@ -84,7 +83,7 @@ export function useUpdateService() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['services'] }),
+    onSuccess: (data) => qc.invalidateQueries({ queryKey: ['services', data.status_page_id] }),
   });
 }
 
@@ -92,9 +91,13 @@ export function useDeleteService() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      const { data } = await supabase.from('services').select('status_page_id').eq('id', id).single();
       const { error } = await supabase.from('services').delete().eq('id', id);
       if (error) throw error;
+      return data?.status_page_id;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['services'] }),
+    onSuccess: (statusPageId) => {
+      if (statusPageId) qc.invalidateQueries({ queryKey: ['services', statusPageId] });
+    },
   });
 }

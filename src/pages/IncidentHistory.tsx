@@ -1,12 +1,13 @@
 import { useIncidents } from '@/hooks/use-incidents';
 import { useServices } from '@/hooks/use-services';
 import { useSiteSettings } from '@/hooks/use-site-settings';
+import { useStatusPage } from '@/hooks/use-status-page';
 import { incidentStatusConfig } from '@/lib/status-helpers';
 import type { IncidentStatus } from '@/lib/status-helpers';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { ChevronDown, Activity, ArrowLeft } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -19,11 +20,11 @@ const impactToServiceStatus: Record<string, { label: string; color: string }> = 
 };
 
 const IncidentHistory = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { statusPageId, slug } = useStatusPage();
   const backLink = slug ? `/${slug}` : '/';
-  const { data: incidents = [] } = useIncidents();
-  const { data: services = [] } = useServices();
-  const { data: settings } = useSiteSettings();
+  const { data: incidents = [] } = useIncidents(statusPageId);
+  const { data: services = [] } = useServices(statusPageId);
+  const { data: settings } = useSiteSettings(statusPageId);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { useServices, useCreateService, useUpdateService, useDeleteService } from '@/hooks/use-services';
 import { statusConfig, type ServiceStatus } from '@/lib/status-helpers';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,8 @@ import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminServices() {
-  const { data: services = [], isLoading } = useServices();
+  const { statusPageId } = useOutletContext<{ statusPageId: string }>();
+  const { data: services = [], isLoading } = useServices(statusPageId);
   const createService = useCreateService();
   const updateService = useUpdateService();
   const deleteService = useDeleteService();
@@ -25,7 +27,7 @@ export default function AdminServices() {
         await updateService.mutateAsync({ id: editService.id, ...formData });
         toast.success('Service updated');
       } else {
-        await createService.mutateAsync(formData);
+        await createService.mutateAsync({ ...formData, status_page_id: statusPageId });
         toast.success('Service created');
       }
       setOpen(false);
@@ -138,7 +140,6 @@ function ServiceForm({ initial, onSave }: { initial?: any; onSave: (data: any) =
 
         <Label>Category</Label>
         <Input value={category} onChange={e => setCategory(e.target.value)} />
-
 
         <Label>Metric</Label>
         <Select value={chartMode} onValueChange={setChartMode}>
