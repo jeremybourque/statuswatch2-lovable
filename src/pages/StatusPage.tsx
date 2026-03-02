@@ -13,7 +13,7 @@ const impactToServiceStatus: Record<string, { label: string; color: string }> = 
 import { Badge } from '@/components/ui/badge';
 import { ServiceFlipCard } from '@/components/ServiceFlipCard';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { ChevronDown, Activity, Settings, AlertTriangle } from 'lucide-react';
+import { ChevronDown, Activity, Settings, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
@@ -57,6 +57,9 @@ const StatusPage = () => {
               </h1>
             </div>
             <div className="flex items-center gap-2">
+              <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
               <ThemeToggle />
               <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Settings className="h-4 w-4" />
