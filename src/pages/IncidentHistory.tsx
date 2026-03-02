@@ -62,11 +62,17 @@ const IncidentHistory = () => {
 
   const currentMonth = format(new Date(), 'MMMM yyyy');
   const months: string[] = [];
-  for (let i = 0; i < monthsToShow; i++) {
-    const d = startOfMonth(subMonths(new Date(), i));
-    const label = format(d, 'MMMM yyyy');
-    if (label === currentMonth && !(grouped[label]?.length)) continue;
-    months.push(label);
+  if (searchQuery.trim()) {
+    // When searching, show all months that have matching results
+    const sortedKeys = Object.keys(grouped).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    months.push(...sortedKeys);
+  } else {
+    for (let i = 0; i < monthsToShow; i++) {
+      const d = startOfMonth(subMonths(new Date(), i));
+      const label = format(d, 'MMMM yyyy');
+      if (label === currentMonth && !(grouped[label]?.length)) continue;
+      months.push(label);
+    }
   }
 
   return (
