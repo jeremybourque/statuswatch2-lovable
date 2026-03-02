@@ -210,22 +210,17 @@ const StatusPage = () => {
         </section>
 
         {recentResolved.length > 0 && (
-          <Collapsible id="past-incidents" className="scroll-mt-20" defaultOpen={false}>
-            <CollapsibleTrigger className="flex items-center gap-2 group w-full">
-              <h2 className="text-xl font-semibold text-foreground">Recently Resolved</h2>
-              <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <div className="space-y-3 mt-3">
-                {recentResolved.map(incident => (
-                  <IncidentCard key={incident.id} incident={incident} services={services} />
-                ))}
-                <Link to={`/${slug}/history`} className="text-sm text-primary hover:underline inline-block mt-1">
-                  View full incident history →
-                </Link>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+          <section id="past-incidents" className="scroll-mt-20">
+            <h2 className="text-xl font-semibold text-foreground">Recently Resolved</h2>
+            <div className="space-y-3 mt-3">
+              {recentResolved.map(incident => (
+                <IncidentCard key={incident.id} incident={incident} services={services} />
+              ))}
+              <Link to={`/${slug}/history`} className="text-sm text-primary hover:underline inline-block mt-1">
+                View full incident history →
+              </Link>
+            </div>
+          </section>
         )}
       </main>
 
