@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Activity, ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
+import { Activity, ArrowLeft, ArrowRight, Plus, X, Pencil } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Input } from '@/components/ui/input';
@@ -254,10 +254,9 @@ const CreateStatusPage = () => {
 
               {/* Page details */}
               <div className="border border-border rounded-lg bg-card p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground">Page Details</h3>
-                  <Button type="button" variant="ghost" size="sm" className="text-xs h-7" onClick={() => goTo(0)}>
-                    Edit
+                <div className="flex items-center justify-end">
+                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => goTo(0)}>
+                    <Pencil className="h-3.5 w-3.5" />
                   </Button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -284,8 +283,8 @@ const CreateStatusPage = () => {
                   <h3 className="text-sm font-semibold text-foreground">
                     Services <span className="text-muted-foreground font-normal">({services.filter(s => s.name.trim()).length})</span>
                   </h3>
-                  <Button type="button" variant="ghost" size="sm" className="text-xs h-7" onClick={() => goTo(1)}>
-                    Edit
+                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => goTo(1)}>
+                    <Pencil className="h-3.5 w-3.5" />
                   </Button>
                 </div>
                 <div className="space-y-4">
