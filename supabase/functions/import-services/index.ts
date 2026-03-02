@@ -198,17 +198,20 @@ You MUST use the extract_services tool to return your analysis.`;
           messages: [
             {
               role: 'system',
-              content: `You are an expert at extracting services from status pages. This is a status/uptime page.
+              content: `You extract services from status page HTML/markdown. The page has a HIERARCHICAL structure with parent groups that contain child services.
 
-Your task:
-1. Identify the groups/categories used on the status page and preserve that exact group structure as the category for each service.
-2. Extract ALL services/components within each group — do not skip or omit any.
-3. For each service, provide a very brief description (a few words, not a full sentence).
-4. Do NOT prepend the category/group name to the service name.${existingContext}
+CRITICAL RULES:
+1. Look for COLLAPSIBLE SECTIONS, ACCORDION PANELS, NESTED LISTS, or any grouped layout. Parent items contain child services within them.
+2. If a group like "Integrations" contains sub-services like "JIRA", "Slack", "PagerDuty", then "Integrations" is a GROUP and those are its children — use "Integrations" as the category for each child.
+3. Extract ALL services, including those inside collapsed/hidden sections. Do not skip or omit any.
+4. Standalone services with no parent group should use a sensible default category.
+5. Do NOT prepend the category/group name to the service name.
+6. For each service, provide a very brief description (a few words, not a full sentence).
+7. Do NOT include scheduled maintenance notices, incident reports, or announcements as services. Only extract actual system components/services.${existingContext}
 
 Call the extract_services function with your findings.`,
             },
-            { role: 'user', content: `Extract all services from this status page:\n\n${contentSlice}` },
+            { role: 'user', content: `Extract all services and their groups from this status page:\n\n${contentSlice}` },
           ],
           tools: [{
             type: 'function',
