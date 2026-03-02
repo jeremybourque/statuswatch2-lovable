@@ -83,6 +83,61 @@ const Index = () => {
                   {(() => {
                     const disrupted = services.filter(s => s.status !== 'operational');
                     const healthy = services.filter(s => s.status === 'operational');
+                    const showGroups = services.length > 15;
+
+                    if (showGroups) {
+                      // Show category groups with aggregated status
+                      const groupStatus = (catServices: typeof services) => {
+                        const worst = catServices.reduce((acc, s) => {
+                          const sev: Record<string, number> = { operational: 0, degraded: 1, partial_outage: 2, major_outage: 3 };
+                          return (sev[s.status as string] ?? 0) > (sev[acc] ?? 0) ? s.status : acc;
+                        }, 'operational');
+                        return worst as ServiceStatus;
+                      };
+
+                      const disruptedCats = categories.filter(cat => {
+                        const catServices = services.filter(s => s.category === cat);
+                        return groupStatus(catServices) !== 'operational';
+                      });
+                      const healthyCats = categories.filter(cat => {
+                        const catServices = services.filter(s => s.category === cat);
+                        return groupStatus(catServices) === 'operational';
+                      });
+
+                      const GroupButton = ({ cat }: { cat: string }) => {
+                        const catServices = services.filter(s => s.category === cat);
+                        const status = groupStatus(catServices);
+                        const cfg = statusConfig[status];
+                        return (
+                          <button
+                            onClick={() => {
+                              setDrawerOpen(false);
+                              const firstService = catServices[0];
+                              if (firstService) document.getElementById(`service-${firstService.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }}
+                            className="flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-accent text-left transition-colors"
+                          >
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.dotClass}`} />
+                            <span className="text-sm text-foreground truncate">{cat}</span>
+                            <span className="text-xs text-muted-foreground ml-auto">{catServices.length}</span>
+                          </button>
+                        );
+                      };
+
+                      return (
+                        <>
+                          {disruptedCats.length > 0 && (
+                            <div className="grid grid-cols-3 gap-1.5">
+                              {disruptedCats.map(cat => <GroupButton key={cat} cat={cat} />)}
+                            </div>
+                          )}
+                          <div className="grid grid-cols-3 gap-1.5">
+                            {healthyCats.map(cat => <GroupButton key={cat} cat={cat} />)}
+                          </div>
+                        </>
+                      );
+                    }
+
                     const ServiceButton = ({ s }: { s: any }) => {
                       const cfg = statusConfig[s.status as ServiceStatus] || statusConfig.operational;
                       return (
