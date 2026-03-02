@@ -198,13 +198,13 @@ You MUST use the extract_services tool to return your analysis.`;
           messages: [
             {
               role: 'system',
-              content: `You are an expert at extracting services from status pages. This is a status/uptime page. Extract every service, component, or endpoint listed along with its operational group.
+              content: `You are an expert at extracting services from status pages. This is a status/uptime page.
 
 Your task:
-1. Extract ALL services/components thoroughly — do not skip or omit any.
-2. For each service, provide a brief description (one short sentence).
-3. Do NOT prepend the category/group name to the service name.
-4. Minimize the number of categories/groups. Only create separate categories when services are truly distinct in purpose. Do NOT artificially flatten everything into a single group — use your judgment to find a natural, minimal grouping.${existingContext}
+1. Identify the groups/categories used on the status page and preserve that exact group structure as the category for each service.
+2. Extract ALL services/components within each group — do not skip or omit any.
+3. For each service, provide a very brief description (a few words, not a full sentence).
+4. Do NOT prepend the category/group name to the service name.${existingContext}
 
 Call the extract_services function with your findings.`,
             },
