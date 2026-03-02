@@ -207,13 +207,13 @@ export default function AdminAnalytics() {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex justify-center gap-4 mt-2">
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
               {data.devices.map((d, i) => {
                 const Icon = DEVICE_ICONS[d.name as keyof typeof DEVICE_ICONS] || Monitor;
                 return (
-                  <div key={d.name} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
-                    <Icon className="h-3 w-3" />
+                  <div key={d.name} className="flex items-center gap-1 text-[11px] text-muted-foreground whitespace-nowrap">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: PIE_COLORS[i] }} />
+                    <Icon className="h-3 w-3 shrink-0" />
                     <span>{d.name} {d.value}%</span>
                   </div>
                 );
@@ -259,8 +259,8 @@ function KpiCard({ icon: Icon, label, value, delta, positive }: { icon: React.El
           <span className="text-xs font-medium">{label}</span>
         </div>
         <div className="flex items-end gap-2">
-          <span className="text-2xl font-bold text-foreground">{value}</span>
-          <span className={`text-xs font-medium ${color} mb-0.5`}>{delta}</span>
+          <span className="text-xl sm:text-2xl font-bold text-foreground whitespace-nowrap">{value}</span>
+          <span className={`text-xs font-medium ${color} mb-0.5 whitespace-nowrap`}>{delta}</span>
         </div>
       </CardContent>
     </Card>
