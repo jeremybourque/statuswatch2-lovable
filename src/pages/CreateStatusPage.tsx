@@ -222,9 +222,9 @@ const CreateStatusPage = () => {
                   {(() => {
                     const svcCount = services.filter(s => s.name.trim()).length;
                     const grpCount = Object.keys(services.filter(s => s.name.trim()).reduce<Record<string, boolean>>((acc, s) => { acc[s.category.trim() || 'General'] = true; return acc; }, {})).length;
-                    return (
+                      return (
                       <h3 className="text-sm font-semibold text-foreground">
-                        {svcCount} {svcCount === 1 ? 'Service' : 'Services'} <span className="text-muted-foreground font-normal">in</span> {grpCount} {grpCount === 1 ? 'Group' : 'Groups'}
+                        {svcCount} {svcCount === 1 ? 'service' : 'services'} <span className="text-muted-foreground font-normal">in</span> {grpCount} {grpCount === 1 ? 'group' : 'groups'}
                       </h3>
                     );
                   })()}
