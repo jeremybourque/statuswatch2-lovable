@@ -6,7 +6,7 @@ import type { IncidentStatus } from '@/lib/status-helpers';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { ChevronDown, Activity, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,8 @@ const impactToServiceStatus: Record<string, { label: string; color: string }> = 
 };
 
 const IncidentHistory = () => {
+  const { slug } = useParams<{ slug: string }>();
+  const backLink = slug ? `/status/${slug}` : '/';
   const { data: incidents = [] } = useIncidents();
   const { data: services = [] } = useServices();
   const { data: settings } = useSiteSettings();
@@ -67,7 +69,7 @@ const IncidentHistory = () => {
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center gap-2">
-          <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link to={backLink} className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <h2 className="text-xl font-semibold text-foreground">Incident History</h2>
@@ -100,7 +102,7 @@ const IncidentHistory = () => {
           >
             Show more
           </Button>
-          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link to={backLink} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             ← Back to Status Page
           </Link>
         </div>
