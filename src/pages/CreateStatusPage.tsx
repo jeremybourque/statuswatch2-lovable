@@ -281,9 +281,15 @@ const CreateStatusPage = () => {
               {/* Services summary */}
               <div className="border border-border rounded-lg bg-card p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {services.filter(s => s.name.trim()).length} Services in {Object.keys(services.filter(s => s.name.trim()).reduce<Record<string, boolean>>((acc, s) => { acc[s.category.trim() || 'General'] = true; return acc; }, {})).length} Groups
-                  </h3>
+                  {(() => {
+                    const svcCount = services.filter(s => s.name.trim()).length;
+                    const grpCount = Object.keys(services.filter(s => s.name.trim()).reduce<Record<string, boolean>>((acc, s) => { acc[s.category.trim() || 'General'] = true; return acc; }, {})).length;
+                    return (
+                      <h3 className="text-sm font-semibold text-foreground">
+                        {svcCount} {svcCount === 1 ? 'Service' : 'Services'} <span className="text-muted-foreground font-normal">in</span> {grpCount} {grpCount === 1 ? 'Group' : 'Groups'}
+                      </h3>
+                    );
+                  })()}
                   <Button type="button" variant="ghost" size="sm" className="h-7 gap-1 px-2" onClick={() => goTo(1)}>
                     <ArrowLeft className="h-3.5 w-3.5" />
                     <Pencil className="h-3.5 w-3.5" />
