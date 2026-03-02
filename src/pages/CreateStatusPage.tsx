@@ -109,9 +109,25 @@ const CreateStatusPage = () => {
 
     setSaving(true);
     try {
+      // Deduplicate slug
+      const baseSlug = slug.trim();
+      let finalSlug = baseSlug;
+      const { data: existing } = await supabase
+        .from('status_pages')
+        .select('slug')
+        .like('slug', `${baseSlug}%`);
+      if (existing && existing.length > 0) {
+        const taken = new Set(existing.map(r => r.slug));
+        if (taken.has(finalSlug)) {
+          let i = 1;
+          while (taken.has(`${baseSlug}-${i}`)) i++;
+          finalSlug = `${baseSlug}-${i}`;
+        }
+      }
+
       const { data: page, error: pageErr } = await supabase
         .from('status_pages')
-        .insert({ name: name.trim(), slug: slug.trim(), description: description.trim() || null })
+        .insert({ name: name.trim(), slug: finalSlug, description: description.trim() || null })
         .select()
         .single();
       if (pageErr) throw pageErr;
