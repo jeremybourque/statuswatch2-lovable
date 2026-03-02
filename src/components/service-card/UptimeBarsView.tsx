@@ -31,13 +31,13 @@ export function UptimeBarsView({ uptimeDays, onHover }: UptimeBarsViewProps) {
   return (
     <div className="flex gap-1 items-end w-full h-8 mt-0.5">
       {months.map((month) => (
-        <div key={month.key} className="flex gap-[2px] flex-1 min-w-0 h-8">
+        <div key={month.key} className="flex gap-[2px] h-8" style={{ flex: month.days.length }}>
           {month.days.map(({ day, date, index }) => {
             const label = `${format(date, 'MMM d, yyyy')} ● ${statusLabels[day]}`;
             return (
               <div
                 key={index}
-                className={`flex-1 min-w-0 h-8 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
+                className={`flex-1 h-8 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
                 onMouseEnter={() => onHover(label)}
               />
             );
