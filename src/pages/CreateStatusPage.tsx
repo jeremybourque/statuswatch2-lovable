@@ -26,6 +26,7 @@ const CreateStatusPage = () => {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [animating, setAnimating] = useState(false);
+  const [hasNavigated, setHasNavigated] = useState(false);
 
   // Step 0 state
   const [name, setName] = useState('');
@@ -134,6 +135,7 @@ const CreateStatusPage = () => {
 
   const goTo = (nextStep: number) => {
     if (animating) return;
+    setHasNavigated(true);
     setDirection(nextStep > step ? 'forward' : 'back');
     setAnimating(true);
     setTimeout(() => {
@@ -192,13 +194,15 @@ const CreateStatusPage = () => {
     }
   };
 
-  const slideClass = animating
-    ? direction === 'forward'
-      ? 'animate-slide-out-left'
-      : 'animate-slide-out-right'
-    : direction === 'forward'
-      ? 'animate-slide-in-right'
-      : 'animate-slide-in-left';
+  const slideClass = !hasNavigated
+    ? ''
+    : animating
+      ? direction === 'forward'
+        ? 'animate-slide-out-left'
+        : 'animate-slide-out-right'
+      : direction === 'forward'
+        ? 'animate-slide-in-right'
+        : 'animate-slide-in-left';
 
   return (
     <div className="min-h-screen bg-background">
