@@ -177,7 +177,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
                     className="h-7 text-xs gap-1 px-2"
                     onClick={() => addService(category)}
                   >
-                    <Plus className="h-3.5 w-3.5" /> Add
+                    <Plus className="h-3.5 w-3.5" /> Add Service
                   </Button>
                   {category !== 'General' && servicesInCategory(category).length === 0 && (
                     <Button
