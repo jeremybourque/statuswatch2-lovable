@@ -214,6 +214,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
                           >
                             <div
                               {...dragProvided.dragHandleProps}
+                              tabIndex={-1}
                               className="mt-2.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing shrink-0"
                             >
                               <GripVertical className="h-4 w-4" />
@@ -240,6 +241,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
                               type="button"
                               variant="ghost"
                               size="icon"
+                              tabIndex={-1}
                               className="h-7 w-7 shrink-0 mt-1 text-muted-foreground hover:text-destructive"
                               onClick={() => removeService(svc.id)}
                             >
