@@ -5,10 +5,11 @@ import {
   Draggable,
   type DropResult,
 } from '@hello-pangea/dnd';
-import { Plus, X, GripVertical, FolderPlus, Pencil } from 'lucide-react';
+import { Plus, X, GripVertical, FolderPlus, Pencil, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ImportServicesDialog } from './ImportServicesDialog';
 
 export interface ServiceEntry {
   id: string;
@@ -30,7 +31,22 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
   const [editCategoryName, setEditCategoryName] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showCategoryInput, setShowCategoryInput] = useState(false);
-  
+  const [showImportDialog, setShowImportDialog] = useState(false);
+
+  const handleImport = (imported: { name: string; description: string; category: string }[]) => {
+    const newServices = imported.map(s => ({
+      id: crypto.randomUUID(),
+      name: s.name,
+      description: s.description,
+      category: s.category || 'General',
+    }));
+    const newCategories = [...new Set(imported.map(s => s.category || 'General'))];
+    const addedCategories = newCategories.filter(c => !extraCategories.includes(c));
+    if (addedCategories.length) {
+      onExtraCategoriesChange([...extraCategories, ...addedCategories]);
+    }
+    onServicesChange([...services, ...newServices]);
+  };
 
 
   const allCategories = Array.from(
@@ -345,9 +361,23 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
             >
               <Plus className="h-4 w-4 mr-1" /> Add Service
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowImportDialog(true)}
+            >
+              <Upload className="h-4 w-4 mr-1" /> Import
+            </Button>
           </div>
         )}
       </div>
+
+      <ImportServicesDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        onImport={handleImport}
+      />
     </div>
   );
 }
