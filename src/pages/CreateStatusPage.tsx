@@ -305,9 +305,9 @@ const CreateStatusPage = () => {
                   ).map(([category, items]) => (
                     <div key={category}>
                       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">{category}</p>
-                      <div className="divide-y divide-border">
+                      <div className="pl-3 space-y-1.5">
                         {items.map(svc => (
-                          <div key={svc.id} className="py-2.5 first:pt-0 last:pb-0">
+                          <div key={svc.id}>
                             <p className="text-sm font-medium text-foreground">{svc.name}</p>
                             {svc.description && (
                               <p className="text-xs text-muted-foreground mt-0.5">{svc.description}</p>
