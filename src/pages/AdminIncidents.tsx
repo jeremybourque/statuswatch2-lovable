@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useDeleteIncidentUpdate, useUpdateIncidentServices, useUpdateIncidentImpact, useUpdateIncidentTitle, useEditIncidentUpdate } from '@/hooks/use-incidents';
+import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useDeleteIncidentUpdate, useUpdateIncidentServices, useUpdateIncidentImpact, useUpdateIncidentTitle, useEditIncidentUpdate, useUpdateIncidentTimestamp } from '@/hooks/use-incidents';
 import { useServices } from '@/hooks/use-services';
 import { incidentStatusConfig, statusConfig, type IncidentStatus, type IncidentImpact } from '@/lib/status-helpers';
 
@@ -20,7 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Plus, ChevronDown, Trash2, MessageSquarePlus, Pencil, Check, X } from 'lucide-react';
+import { Plus, ChevronDown, Trash2, MessageSquarePlus, Pencil, Check, X, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -35,6 +35,7 @@ export default function AdminIncidents() {
   const deleteUpdate = useDeleteIncidentUpdate();
   const updateTitle = useUpdateIncidentTitle();
   const editUpdate = useEditIncidentUpdate();
+  const updateTimestamp = useUpdateIncidentTimestamp();
   const [createOpen, setCreateOpen] = useState(false);
   const [openIncidents, setOpenIncidents] = useState<Set<string>>(new Set());
   const [resolvedOpen, setResolvedOpen] = useState(false);
@@ -46,6 +47,8 @@ export default function AdminIncidents() {
   const [editUpdateId, setEditUpdateId] = useState<string | null>(null);
   const [editUpdateMessage, setEditUpdateMessage] = useState('');
   const [editUpdateStatus, setEditUpdateStatus] = useState('');
+  const [timestampDialogId, setTimestampDialogId] = useState<string | null>(null);
+  const [timestampValue, setTimestampValue] = useState('');
 
   const handleCreate = async (data: any) => {
     try {
@@ -344,6 +347,35 @@ export default function AdminIncidents() {
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
+                        <Dialog open={timestampDialogId === incident.id} onOpenChange={v => {
+                          if (v) {
+                            setTimestampDialogId(incident.id);
+                            const d = new Date(incident.created_at);
+                            setTimestampValue(format(d, "yyyy-MM-dd'T'HH:mm"));
+                          } else {
+                            setTimestampDialogId(null);
+                          }
+                        }}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm"><Clock className="h-4 w-4 mr-1" /> Timestamp</Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Incident Timestamp</DialogTitle></DialogHeader>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <Label>Created At</Label>
+                                <Input type="datetime-local" value={timestampValue} onChange={e => setTimestampValue(e.target.value)} />
+                              </div>
+                              <Button className="w-full" onClick={async () => {
+                                try {
+                                  await updateTimestamp.mutateAsync({ id: incident.id, created_at: new Date(timestampValue).toISOString() });
+                                  toast.success('Timestamp updated');
+                                  setTimestampDialogId(null);
+                                } catch { toast.error('Failed to update timestamp'); }
+                              }}>Save</Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </CardContent>
                   </CollapsibleContent>
