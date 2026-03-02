@@ -104,8 +104,9 @@ export default function AdminTesting() {
       const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
       const { data: incidents } = await supabase
         .from('incidents')
-        .select('id, incident_updates(id, status, created_at)')
-        .gte('resolved_at', threeDaysAgo);
+        .select('id, created_at, incident_updates(id, status, created_at)')
+        .gte('created_at', threeDaysAgo)
+        .not('resolved_at', 'is', null);
       if (!incidents?.length) { toast.info('No recently resolved incidents'); return; }
       let count = 0;
       for (const inc of incidents) {
