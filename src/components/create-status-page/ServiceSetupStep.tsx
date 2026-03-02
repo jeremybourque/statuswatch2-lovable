@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   DragDropContext,
   Droppable,
@@ -28,11 +28,22 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
   const [editCategoryName, setEditCategoryName] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showCategoryInput, setShowCategoryInput] = useState(false);
+  const [extraCategories, setExtraCategories] = useState<string[]>([]);
+  const initialized = useRef(false);
+
+  // Add a blank service on first render if empty
+  useEffect(() => {
+    if (!initialized.current && services.length === 0) {
+      initialized.current = true;
+      onServicesChange([
+        { id: crypto.randomUUID(), name: '', description: '', category: 'General' },
+      ]);
+    }
+  }, []);
 
   const categories = Array.from(
-    new Set(services.map(s => s.category))
+    new Set([...services.map(s => s.category), ...extraCategories])
   );
-  // Always show "General" if no categories exist
   const allCategories = categories.length === 0 ? ['General'] : categories;
 
   const addCategory = () => {
@@ -43,22 +54,18 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
       setShowCategoryInput(false);
       return;
     }
-    // Add a placeholder service so the category appears
-    onServicesChange([
-      ...services,
-      { id: crypto.randomUUID(), name: '', description: '', category: name },
-    ]);
+    setExtraCategories(prev => [...prev, name]);
     setNewCategoryName('');
     setShowCategoryInput(false);
   };
 
   const removeCategory = (category: string) => {
-    // Move services to "General" instead of deleting them
     onServicesChange(
       services.map(s =>
         s.category === category ? { ...s, category: 'General' } : s
       )
     );
+    setExtraCategories(prev => prev.filter(c => c !== category));
   };
 
   const renameCategory = (oldName: string) => {
@@ -72,6 +79,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
         s.category === oldName ? { ...s, category: newName } : s
       )
     );
+    setExtraCategories(prev => prev.map(c => c === oldName ? newName : c));
     setEditingCategory(null);
   };
 
