@@ -141,13 +141,20 @@ export function BaseGraphView({ points, yTicks, yMax, formatLabel, formatYTick, 
           r="3" fill="hsl(var(--primary))" stroke="hsl(var(--background))" strokeWidth="1" pointerEvents="none"
         />
       )}
-      {points.map((p, i) => (
-        <circle
-          key={i} cx={getX(i)} cy={getY(p.value)} r="3"
-          className="fill-transparent cursor-pointer"
-          onMouseEnter={() => { setHoveredIdx(i); onHover(formatLabel(p)); }}
-        />
-      ))}
+      <rect
+        x={oX} y={oY} width={chartW} height={chartH}
+        fill="transparent" className="cursor-crosshair"
+        onMouseMove={(e) => {
+          const svg = e.currentTarget.ownerSVGElement!;
+          const pt = svg.createSVGPoint();
+          pt.x = e.clientX;
+          const svgX = pt.matrixTransform(svg.getScreenCTM()!.inverse()).x;
+          const ratio = (svgX - oX) / chartW;
+          const idx = Math.max(0, Math.min(total - 1, Math.round(ratio * (total - 1))));
+          setHoveredIdx(idx);
+          onHover(formatLabel(points[idx]));
+        }}
+      />
     </svg>
   );
 }
