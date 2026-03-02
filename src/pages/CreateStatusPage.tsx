@@ -30,6 +30,7 @@ const CreateStatusPage = () => {
   // Step 0 state
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
+  const [slugWarning, setSlugWarning] = useState('');
   const [description, setDescription] = useState('');
 
   // Step 1 state
@@ -76,6 +77,7 @@ const CreateStatusPage = () => {
     clearTimeout(slugTimerRef.current);
     const base = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     setSlug(base);
+    setSlugWarning('');
     if (!base) return;
     slugTimerRef.current = setTimeout(async () => {
       const { data: existing } = await supabase
@@ -92,6 +94,26 @@ const CreateStatusPage = () => {
       }
     }, 400);
   }, []);
+
+  const handleSlugManualEdit = (value: string) => {
+    const cleaned = value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    setSlug(cleaned);
+    setSlugWarning('');
+  };
+
+  const checkSlugAvailability = async () => {
+    const trimmed = slug.trim();
+    if (!trimmed) return;
+    const { data: existing } = await supabase
+      .from('status_pages')
+      .select('slug')
+      .eq('slug', trimmed);
+    if (existing && existing.length > 0) {
+      setSlugWarning(`"/${trimmed}" is already taken. It will be adjusted automatically on save.`);
+    } else {
+      setSlugWarning('');
+    }
+  };
 
   const autoSlug = (value: string) => {
     setName(value);
@@ -207,8 +229,12 @@ const CreateStatusPage = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="slug">Slug</Label>
-                      <Input id="slug" placeholder="my-app-status" value={slug} onChange={e => deduplicateSlug(e.target.value)} />
-                      <p className="text-xs text-muted-foreground">/{slug || '...'}</p>
+                      <Input id="slug" placeholder="my-app-status" value={slug} onChange={e => handleSlugManualEdit(e.target.value)} onBlur={checkSlugAvailability} />
+                      {slugWarning ? (
+                        <p className="text-xs text-destructive">{slugWarning}</p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">/{slug || '...'}</p>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
