@@ -47,6 +47,7 @@ export default function AdminIncidents() {
   const [editUpdateId, setEditUpdateId] = useState<string | null>(null);
   const [editUpdateMessage, setEditUpdateMessage] = useState('');
   const [editUpdateStatus, setEditUpdateStatus] = useState('');
+  const [editUpdateTimestamp, setEditUpdateTimestamp] = useState('');
   const [timestampDialogId, setTimestampDialogId] = useState<string | null>(null);
   const [timestampValue, setTimestampValue] = useState('');
 
@@ -200,7 +201,7 @@ export default function AdminIncidents() {
                                         <SelectItem value="resolved">Resolved</SelectItem>
                                       </SelectContent>
                                     </Select>
-                                    <span className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</span>
+                                    <Input type="datetime-local" className="h-6 text-xs w-auto" value={editUpdateTimestamp} onChange={e => setEditUpdateTimestamp(e.target.value)} />
                                   </div>
                                   <Textarea
                                     value={editUpdateMessage}
@@ -212,7 +213,7 @@ export default function AdminIncidents() {
                                 <div className="flex flex-col gap-1 shrink-0">
                                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={async () => {
                                     try {
-                                      await editUpdate.mutateAsync({ id: u.id, message: editUpdateMessage, status: editUpdateStatus });
+                                      await editUpdate.mutateAsync({ id: u.id, message: editUpdateMessage, status: editUpdateStatus, created_at: new Date(editUpdateTimestamp).toISOString() });
                                       toast.success('Update edited');
                                       setEditUpdateId(null);
                                     } catch { toast.error('Failed to edit update'); }
@@ -235,6 +236,7 @@ export default function AdminIncidents() {
                                   setEditUpdateId(u.id);
                                   setEditUpdateMessage(u.message);
                                   setEditUpdateStatus(u.status);
+                                  setEditUpdateTimestamp(format(new Date(u.created_at), "yyyy-MM-dd'T'HH:mm"));
                                 }}><Pencil className="h-3.5 w-3.5 text-muted-foreground" /></Button>
                             {updates.length <= 1 ? (
                               <AlertDialog>
