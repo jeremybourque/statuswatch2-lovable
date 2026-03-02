@@ -1,6 +1,5 @@
 import { useServices } from '@/hooks/use-services';
 import { useIncidents } from '@/hooks/use-incidents';
-import { useSiteSettings } from '@/hooks/use-site-settings';
 import { useStatusPage } from '@/hooks/use-status-page';
 import { getOverallStatus, getOverallBanner, statusConfig, incidentStatusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus, IncidentStatus, IncidentImpact } from '@/lib/status-helpers';
@@ -21,11 +20,10 @@ import { format, parseISO } from 'date-fns';
 import { useState, useEffect } from 'react';
 
 const StatusPage = () => {
-  const { statusPageId, slug } = useStatusPage();
+  const { statusPageId, slug, data: statusPage } = useStatusPage();
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const { data: services = [] } = useServices(statusPageId);
   const { data: incidents = [] } = useIncidents(statusPageId);
-  const { data: settings } = useSiteSettings(statusPageId);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -53,7 +51,7 @@ const StatusPage = () => {
             <div className="flex items-center gap-3">
               <Activity className="h-7 w-7 text-primary" />
               <h1 className="text-xl font-bold text-foreground tracking-tight">
-                {settings?.page_title || 'StatusWatch'}
+                {statusPage?.name || 'StatusWatch'}
               </h1>
             </div>
             <div className="flex items-center gap-2">

@@ -1,6 +1,5 @@
 import { useIncidents } from '@/hooks/use-incidents';
 import { useServices } from '@/hooks/use-services';
-import { useSiteSettings } from '@/hooks/use-site-settings';
 import { useStatusPage } from '@/hooks/use-status-page';
 import { incidentStatusConfig } from '@/lib/status-helpers';
 import type { IncidentStatus } from '@/lib/status-helpers';
@@ -20,11 +19,10 @@ const impactToServiceStatus: Record<string, { label: string; color: string }> = 
 };
 
 const IncidentHistory = () => {
-  const { statusPageId, slug } = useStatusPage();
+  const { statusPageId, slug, data: statusPage } = useStatusPage();
   const backLink = slug ? `/${slug}` : '/';
   const { data: incidents = [] } = useIncidents(statusPageId);
   const { data: services = [] } = useServices(statusPageId);
-  const { data: settings } = useSiteSettings(statusPageId);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -61,7 +59,7 @@ const IncidentHistory = () => {
           <div className="flex items-center gap-3">
             <Activity className="h-7 w-7 text-primary" />
             <h1 className="text-xl font-bold text-foreground tracking-tight">
-              {settings?.page_title || 'StatusWatch'}
+              {statusPage?.name || 'StatusWatch'}
             </h1>
           </div>
           <ThemeToggle />
