@@ -49,10 +49,12 @@ export function useCreateIncident() {
 export function useAddIncidentUpdate() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { incident_id: string; status: string; message: string }) => {
+    mutationFn: async (input: { incident_id: string; status: string; message: string; created_at?: string }) => {
+      const insert: { incident_id: string; status: string; message: string; created_at?: string } = { incident_id: input.incident_id, status: input.status, message: input.message };
+      if (input.created_at) insert.created_at = input.created_at;
       const { error: updateErr } = await supabase
         .from('incident_updates')
-        .insert({ incident_id: input.incident_id, status: input.status, message: input.message });
+        .insert(insert);
       if (updateErr) throw updateErr;
 
       if (input.status === 'resolved') {
