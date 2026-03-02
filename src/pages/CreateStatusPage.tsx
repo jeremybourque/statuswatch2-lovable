@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Activity, ArrowLeft, ArrowRight, Pencil } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -70,9 +70,32 @@ const CreateStatusPage = () => {
     );
   };
 
+  // Debounced slug deduplication
+  const slugTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const deduplicateSlug = useCallback((raw: string) => {
+    clearTimeout(slugTimerRef.current);
+    const base = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    setSlug(base);
+    if (!base) return;
+    slugTimerRef.current = setTimeout(async () => {
+      const { data: existing } = await supabase
+        .from('status_pages')
+        .select('slug')
+        .like('slug', `${base}%`);
+      if (existing && existing.length > 0) {
+        const taken = new Set(existing.map(r => r.slug));
+        if (taken.has(base)) {
+          let i = 1;
+          while (taken.has(`${base}-${i}`)) i++;
+          setSlug(`${base}-${i}`);
+        }
+      }
+    }, 400);
+  }, []);
+
   const autoSlug = (value: string) => {
     setName(value);
-    setSlug(value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
+    deduplicateSlug(value);
   };
 
   const goTo = (nextStep: number) => {
@@ -109,25 +132,9 @@ const CreateStatusPage = () => {
 
     setSaving(true);
     try {
-      // Deduplicate slug
-      const baseSlug = slug.trim();
-      let finalSlug = baseSlug;
-      const { data: existing } = await supabase
-        .from('status_pages')
-        .select('slug')
-        .like('slug', `${baseSlug}%`);
-      if (existing && existing.length > 0) {
-        const taken = new Set(existing.map(r => r.slug));
-        if (taken.has(finalSlug)) {
-          let i = 1;
-          while (taken.has(`${baseSlug}-${i}`)) i++;
-          finalSlug = `${baseSlug}-${i}`;
-        }
-      }
-
       const { data: page, error: pageErr } = await supabase
         .from('status_pages')
-        .insert({ name: name.trim(), slug: finalSlug, description: description.trim() || null })
+        .insert({ name: name.trim(), slug: slug.trim(), description: description.trim() || null })
         .select()
         .single();
       if (pageErr) throw pageErr;
@@ -200,7 +207,7 @@ const CreateStatusPage = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="slug">Slug</Label>
-                      <Input id="slug" placeholder="my-app-status" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} />
+                      <Input id="slug" placeholder="my-app-status" value={slug} onChange={e => deduplicateSlug(e.target.value)} />
                       <p className="text-xs text-muted-foreground">/{slug || '...'}</p>
                     </div>
                   </div>
