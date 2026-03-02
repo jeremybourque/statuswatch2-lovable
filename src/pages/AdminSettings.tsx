@@ -14,13 +14,13 @@ export default function AdminSettings() {
   const updateSetting = useUpdateSiteSetting();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [logoUrl, setLogoUrl] = useState('');
+  
 
   useEffect(() => {
     if (settings) {
       setTitle(settings.page_title || '');
       setDescription(settings.page_description || '');
-      setLogoUrl(settings.logo_url || '');
+      
     }
   }, [settings]);
 
@@ -29,7 +29,6 @@ export default function AdminSettings() {
       await Promise.all([
         updateSetting.mutateAsync({ key: 'page_title', value: title, status_page_id: statusPageId }),
         updateSetting.mutateAsync({ key: 'page_description', value: description, status_page_id: statusPageId }),
-        updateSetting.mutateAsync({ key: 'logo_url', value: logoUrl, status_page_id: statusPageId }),
       ]);
       toast.success('Settings saved');
     } catch {
@@ -54,10 +53,6 @@ export default function AdminSettings() {
           <div className="space-y-2">
             <Label>Description</Label>
             <Textarea value={description} onChange={e => setDescription(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label>Logo URL</Label>
-            <Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://..." />
           </div>
           <Button onClick={handleSave}>Save Settings</Button>
         </CardContent>
