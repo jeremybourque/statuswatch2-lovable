@@ -379,40 +379,37 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
             >
               <Plus className="h-4 w-4 mr-1" /> Add Service
             </Button>
+            {services.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
+                    <RotateCcw className="h-4 w-4 mr-1" /> Reset Services
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Reset all services?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will remove all services and categories, resetting to the default empty state. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        onServicesChange([{ id: crypto.randomUUID(), name: '', description: '', category: 'General' }]);
+                        onExtraCategoriesChange(['General']);
+                      }}
+                    >
+                      Reset
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         )}
       </div>
-
-      {services.length > 0 && (
-        <div className="pt-2 border-t border-border">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
-                <RotateCcw className="h-4 w-4 mr-1" /> Reset Services
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Reset all services?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will remove all services and categories, resetting to the default empty state. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    onServicesChange([{ id: crypto.randomUUID(), name: '', description: '', category: 'General' }]);
-                    onExtraCategoriesChange(['General']);
-                  }}
-                >
-                  Reset
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      )}
 
       <ImportServicesDialog
         open={showImportDialog}
