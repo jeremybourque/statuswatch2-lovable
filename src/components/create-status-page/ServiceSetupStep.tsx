@@ -1,0 +1,282 @@
+import { useState } from 'react';
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  type DropResult,
+} from '@hello-pangea/dnd';
+import { Plus, X, GripVertical, FolderPlus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+export interface ServiceEntry {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+}
+
+interface Props {
+  services: ServiceEntry[];
+  onServicesChange: (services: ServiceEntry[]) => void;
+  pageName: string;
+}
+
+export function ServiceSetupStep({ services, onServicesChange, pageName }: Props) {
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [showCategoryInput, setShowCategoryInput] = useState(false);
+
+  const categories = Array.from(
+    new Set(services.map(s => s.category))
+  );
+  // Always show "General" if no categories exist
+  const allCategories = categories.length === 0 ? ['General'] : categories;
+
+  const addCategory = () => {
+    const name = newCategoryName.trim();
+    if (!name) return;
+    if (allCategories.includes(name)) {
+      setNewCategoryName('');
+      setShowCategoryInput(false);
+      return;
+    }
+    // Add a placeholder service so the category appears
+    onServicesChange([
+      ...services,
+      { id: crypto.randomUUID(), name: '', description: '', category: name },
+    ]);
+    setNewCategoryName('');
+    setShowCategoryInput(false);
+  };
+
+  const removeCategory = (category: string) => {
+    // Move services to "General" instead of deleting them
+    onServicesChange(
+      services.map(s =>
+        s.category === category ? { ...s, category: 'General' } : s
+      )
+    );
+  };
+
+  const addService = (category: string) => {
+    onServicesChange([
+      ...services,
+      { id: crypto.randomUUID(), name: '', description: '', category },
+    ]);
+  };
+
+  const updateService = (id: string, field: keyof ServiceEntry, value: string) => {
+    onServicesChange(services.map(s => (s.id === id ? { ...s, [field]: value } : s)));
+  };
+
+  const removeService = (id: string) => {
+    onServicesChange(services.filter(s => s.id !== id));
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    const { source, destination } = result;
+    if (!destination) return;
+
+    const sourceCategory = source.droppableId;
+    const destCategory = destination.droppableId;
+
+    // Build ordered lists per category
+    const byCat: Record<string, ServiceEntry[]> = {};
+    for (const cat of allCategories) {
+      byCat[cat] = services.filter(s => s.category === cat);
+    }
+
+    // Remove from source
+    const [moved] = byCat[sourceCategory].splice(source.index, 1);
+    // Update category if moved between groups
+    moved.category = destCategory;
+    // Insert at destination
+    byCat[destCategory].splice(destination.index, 0, moved);
+
+    // Flatten back preserving order
+    const reordered = allCategories.flatMap(cat => byCat[cat] || []);
+    onServicesChange(reordered);
+  };
+
+  const servicesInCategory = (category: string) =>
+    services.filter(s => s.category === category);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Set Up Services</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Add services to monitor for{' '}
+            <span className="font-medium text-foreground">{pageName}</span>
+          </p>
+        </div>
+      </div>
+
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="space-y-5">
+          {allCategories.map(category => (
+            <div key={category} className="space-y-2">
+              {/* Category header */}
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  {category}
+                </p>
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs gap-1 px-2"
+                    onClick={() => addService(category)}
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add
+                  </Button>
+                  {category !== 'General' && servicesInCategory(category).length === 0 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                      onClick={() => removeCategory(category)}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Droppable zone */}
+              <Droppable droppableId={category}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={`min-h-[48px] rounded-lg border border-dashed transition-colors ${
+                      snapshot.isDraggingOver
+                        ? 'border-primary/50 bg-primary/5'
+                        : 'border-border'
+                    } ${servicesInCategory(category).length === 0 ? 'p-4' : 'p-2 space-y-2'}`}
+                  >
+                    {servicesInCategory(category).length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center">
+                        Drag services here or click Add
+                      </p>
+                    )}
+                    {servicesInCategory(category).map((svc, idx) => (
+                      <Draggable key={svc.id} draggableId={svc.id} index={idx}>
+                        {(dragProvided, dragSnapshot) => (
+                          <div
+                            ref={dragProvided.innerRef}
+                            {...dragProvided.draggableProps}
+                            className={`border border-border rounded-lg bg-card p-3 flex items-start gap-3 transition-shadow ${
+                              dragSnapshot.isDragging ? 'shadow-lg ring-2 ring-primary/20' : ''
+                            }`}
+                          >
+                            <div
+                              {...dragProvided.dragHandleProps}
+                              className="mt-2.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing shrink-0"
+                            >
+                              <GripVertical className="h-4 w-4" />
+                            </div>
+                            <div className="flex-1 space-y-2">
+                              <div className="space-y-1">
+                                <Label className="text-xs">Name</Label>
+                                <Input
+                                  placeholder="e.g. API, Dashboard, CDN"
+                                  value={svc.name}
+                                  onChange={e =>
+                                    updateService(svc.id, 'name', e.target.value)
+                                  }
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Description (optional)</Label>
+                                <Input
+                                  placeholder="Brief description of this service"
+                                  value={svc.description}
+                                  onChange={e =>
+                                    updateService(svc.id, 'description', e.target.value)
+                                  }
+                                />
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 shrink-0 mt-1 text-muted-foreground hover:text-destructive"
+                              onClick={() => removeService(svc.id)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          ))}
+        </div>
+      </DragDropContext>
+
+      {/* Add category */}
+      <div className="pt-2">
+        {showCategoryInput ? (
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Category name"
+              value={newCategoryName}
+              onChange={e => setNewCategoryName(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addCategory();
+                }
+              }}
+              autoFocus
+              className="max-w-[200px]"
+            />
+            <Button type="button" size="sm" onClick={addCategory}>
+              Add
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setShowCategoryInput(false);
+                setNewCategoryName('');
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCategoryInput(true)}
+            >
+              <FolderPlus className="h-4 w-4 mr-1" /> Add Category
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addService(allCategories[0] || 'General')}
+            >
+              <Plus className="h-4 w-4 mr-1" /> Add Service
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
