@@ -32,10 +32,11 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
   const [showCategoryInput, setShowCategoryInput] = useState(false);
   const initialized = useRef(false);
 
-  // Add a blank service on first render if empty
+  // Add a blank service in a 'General' extra category on first render if empty
   useEffect(() => {
     if (!initialized.current && services.length === 0) {
       initialized.current = true;
+      onExtraCategoriesChange([...extraCategories, 'General']);
       onServicesChange([
         { id: crypto.randomUUID(), name: '', description: '', category: 'General' },
       ]);
@@ -43,7 +44,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
   }, []);
 
   const allCategories = Array.from(
-    new Set(['General', ...services.map(s => s.category), ...extraCategories])
+    new Set([...services.map(s => s.category), ...extraCategories])
   );
 
   const addCategory = () => {
@@ -60,11 +61,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
   };
 
   const removeCategory = (category: string) => {
-    onServicesChange(
-      services.map(s =>
-        s.category === category ? { ...s, category: 'General' } : s
-      )
-    );
+    onServicesChange(services.filter(s => s.category !== category));
     onExtraCategoriesChange(extraCategories.filter(c => c !== category));
   };
 
@@ -179,7 +176,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
                   >
                     <Plus className="h-3.5 w-3.5" /> Add Service
                   </Button>
-                  {category !== 'General' && servicesInCategory(category).length === 0 && (
+                  {servicesInCategory(category).length === 0 && (
                     <Button
                       type="button"
                       variant="ghost"
