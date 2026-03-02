@@ -85,13 +85,11 @@ const IncidentHistory = () => {
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2">
             <Link to={backLink} className="text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            {!searchOpen && (
-              <h2 className="text-xl font-semibold text-foreground">Incident History</h2>
-            )}
+            <h2 className="text-xl font-semibold text-foreground">Incident History</h2>
           </div>
           <div className="flex items-center gap-2">
             {searchOpen && (
@@ -100,7 +98,7 @@ const IncidentHistory = () => {
                 placeholder="Search incidents..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 text-sm w-48 sm:w-64 animate-in fade-in slide-in-from-right-4 duration-200"
+                className="h-9 text-sm w-40 sm:w-56 animate-in fade-in slide-in-from-right-4 duration-200"
               />
             )}
             <Button
