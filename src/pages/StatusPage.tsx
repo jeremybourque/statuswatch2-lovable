@@ -61,7 +61,7 @@ const StatusPage = () => {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
               <ThemeToggle />
-              <Link to={`/admin?from=${slug}`} className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/admin" onClick={() => sessionStorage.setItem('admin-from-slug', slug || '')} className="text-muted-foreground hover:text-foreground transition-colors">
                 <Settings className="h-4 w-4" />
               </Link>
             </div>
