@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import { Activity, ArrowLeft, ArrowRight, Pencil } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -24,6 +35,40 @@ const CreateStatusPage = () => {
   // Step 1 state
   const [services, setServices] = useState<ServiceEntry[]>([]);
   const [saving, setSaving] = useState(false);
+
+  const filledServiceCount = services.filter(s => s.name.trim()).length;
+  const needsConfirm = filledServiceCount > 2;
+
+  const CancelButton = () => {
+    if (needsConfirm) {
+      return (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button type="button" variant="ghost">Cancel</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Discard progress?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You've added {filledServiceCount} services. Are you sure you want to cancel? All progress will be lost.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Keep editing</AlertDialogCancel>
+              <AlertDialogAction asChild>
+                <Link to="/">Discard</Link>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      );
+    }
+    return (
+      <Button type="button" variant="ghost" asChild>
+        <Link to="/">Cancel</Link>
+      </Button>
+    );
+  };
 
   const autoSlug = (value: string) => {
     setName(value);
@@ -170,9 +215,7 @@ const CreateStatusPage = () => {
               />
 
               <div className="flex justify-between pt-2">
-                <Button type="button" variant="ghost" asChild>
-                  <Link to="/">Cancel</Link>
-                </Button>
+                <CancelButton />
                 <div className="flex gap-3">
                   <Button type="button" variant="outline" onClick={() => goTo(0)}>
                     <ArrowLeft className="h-4 w-4 mr-1" /> Back
@@ -264,9 +307,7 @@ const CreateStatusPage = () => {
               </div>
 
               <div className="flex justify-between pt-2">
-                <Button type="button" variant="ghost" asChild>
-                  <Link to="/">Cancel</Link>
-                </Button>
+                <CancelButton />
                 <div className="flex gap-3">
                   <Button type="button" variant="outline" onClick={() => goTo(1)}>
                     <ArrowLeft className="h-4 w-4 mr-1" /> Back
