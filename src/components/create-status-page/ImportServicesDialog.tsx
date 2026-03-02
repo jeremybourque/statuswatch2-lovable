@@ -51,7 +51,7 @@ export function ImportServicesDialog({ open, onOpenChange, onImport, existingSer
 
       if (data.type === 'unknown' || !data.services?.length) {
         setState({ phase: 'error', message: data.services?.length === 0 && data.type !== 'unknown'
-          ? 'No services found on this page.'
+          ? 'No new services found on this page.'
           : 'This resource type is not recognized. Please provide a status page or system diagram URL.' });
         return;
       }
