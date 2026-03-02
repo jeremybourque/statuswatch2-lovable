@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import {
   DragDropContext,
   Droppable,
@@ -30,18 +30,8 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
   const [editCategoryName, setEditCategoryName] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showCategoryInput, setShowCategoryInput] = useState(false);
-  const initialized = useRef(false);
+  
 
-  // Add a blank service in a 'General' extra category on first render if empty
-  useEffect(() => {
-    if (!initialized.current && services.length === 0) {
-      initialized.current = true;
-      onExtraCategoriesChange([...extraCategories, 'General']);
-      onServicesChange([
-        { id: crypto.randomUUID(), name: '', description: '', category: 'General' },
-      ]);
-    }
-  }, []);
 
   const allCategories = Array.from(
     new Set([...services.map(s => s.category), ...extraCategories])
