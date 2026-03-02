@@ -184,26 +184,28 @@ export default function AdminIncidents() {
                           <div key={u.id} className="flex gap-3 text-sm border-l-2 border-border pl-4 py-1 group">
                             {editUpdateId === u.id ? (
                               <>
-                                <div className="shrink-0 space-y-1">
-                                  <Select value={editUpdateStatus} onValueChange={setEditUpdateStatus}>
-                                    <SelectTrigger className="h-6 w-[6.5rem] text-xs">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="investigating">Investigating</SelectItem>
-                                      <SelectItem value="identified">Identified</SelectItem>
-                                      <SelectItem value="monitoring">Monitoring</SelectItem>
-                                      <SelectItem value="resolved">Resolved</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <p className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</p>
+                                <div className="flex-1 space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <Select value={editUpdateStatus} onValueChange={setEditUpdateStatus}>
+                                      <SelectTrigger className="h-6 w-[6.5rem] text-xs">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="investigating">Investigating</SelectItem>
+                                        <SelectItem value="identified">Identified</SelectItem>
+                                        <SelectItem value="monitoring">Monitoring</SelectItem>
+                                        <SelectItem value="resolved">Resolved</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <span className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</span>
+                                  </div>
+                                  <Textarea
+                                    value={editUpdateMessage}
+                                    onChange={e => setEditUpdateMessage(e.target.value)}
+                                    className="text-sm min-h-[2.5rem]"
+                                    autoFocus
+                                  />
                                 </div>
-                                <Textarea
-                                  value={editUpdateMessage}
-                                  onChange={e => setEditUpdateMessage(e.target.value)}
-                                  className="flex-1 text-sm min-h-[2.5rem]"
-                                  autoFocus
-                                />
                                 <div className="flex flex-col gap-1 shrink-0">
                                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={async () => {
                                     try {
@@ -219,11 +221,13 @@ export default function AdminIncidents() {
                               </>
                             ) : (
                               <>
-                                <div className="shrink-0 space-y-1">
-                                  <Badge className={`${uCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center`}>{uCfg.label}</Badge>
-                                  <p className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</p>
+                                <div className="flex-1 space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <Badge className={`${uCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center`}>{uCfg.label}</Badge>
+                                    <span className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</span>
+                                  </div>
+                                  <p className="text-muted-foreground">{u.message}</p>
                                 </div>
-                                <p className="text-muted-foreground flex-1">{u.message}</p>
                                 <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0" onClick={() => {
                                   setEditUpdateId(u.id);
                                   setEditUpdateMessage(u.message);
