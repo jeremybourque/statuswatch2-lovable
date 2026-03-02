@@ -163,25 +163,30 @@ function IncidentCard({ incident, services = [] }: { incident: any; services?: a
         <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ${expanded ? 'rotate-180' : ''}`} />
       </button>
 
-      {expanded && (
-        <div className="px-4 pb-4">
-          <div className="ml-5 border-l-2 border-border pl-6 space-y-4">
-            {updates.map((update: any) => {
-              const uColor = updateStatusColor[update.status as string] || 'text-muted-foreground';
-              return (
-                <div key={update.id} className="relative">
-                  <div className="absolute -left-[31px] top-1 w-3 h-3 rounded-full bg-border border-2 border-card" />
-                  <div>
-                    <span className={`text-sm font-semibold capitalize ${uColor}`}>{update.status}</span>
-                    <span className="text-sm text-muted-foreground ml-2">— {format(new Date(update.created_at), 'MMM d, h:mm a')}</span>
+      <div
+        className="grid transition-all duration-300 ease-in-out"
+        style={{ gridTemplateRows: expanded ? '1fr' : '0fr' }}
+      >
+        <div className="overflow-hidden">
+          <div className="px-4 pb-4">
+            <div className="ml-5 border-l-2 border-border pl-6 space-y-4">
+              {updates.map((update: any) => {
+                const uColor = updateStatusColor[update.status as string] || 'text-muted-foreground';
+                return (
+                  <div key={update.id} className="relative">
+                    <div className="absolute -left-[31px] top-1 w-3 h-3 rounded-full bg-border border-2 border-card" />
+                    <div>
+                      <span className={`text-sm font-semibold capitalize ${uColor}`}>{update.status}</span>
+                      <span className="text-sm text-muted-foreground ml-2">— {format(new Date(update.created_at), 'MMM d, h:mm a')}</span>
+                    </div>
+                    <p className="text-sm text-card-foreground mt-1 leading-relaxed">{update.message}</p>
                   </div>
-                  <p className="text-sm text-card-foreground mt-1 leading-relaxed">{update.message}</p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
