@@ -102,14 +102,23 @@ const CreateStatusPage = () => {
   };
 
   const checkSlugAvailability = async () => {
-    const trimmed = slug.trim();
-    if (!trimmed) return;
+    const base = slug.trim();
+    if (!base) return;
     const { data: existing } = await supabase
       .from('status_pages')
       .select('slug')
-      .eq('slug', trimmed);
+      .like('slug', `${base}%`);
     if (existing && existing.length > 0) {
-      setSlugWarning(`"/${trimmed}" is already taken. It will be adjusted automatically on save.`);
+      const taken = new Set(existing.map(r => r.slug));
+      if (taken.has(base)) {
+        let i = 1;
+        while (taken.has(`${base}-${i}`)) i++;
+        const newSlug = `${base}-${i}`;
+        setSlug(newSlug);
+        setSlugWarning(`"/${base}" was taken — changed to "/${newSlug}"`);
+      } else {
+        setSlugWarning('');
+      }
     } else {
       setSlugWarning('');
     }
