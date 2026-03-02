@@ -40,7 +40,12 @@ const StatusPage = () => {
   };
 
   const activeIncidents = incidents.filter(i => getDerivedStatus(i) !== 'resolved');
-  const recentResolved = incidents.filter(i => getDerivedStatus(i) === 'resolved').slice(0, 3);
+  const fifteenDaysAgo = new Date();
+  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+  const recentResolved = incidents
+    .filter(i => getDerivedStatus(i) === 'resolved' && i.resolved_at && new Date(i.resolved_at) >= fifteenDaysAgo)
+    .sort((a, b) => new Date(b.resolved_at!).getTime() - new Date(a.resolved_at!).getTime())
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
@@ -207,7 +212,7 @@ const StatusPage = () => {
         {recentResolved.length > 0 && (
           <Collapsible id="past-incidents" className="scroll-mt-20" defaultOpen={false}>
             <CollapsibleTrigger className="flex items-center gap-2 group w-full">
-              <h2 className="text-xl font-semibold text-foreground">Past Incidents</h2>
+              <h2 className="text-xl font-semibold text-foreground">Recently Resolved</h2>
               <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -216,7 +221,7 @@ const StatusPage = () => {
                   <IncidentCard key={incident.id} incident={incident} services={services} />
                 ))}
                 <Link to={`/${slug}/history`} className="text-sm text-primary hover:underline inline-block mt-1">
-                  View all past incidents →
+                  View full incident history →
                 </Link>
               </div>
             </CollapsibleContent>
