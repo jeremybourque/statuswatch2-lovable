@@ -194,7 +194,7 @@ const Index = () => {
                         </AlertDialogContent>
                       </AlertDialog>
                       )}
-                      <ArrowRight className="h-4 w-4 -ml-1 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <ArrowRight className="h-4 w-4 -ml-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
               </Link>
