@@ -21,14 +21,15 @@ interface Props {
   services: ServiceEntry[];
   onServicesChange: (services: ServiceEntry[]) => void;
   pageName: string;
+  extraCategories: string[];
+  onExtraCategoriesChange: (categories: string[]) => void;
 }
 
-export function ServiceSetupStep({ services, onServicesChange, pageName }: Props) {
+export function ServiceSetupStep({ services, onServicesChange, pageName, extraCategories, onExtraCategoriesChange }: Props) {
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editCategoryName, setEditCategoryName] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showCategoryInput, setShowCategoryInput] = useState(false);
-  const [extraCategories, setExtraCategories] = useState<string[]>([]);
   const initialized = useRef(false);
 
   // Add a blank service on first render if empty
@@ -53,7 +54,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
       setShowCategoryInput(false);
       return;
     }
-    setExtraCategories(prev => [...prev, name]);
+    onExtraCategoriesChange([...extraCategories, name]);
     setNewCategoryName('');
     setShowCategoryInput(false);
   };
@@ -64,7 +65,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
         s.category === category ? { ...s, category: 'General' } : s
       )
     );
-    setExtraCategories(prev => prev.filter(c => c !== category));
+    onExtraCategoriesChange(extraCategories.filter(c => c !== category));
   };
 
   const renameCategory = (oldName: string) => {
@@ -78,7 +79,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
         s.category === oldName ? { ...s, category: newName } : s
       )
     );
-    setExtraCategories(prev => prev.map(c => c === oldName ? newName : c));
+    onExtraCategoriesChange(extraCategories.map(c => c === oldName ? newName : c));
     setEditingCategory(null);
   };
 

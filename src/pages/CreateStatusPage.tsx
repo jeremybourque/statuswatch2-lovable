@@ -35,6 +35,7 @@ const CreateStatusPage = () => {
 
   // Step 1 state
   const [services, setServices] = useState<ServiceEntry[]>([]);
+  const [extraCategories, setExtraCategories] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   const filledServiceCount = services.filter(s => s.name.trim()).length;
@@ -270,6 +271,8 @@ const CreateStatusPage = () => {
                 services={services}
                 onServicesChange={setServices}
                 pageName={name}
+                extraCategories={extraCategories}
+                onExtraCategoriesChange={setExtraCategories}
               />
 
               <div className="flex justify-between pt-2">
