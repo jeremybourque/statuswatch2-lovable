@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { statusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus } from '@/lib/status-helpers';
 import { format, subDays } from 'date-fns';
-import { BarChart3, CalendarDays, Activity, Info } from 'lucide-react';
+import { BarChart3, CalendarDays, Activity, ChevronRight } from 'lucide-react';
 import { UptimeBarsView } from './service-card/UptimeBarsView';
 import { CalendarView } from './service-card/CalendarView';
 import { PageLoadGraphView } from './service-card/PageLoadGraphView';
@@ -130,6 +130,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
               <span className="text-sm text-muted-foreground min-w-0 flex-1 ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-[400ms] delay-0 group-hover:delay-200 line-clamp-2">{service.description}</span>
             )}
             <span className={`text-base font-medium ${cfg.color} shrink-0 ml-auto pl-4`}>{cfg.label}</span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 ml-2" />
           </div>
         </div>
 
