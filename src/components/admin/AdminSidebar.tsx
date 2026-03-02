@@ -1,6 +1,6 @@
 import { Server, AlertTriangle, Settings, ArrowLeft, BarChart3, FlaskConical } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +25,9 @@ export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const fromSlug = searchParams.get('from');
+  const backLink = fromSlug ? `/status/${fromSlug}` : '/';
 
   return (
     <Sidebar collapsible="icon">
@@ -50,9 +53,9 @@ export function AdminSidebar() {
               ))}
               <SidebarMenuItem className="mt-4">
                 <SidebarMenuButton asChild>
-                  <NavLink to="/" className="hover:bg-muted/50" activeClassName="">
+                  <NavLink to={backLink} className="hover:bg-muted/50" activeClassName="">
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    {!collapsed && <span>Back to Status Page</span>}
+                    {!collapsed && <span>Back</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
