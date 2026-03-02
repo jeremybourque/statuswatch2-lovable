@@ -222,7 +222,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_incident_with_service: {
+        Args: {
+          p_impact?: string
+          p_message?: string
+          p_service_id: string
+          p_status?: string
+          p_status_page_id: string
+          p_title: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

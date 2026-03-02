@@ -120,31 +120,17 @@ export default function AdminTesting() {
     try {
       const { data: services } = await supabase.from('services').select('id').eq('status_page_id', statusPageId).order('display_order');
       if (!services?.length) { toast.error('No services exist'); return; }
-      // Use a pre-generated ID so we can create service association first
+
       const randomService = services[Math.floor(Math.random() * services.length)];
-      const incidentId = crypto.randomUUID();
-
-      const { error: svcErr } = await supabase
-        .from('incident_services')
-        .insert({ incident_id: incidentId, service_id: randomService.id });
-      if (svcErr) throw svcErr;
-
-      const { error: incidentErr } = await supabase
-        .from('incidents')
-        .insert({ id: incidentId, title: 'Test incident — ' + new Date().toLocaleTimeString(), impact: 'minor', status_page_id: statusPageId });
-      if (incidentErr) {
-        await supabase.from('incident_services').delete().eq('incident_id', incidentId);
-        throw incidentErr;
-      }
-
-      const { error: updErr } = await supabase
-        .from('incident_updates')
-        .insert({ incident_id: incidentId, status: 'investigating', message: 'Investigating the issue.' });
-      if (updErr) {
-        await supabase.from('incidents').delete().eq('id', incidentId);
-        await supabase.from('incident_services').delete().eq('incident_id', incidentId);
-        throw updErr;
-      }
+      const { error } = await (supabase as any).rpc('create_incident_with_service', {
+        p_status_page_id: statusPageId,
+        p_service_id: randomService.id,
+        p_title: 'Test incident — ' + new Date().toLocaleTimeString(),
+        p_impact: 'minor',
+        p_status: 'investigating',
+        p_message: 'Investigating the issue.',
+      });
+      if (error) throw error;
 
       qc.invalidateQueries({ queryKey: ['incidents', statusPageId] });
       qc.invalidateQueries({ queryKey: ['services', statusPageId] });
