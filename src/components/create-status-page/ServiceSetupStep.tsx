@@ -159,7 +159,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
           size="sm"
           onClick={() => setShowImportDialog(true)}
         >
-          <Upload className="h-4 w-4 mr-1" /> Import
+          <Upload className="h-4 w-4 mr-1" /> Import Services
         </Button>
       </div>
 
