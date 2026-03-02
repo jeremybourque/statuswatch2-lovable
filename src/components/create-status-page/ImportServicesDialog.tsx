@@ -35,8 +35,15 @@ export function ImportServicesDialog({ open, onOpenChange, onImport, existingSer
     setState({ phase: 'loading' });
 
     try {
+      // Build existing services context for the AI
+      const existingByCategory: Record<string, string[]> = {};
+      for (const s of existingServices) {
+        const cat = s.category || 'General';
+        (existingByCategory[cat] = existingByCategory[cat] || []).push(s.name);
+      }
+
       const { data, error } = await supabase.functions.invoke('import-services', {
-        body: { url: url.trim() },
+        body: { url: url.trim(), existingServices: existingByCategory },
       });
 
       if (error) throw new Error(error.message);

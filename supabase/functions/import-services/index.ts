@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { url } = await req.json();
+    const { url, existingServices } = await req.json();
     if (!url) {
       return new Response(JSON.stringify({ success: false, error: 'URL is required' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -61,7 +61,21 @@ Deno.serve(async (req) => {
       });
     }
 
-    // 2. Ask AI to classify and extract services
+    // 2. Build existing services context
+    let existingContext = '';
+    if (existingServices && typeof existingServices === 'object' && Object.keys(existingServices).length > 0) {
+      const lines: string[] = [];
+      for (const [cat, names] of Object.entries(existingServices)) {
+        if (Array.isArray(names) && names.length > 0) {
+          lines.push(`  ${cat}: ${(names as string[]).join(', ')}`);
+        }
+      }
+      if (lines.length > 0) {
+        existingContext = `\n\nThe user already has these services configured:\n${lines.join('\n')}\nDo NOT include services that duplicate or are equivalent to these existing ones. Only return new services not already covered.`;
+      }
+    }
+
+    // 3. Ask AI to classify and extract services
     console.log('Analyzing content with AI, length:', markdown.length);
     const aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -77,6 +91,7 @@ Deno.serve(async (req) => {
             content: `You are an expert at analyzing web pages. You will receive the markdown content of a web page. Your task is to:
 1. Classify it as one of: "status_page" (a service status/uptime page), "system_diagram" (architecture/infrastructure diagram or documentation), or "unknown" (anything else).
 2. If it's a status_page or system_diagram, extract the services/components with their name, a brief description, and category/group.
+3. Do NOT prepend the category/group name to the service name.${existingContext}
 
 Call the extract_services function with your findings.`,
           },
