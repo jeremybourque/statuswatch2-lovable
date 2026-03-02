@@ -105,7 +105,8 @@ export default function AdminTesting() {
       const { data: incidents } = await supabase
         .from('incidents')
         .select('id, incident_updates(id, status, created_at)')
-        .gte('resolved_at', threeDaysAgo);
+        .gte('created_at', threeDaysAgo)
+        .not('resolved_at', 'is', null);
       if (!incidents?.length) { toast.info('No recently resolved incidents'); return; }
       let count = 0;
       for (const inc of incidents) {
@@ -135,7 +136,7 @@ export default function AdminTesting() {
     { label: 'Remove Services', icon: Trash2, desc: 'Remove last 5 test services', onClick: removeServices },
     { label: 'Add Incident', icon: AlertTriangle, desc: 'Create a new active incident', onClick: addIncident },
     { label: 'Resolve All', icon: CheckCircle, desc: 'Resolve all open incidents', onClick: resolveAll },
-    { label: 'Reopen Recent', icon: RotateCcw, desc: 'Reopen incidents from past 3 days', onClick: reopenRecent },
+    { label: 'Reopen Recent', icon: RotateCcw, desc: 'Reopen resolved incidents created in past 3 days', onClick: reopenRecent },
   ];
 
   return (
