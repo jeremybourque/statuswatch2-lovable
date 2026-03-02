@@ -122,27 +122,23 @@ const CreateStatusPage = () => {
             <Activity className="h-7 w-7 text-primary" />
             <h1 className="text-xl font-bold text-foreground tracking-tight">StatusWatch</h1>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              {[0, 1].map(i => (
-                <div
-                  key={i}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    i === step ? 'w-6 bg-primary' : 'w-2 bg-muted-foreground/30'
-                  }`}
-                />
-              ))}
-            </div>
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 overflow-hidden">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Status Pages
-        </Link>
+        <div className="flex justify-center mb-8">
+          <div className="flex items-center gap-2">
+            {[0, 1].map(i => (
+              <div
+                key={i}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === step ? 'w-6 bg-primary' : 'w-2 bg-muted-foreground/30'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
 
         <div className={`${slideClass}`}>
           {step === 0 && (
