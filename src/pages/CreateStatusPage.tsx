@@ -169,16 +169,21 @@ const CreateStatusPage = () => {
                 pageName={name}
               />
 
-              <div className="flex justify-end gap-3 pt-2">
-                <Button type="button" variant="outline" onClick={() => goTo(0)}>
-                  <ArrowLeft className="h-4 w-4 mr-1" /> Back
+              <div className="flex justify-between pt-2">
+                <Button type="button" variant="ghost" asChild>
+                  <Link to="/">Cancel</Link>
                 </Button>
-                <Button
-                  type="button"
-                  onClick={(e) => handleGoToPreview(e as any)}
-                >
-                  Review & Create <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
+                <div className="flex gap-3">
+                  <Button type="button" variant="outline" onClick={() => goTo(0)}>
+                    <ArrowLeft className="h-4 w-4 mr-1" /> Back
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={(e) => handleGoToPreview(e as any)}
+                  >
+                    Review & Create <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
               </div>
             </div>
           )}
