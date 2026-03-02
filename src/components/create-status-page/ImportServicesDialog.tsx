@@ -17,15 +17,16 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onImport: (services: ImportedService[]) => void;
+  existingServices: { name: string; category: string }[];
 }
 
 type State =
   | { phase: 'input' }
   | { phase: 'loading' }
-  | { phase: 'preview'; type: string; services: ImportedService[]; selected: Set<number> }
+  | { phase: 'preview'; type: string; services: ImportedService[]; selected: Set<number>; duplicates: Set<number> }
   | { phase: 'error'; message: string };
 
-export function ImportServicesDialog({ open, onOpenChange, onImport }: Props) {
+export function ImportServicesDialog({ open, onOpenChange, onImport, existingServices }: Props) {
   const [url, setUrl] = useState('');
   const [state, setState] = useState<State>({ phase: 'input' });
 
@@ -48,11 +49,25 @@ export function ImportServicesDialog({ open, onOpenChange, onImport }: Props) {
         return;
       }
 
+      // Determine which are duplicates of existing services
+      const existingNorm = new Set(
+        existingServices.map(s => s.name.trim().toLowerCase())
+      );
+      const duplicates = new Set<number>(
+        data.services
+          .map((s: ImportedService, i: number) => existingNorm.has(s.name.trim().toLowerCase()) ? i : -1)
+          .filter((i: number) => i >= 0)
+      );
+      const selected = new Set<number>(
+        data.services.map((_: any, i: number) => i).filter((i: number) => !duplicates.has(i))
+      );
+
       setState({
         phase: 'preview',
         type: data.type,
         services: data.services,
-        selected: new Set(data.services.map((_: any, i: number) => i)),
+        selected,
+        duplicates,
       });
     } catch (err: any) {
       console.error('Import error:', err);
@@ -152,15 +167,27 @@ export function ImportServicesDialog({ open, onOpenChange, onImport }: Props) {
                     {items.map(({ svc, idx }) => (
                       <label
                         key={idx}
-                        className="flex items-start gap-2.5 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
+                        className={`flex items-start gap-2.5 p-2 rounded-md transition-colors ${
+                          state.duplicates.has(idx)
+                            ? 'opacity-50 cursor-default'
+                            : 'hover:bg-muted/50 cursor-pointer'
+                        }`}
                       >
                         <Checkbox
                           checked={state.selected.has(idx)}
                           onCheckedChange={() => toggleService(idx)}
                           className="mt-0.5"
+                          disabled={state.duplicates.has(idx)}
                         />
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-foreground leading-tight">{svc.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium text-foreground leading-tight">{svc.name}</p>
+                            {state.duplicates.has(idx) && (
+                              <span className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                                Already exists
+                              </span>
+                            )}
+                          </div>
                           {svc.description && (
                             <p className="text-xs text-muted-foreground mt-0.5">{svc.description}</p>
                           )}
