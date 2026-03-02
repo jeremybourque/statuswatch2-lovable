@@ -377,6 +377,7 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
         open={showImportDialog}
         onOpenChange={setShowImportDialog}
         onImport={handleImport}
+        existingServices={services}
       />
     </div>
   );

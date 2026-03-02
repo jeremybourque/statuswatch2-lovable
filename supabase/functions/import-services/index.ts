@@ -152,6 +152,26 @@ Call the extract_services function with your findings.`,
     }
 
     const result = JSON.parse(toolCall.function.arguments);
+
+    // Strip category/group name prefix from service names
+    if (result.services?.length) {
+      for (const svc of result.services) {
+        if (svc.category && svc.name) {
+          // Check common patterns: "Category - Name", "Category: Name", "Category / Name"
+          const prefixes = [
+            `${svc.category} - `, `${svc.category}: `, `${svc.category} / `,
+            `${svc.category} – `, `${svc.category} — `,
+          ];
+          for (const prefix of prefixes) {
+            if (svc.name.toLowerCase().startsWith(prefix.toLowerCase())) {
+              svc.name = svc.name.slice(prefix.length).trim();
+              break;
+            }
+          }
+        }
+      }
+    }
+
     console.log('AI result:', result.type, 'services:', result.services?.length);
 
     return new Response(JSON.stringify({ success: true, ...result }), {
