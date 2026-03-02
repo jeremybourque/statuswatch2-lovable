@@ -12,6 +12,7 @@ import AdminIncidents from "./pages/AdminIncidents";
 import AdminSettings from "./pages/AdminSettings";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminTesting from "./pages/AdminTesting";
+import CreateStatusPage from "./pages/CreateStatusPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/create" element={<CreateStatusPage />} />
           <Route path="/:slug" element={<StatusPage />} />
           <Route path="/:slug/history" element={<IncidentHistory />} />
           <Route path="/:slug/admin" element={<AdminLayout />}>

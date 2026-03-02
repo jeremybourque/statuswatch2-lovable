@@ -4,10 +4,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { Activity, Plus, ArrowRight, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -26,17 +23,6 @@ function useStatusPages() {
   });
 }
 
-function useCreateStatusPage() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (page: { name: string; slug: string; description?: string }) => {
-      const { data, error } = await supabase.from('status_pages').insert(page).select().single();
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['status-pages'] }),
-  });
-}
 
 function useDeleteStatusPage() {
   const qc = useQueryClient();
@@ -51,30 +37,8 @@ function useDeleteStatusPage() {
 
 const Index = () => {
   const { data: pages = [], isLoading } = useStatusPages();
-  const createPage = useCreateStatusPage();
   const deletePage = useDeleteStatusPage();
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
-  const [description, setDescription] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
-
-  const handleCreate = async () => {
-    if (!name.trim() || !slug.trim()) {
-      toast.error('Name and slug are required');
-      return;
-    }
-    try {
-      await createPage.mutateAsync({ name: name.trim(), slug: slug.trim(), description: description.trim() || undefined });
-      toast.success('Status page created');
-      setOpen(false);
-      setName('');
-      setSlug('');
-      setDescription('');
-    } catch (e: any) {
-      toast.error(e.message);
-    }
-  };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -85,11 +49,6 @@ const Index = () => {
     } catch (e: any) {
       toast.error(e.message);
     }
-  };
-
-  const autoSlug = (value: string) => {
-    setName(value);
-    setSlug(value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
   };
 
   return (
@@ -107,37 +66,12 @@ const Index = () => {
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-foreground">Status Pages</h2>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-2">
-                <Plus className="h-4 w-4" />
-                New Status Page
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create Status Page</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 pt-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">Name</label>
-                  <Input placeholder="My Service" value={name} onChange={e => autoSlug(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">Slug</label>
-                  <Input placeholder="my-service" value={slug} onChange={e => setSlug(e.target.value)} />
-                  <p className="text-xs text-muted-foreground">URL: /status/{slug || '...'}</p>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">Description</label>
-                  <Textarea placeholder="Optional description" value={description} onChange={e => setDescription(e.target.value)} rows={2} />
-                </div>
-                <Button onClick={handleCreate} disabled={createPage.isPending} className="w-full">
-                  {createPage.isPending ? 'Creating...' : 'Create'}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button size="sm" className="gap-2" asChild>
+            <Link to="/create">
+              <Plus className="h-4 w-4" />
+              New Status Page
+            </Link>
+          </Button>
         </div>
 
         {isLoading ? (
