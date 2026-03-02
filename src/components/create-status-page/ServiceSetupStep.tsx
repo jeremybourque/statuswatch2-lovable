@@ -41,10 +41,9 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
     }
   }, []);
 
-  const categories = Array.from(
-    new Set([...services.map(s => s.category), ...extraCategories])
+  const allCategories = Array.from(
+    new Set(['General', ...services.map(s => s.category), ...extraCategories])
   );
-  const allCategories = categories.length === 0 ? ['General'] : categories;
 
   const addCategory = () => {
     const name = newCategoryName.trim();
