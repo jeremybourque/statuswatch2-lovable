@@ -15,35 +15,19 @@ interface UptimeBarsViewProps {
 }
 
 export function UptimeBarsView({ uptimeDays, onHover }: UptimeBarsViewProps) {
-  // Group days by month
-  const months: { key: string; days: { day: number; date: Date; index: number }[] }[] = [];
-  for (let i = 0; i < uptimeDays.length; i++) {
-    const date = subDays(new Date(), 89 - i);
-    const key = format(date, 'yyyy-MM');
-    const last = months[months.length - 1];
-    if (last && last.key === key) {
-      last.days.push({ day: uptimeDays[i], date, index: i });
-    } else {
-      months.push({ key, days: [{ day: uptimeDays[i], date, index: i }] });
-    }
-  }
-
   return (
-    <div className="flex gap-1 items-end w-full h-8 mt-0.5">
-      {months.map((month) => (
-        <div key={month.key} className="flex gap-[2px] h-8" style={{ flex: month.days.length }}>
-          {month.days.map(({ day, date, index }) => {
-            const label = `${format(date, 'MMM d, yyyy')} ● ${statusLabels[day]}`;
-            return (
-              <div
-                key={index}
-                className={`flex-1 h-8 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
-                onMouseEnter={() => onHover(label)}
-              />
-            );
-          })}
-        </div>
-      ))}
+    <div className="flex gap-[2px] items-end w-full h-8 mt-0.5">
+      {uptimeDays.map((day, i) => {
+        const date = subDays(new Date(), 89 - i);
+        const label = `${format(date, 'MMM d, yyyy')} ● ${statusLabels[day]}`;
+        return (
+          <div
+            key={i}
+            className={`flex-1 min-w-0 h-8 rounded-sm ${dayColors[day]} hover:opacity-80 transition-opacity`}
+            onMouseEnter={() => onHover(label)}
+          />
+        );
+      })}
     </div>
   );
 }
