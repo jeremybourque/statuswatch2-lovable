@@ -255,7 +255,8 @@ const CreateStatusPage = () => {
               {/* Page details */}
               <div className="border border-border rounded-lg bg-card p-5 space-y-3">
                 <div className="flex items-center justify-end">
-                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => goTo(0)}>
+                  <Button type="button" variant="ghost" size="sm" className="h-7 gap-1 px-2" onClick={() => goTo(0)}>
+                    <ArrowLeft className="h-3.5 w-3.5" />
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -283,7 +284,8 @@ const CreateStatusPage = () => {
                   <h3 className="text-sm font-semibold text-foreground">
                     Services <span className="text-muted-foreground font-normal">({services.filter(s => s.name.trim()).length})</span>
                   </h3>
-                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => goTo(1)}>
+                  <Button type="button" variant="ghost" size="sm" className="h-7 gap-1 px-2" onClick={() => goTo(1)}>
+                    <ArrowLeft className="h-3.5 w-3.5" />
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
                 </div>
