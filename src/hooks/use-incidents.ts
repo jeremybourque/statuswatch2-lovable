@@ -164,3 +164,14 @@ export function useEditIncidentUpdate() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['incidents'] }),
   });
 }
+
+export function useUpdateIncidentTimestamp() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, created_at }: { id: string; created_at: string }) => {
+      const { error } = await supabase.from('incidents').update({ created_at }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['incidents'] }),
+  });
+}
