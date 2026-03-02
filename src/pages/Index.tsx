@@ -165,7 +165,7 @@ const Index = () => {
                       Created {format(new Date(page.created_at), 'MMM d, yyyy')}
                     </p>
                   </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0 pr-2">
                      {page.slug !== 'default' && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
