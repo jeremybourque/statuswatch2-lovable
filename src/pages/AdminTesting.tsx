@@ -6,14 +6,62 @@ import { toast } from 'sonner';
 import { Plus, Trash2, AlertTriangle, CheckCircle, RotateCcw } from 'lucide-react';
 
 const SERVICE_GROUPS = [
-  { category: 'Cloud Infrastructure', services: ['Compute Engine', 'Load Balancer', 'Object Storage', 'DNS Management', 'CDN'] },
-  { category: 'Communication', services: ['Email Delivery', 'SMS Gateway', 'Push Notifications', 'Webhooks', 'Chat Service'] },
-  { category: 'Data Platform', services: ['PostgreSQL Cluster', 'Redis Cache', 'Search Index', 'Data Pipeline', 'Analytics Engine'] },
-  { category: 'Developer Tools', services: ['CI/CD Pipeline', 'Container Registry', 'API Gateway', 'Log Aggregation', 'Error Tracking'] },
-  { category: 'Identity & Security', services: ['Authentication', 'SSO Provider', 'Certificate Manager', 'Secrets Vault', 'Firewall'] },
-  { category: 'Media Services', services: ['Image Processing', 'Video Transcoding', 'Asset Storage', 'Streaming CDN', 'Thumbnail Generator'] },
-  { category: 'Payments', services: ['Payment Processing', 'Subscription Billing', 'Invoice Service', 'Fraud Detection', 'Payout Engine'] },
-  { category: 'Monitoring', services: ['Uptime Checker', 'Metrics Collector', 'Alerting Service', 'Status Dashboard', 'Incident Manager'] },
+  { category: 'Cloud Infrastructure', services: [
+    { name: 'Compute Engine', description: 'Virtual machines and auto-scaling compute' },
+    { name: 'Load Balancer', description: 'Traffic distribution across instances' },
+    { name: 'Object Storage', description: 'Scalable file and blob storage' },
+    { name: 'DNS Management', description: 'Domain routing and resolution' },
+    { name: 'CDN', description: 'Global content delivery network' },
+  ]},
+  { category: 'Communication', services: [
+    { name: 'Email Delivery', description: 'Transactional and bulk email sending' },
+    { name: 'SMS Gateway', description: 'Text message delivery worldwide' },
+    { name: 'Push Notifications', description: 'Mobile and web push alerts' },
+    { name: 'Webhooks', description: 'Event-driven HTTP callbacks' },
+    { name: 'Chat Service', description: 'Real-time messaging infrastructure' },
+  ]},
+  { category: 'Data Platform', services: [
+    { name: 'PostgreSQL Cluster', description: 'Primary relational database' },
+    { name: 'Redis Cache', description: 'In-memory key-value caching layer' },
+    { name: 'Search Index', description: 'Full-text search and indexing' },
+    { name: 'Data Pipeline', description: 'ETL and streaming data processing' },
+    { name: 'Analytics Engine', description: 'Aggregation and reporting queries' },
+  ]},
+  { category: 'Developer Tools', services: [
+    { name: 'CI/CD Pipeline', description: 'Automated build, test, and deploy' },
+    { name: 'Container Registry', description: 'Docker image storage and distribution' },
+    { name: 'API Gateway', description: 'Request routing, rate limiting, auth' },
+    { name: 'Log Aggregation', description: 'Centralized log collection and search' },
+    { name: 'Error Tracking', description: 'Exception capture and alerting' },
+  ]},
+  { category: 'Identity & Security', services: [
+    { name: 'Authentication', description: 'User login and session management' },
+    { name: 'SSO Provider', description: 'Single sign-on across applications' },
+    { name: 'Certificate Manager', description: 'TLS/SSL certificate provisioning' },
+    { name: 'Secrets Vault', description: 'Encrypted credential storage' },
+    { name: 'Firewall', description: 'Network traffic filtering and rules' },
+  ]},
+  { category: 'Media Services', services: [
+    { name: 'Image Processing', description: 'Resize, crop, and format conversion' },
+    { name: 'Video Transcoding', description: 'Multi-format video encoding' },
+    { name: 'Asset Storage', description: 'Media file hosting and retrieval' },
+    { name: 'Streaming CDN', description: 'Low-latency video and audio delivery' },
+    { name: 'Thumbnail Generator', description: 'Automatic preview image creation' },
+  ]},
+  { category: 'Payments', services: [
+    { name: 'Payment Processing', description: 'Credit card and bank transfers' },
+    { name: 'Subscription Billing', description: 'Recurring charge management' },
+    { name: 'Invoice Service', description: 'Invoice generation and delivery' },
+    { name: 'Fraud Detection', description: 'Transaction risk scoring' },
+    { name: 'Payout Engine', description: 'Merchant and vendor disbursements' },
+  ]},
+  { category: 'Monitoring', services: [
+    { name: 'Uptime Checker', description: 'Periodic endpoint health probes' },
+    { name: 'Metrics Collector', description: 'System and app metric ingestion' },
+    { name: 'Alerting Service', description: 'Threshold-based alert routing' },
+    { name: 'Status Dashboard', description: 'Public-facing system status page' },
+    { name: 'Incident Manager', description: 'Incident lifecycle coordination' },
+  ]},
 ];
 
 export default function AdminTesting() {
@@ -25,8 +73,9 @@ export default function AdminTesting() {
       const group = SERVICE_GROUPS[Math.floor(Math.random() * SERVICE_GROUPS.length)];
       const { data: existing } = await supabase.from('services').select('display_order').eq('status_page_id', statusPageId).order('display_order', { ascending: false }).limit(1);
       const maxOrder = existing?.[0]?.display_order ?? 0;
-      const rows = group.services.map((name, i) => ({
-        name,
+      const rows = group.services.map((svc, i) => ({
+        name: svc.name,
+        description: svc.description,
         category: group.category,
         display_order: maxOrder + i + 1,
         is_test: true,
