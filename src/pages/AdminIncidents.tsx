@@ -40,16 +40,13 @@ export default function AdminIncidents() {
   const [openIncidents, setOpenIncidents] = useState<Set<string>>(new Set());
   const [resolvedOpen, setResolvedOpen] = useState(false);
   const [updateDialogId, setUpdateDialogId] = useState<string | null>(null);
-  const [servicesDialogId, setServicesDialogId] = useState<string | null>(null);
-  const [impactDialogId, setImpactDialogId] = useState<string | null>(null);
+  const [editIncidentDialogId, setEditIncidentDialogId] = useState<string | null>(null);
   const [editTitleId, setEditTitleId] = useState<string | null>(null);
   const [editTitleValue, setEditTitleValue] = useState('');
   const [editUpdateId, setEditUpdateId] = useState<string | null>(null);
   const [editUpdateMessage, setEditUpdateMessage] = useState('');
   const [editUpdateStatus, setEditUpdateStatus] = useState('');
   const [editUpdateTimestamp, setEditUpdateTimestamp] = useState('');
-  const [timestampDialogId, setTimestampDialogId] = useState<string | null>(null);
-  const [timestampValue, setTimestampValue] = useState('');
 
   const handleCreate = async (data: any) => {
     try {
@@ -290,70 +287,25 @@ export default function AdminIncidents() {
                             <AddUpdateForm incidentId={incident.id} currentStatus={derivedStatus} onSave={handleAddUpdate} />
                           </DialogContent>
                         </Dialog>
-                        <Dialog open={servicesDialogId === incident.id} onOpenChange={v => setServicesDialogId(v ? incident.id : null)}>
+                        <Dialog open={editIncidentDialogId === incident.id} onOpenChange={v => setEditIncidentDialogId(v ? incident.id : null)}>
                           <DialogTrigger asChild>
-                            <Button variant="outline" size="sm"><Pencil className="h-4 w-4 mr-1" /> Services</Button>
+                            <Button variant="outline" size="sm"><Pencil className="h-4 w-4 mr-1" /> Edit</Button>
                           </DialogTrigger>
                           <DialogContent>
-                            <DialogHeader><DialogTitle>Edit Affected Services</DialogTitle></DialogHeader>
-                            <EditServicesForm
+                            <DialogHeader><DialogTitle>Edit Incident</DialogTitle></DialogHeader>
+                            <EditIncidentForm
+                              incident={incident}
                               services={services}
-                              currentServiceIds={(incident.incident_services || []).map((l: any) => l.service_id)}
-                              onSave={async (ids) => {
+                              onSave={async (data) => {
                                 try {
-                                  await updateServices.mutateAsync({ incident_id: incident.id, service_ids: ids });
-                                  toast.success('Services updated');
-                                  setServicesDialogId(null);
-                                } catch { toast.error('Failed to update services'); }
+                                  await updateTimestamp.mutateAsync({ id: incident.id, created_at: new Date(data.timestamp).toISOString() });
+                                  await updateImpact.mutateAsync({ id: incident.id, impact: data.impact });
+                                  await updateServices.mutateAsync({ incident_id: incident.id, service_ids: data.service_ids });
+                                  toast.success('Incident updated');
+                                  setEditIncidentDialogId(null);
+                                } catch { toast.error('Failed to update incident'); }
                               }}
                             />
-                          </DialogContent>
-                        </Dialog>
-                        <Dialog open={impactDialogId === incident.id} onOpenChange={v => setImpactDialogId(v ? incident.id : null)}>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm"><Pencil className="h-4 w-4 mr-1" /> Impact</Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader><DialogTitle>Edit Service Impact</DialogTitle></DialogHeader>
-                            <EditImpactForm
-                              currentImpact={incident.impact}
-                              onSave={async (impact) => {
-                                try {
-                                  await updateImpact.mutateAsync({ id: incident.id, impact });
-                                  toast.success('Impact updated');
-                                  setImpactDialogId(null);
-                                } catch { toast.error('Failed to update impact'); }
-                              }}
-                            />
-                          </DialogContent>
-                        </Dialog>
-                        <Dialog open={timestampDialogId === incident.id} onOpenChange={v => {
-                          if (v) {
-                            setTimestampDialogId(incident.id);
-                            const d = new Date(incident.created_at);
-                            setTimestampValue(format(d, "yyyy-MM-dd'T'HH:mm"));
-                          } else {
-                            setTimestampDialogId(null);
-                          }
-                        }}>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm"><Clock className="h-4 w-4 mr-1" /> Timestamp</Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader><DialogTitle>Edit Incident Timestamp</DialogTitle></DialogHeader>
-                            <div className="space-y-4">
-                              <div className="space-y-2">
-                                <Label>Created At</Label>
-                                <Input type="datetime-local" value={timestampValue} onChange={e => setTimestampValue(e.target.value)} />
-                              </div>
-                              <Button className="w-full" onClick={async () => {
-                                try {
-                                  await updateTimestamp.mutateAsync({ id: incident.id, created_at: new Date(timestampValue).toISOString() });
-                                  toast.success('Timestamp updated');
-                                  setTimestampDialogId(null);
-                                } catch { toast.error('Failed to update timestamp'); }
-                              }}>Save</Button>
-                            </div>
                           </DialogContent>
                         </Dialog>
                         <AlertDialog>
@@ -542,6 +494,51 @@ function EditImpactForm({ currentImpact, onSave }: { currentImpact: string; onSa
             <SelectItem value="critical">{statusConfig.major_outage.label}</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+      <Button type="submit" className="w-full">Save</Button>
+    </form>
+  );
+}
+
+function EditIncidentForm({ incident, services, onSave }: { incident: any; services: any[]; onSave: (data: { impact: string; service_ids: string[]; timestamp: string }) => void }) {
+  const [impact, setImpact] = useState(incident.impact);
+  const [selectedServices, setSelectedServices] = useState<string[]>(
+    (incident.incident_services || []).map((l: any) => l.service_id)
+  );
+  const [timestamp, setTimestamp] = useState(() => format(new Date(incident.created_at), "yyyy-MM-dd'T'HH:mm"));
+
+  const toggleService = (id: string) => {
+    setSelectedServices(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+  };
+
+  return (
+    <form onSubmit={e => { e.preventDefault(); if (selectedServices.length === 0) { toast.error('Select at least one service'); return; } onSave({ impact, service_ids: selectedServices, timestamp }); }} className="space-y-4">
+      <div className="space-y-2">
+        <Label>Timestamp</Label>
+        <Input type="datetime-local" value={timestamp} onChange={e => setTimestamp(e.target.value)} />
+      </div>
+      <div className="space-y-2">
+        <Label>Service Impact</Label>
+        <Select value={impact} onValueChange={setImpact}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No Impact</SelectItem>
+            <SelectItem value="minor">{statusConfig.degraded.label}</SelectItem>
+            <SelectItem value="major">{statusConfig.partial_outage.label}</SelectItem>
+            <SelectItem value="critical">{statusConfig.major_outage.label}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Label>Affected Services</Label>
+        <div className="space-y-2 max-h-40 overflow-y-auto">
+          {services.map(s => (
+            <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer">
+              <Checkbox checked={selectedServices.includes(s.id)} onCheckedChange={() => toggleService(s.id)} />
+              {s.name}
+            </label>
+          ))}
+        </div>
       </div>
       <Button type="submit" className="w-full">Save</Button>
     </form>
