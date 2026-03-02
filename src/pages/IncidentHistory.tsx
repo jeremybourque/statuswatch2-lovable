@@ -84,38 +84,38 @@ const IncidentHistory = () => {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Link to={backLink} className="text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <h2 className="text-xl font-semibold text-foreground">Incident History</h2>
+            {!searchOpen && (
+              <h2 className="text-xl font-semibold text-foreground">Incident History</h2>
+            )}
           </div>
-          {!searchOpen && (
-            <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)}>
-              <Search className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-
-        {searchOpen ? (
-          <div className="relative animate-in fade-in slide-in-from-top-2 duration-200">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              autoFocus
-              placeholder="Search incidents..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-9"
-            />
-            <button
-              onClick={() => { setSearchQuery(''); setSearchOpen(false); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          <div className="flex items-center gap-2">
+            {searchOpen && (
+              <Input
+                autoFocus
+                placeholder="Search incidents..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-9 text-sm w-48 sm:w-64 animate-in fade-in slide-in-from-right-4 duration-200"
+              />
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0"
+              onClick={() => {
+                if (searchOpen) { setSearchQuery(''); setSearchOpen(false); }
+                else setSearchOpen(true);
+              }}
             >
-              <X className="h-4 w-4" />
-            </button>
+              {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            </Button>
           </div>
-        ) : null}
+        </div>
 
         <div className="space-y-8">
           {months.map(month => {
