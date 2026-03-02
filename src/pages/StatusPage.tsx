@@ -41,7 +41,7 @@ const StatusPage = () => {
 
   const activeIncidents = incidents.filter(i => getDerivedStatus(i) !== 'resolved');
   const fifteenDaysAgo = new Date();
-  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 7);
   const recentResolved = incidents
     .filter(i => getDerivedStatus(i) === 'resolved' && i.resolved_at && new Date(i.resolved_at) >= fifteenDaysAgo)
     .sort((a, b) => new Date(b.resolved_at!).getTime() - new Date(a.resolved_at!).getTime())
