@@ -57,6 +57,7 @@ const Index = () => {
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const handleCreate = async () => {
     if (!name.trim() || !slug.trim()) {
@@ -75,10 +76,12 @@ const Index = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deletePage.mutateAsync(id);
+      await deletePage.mutateAsync(deleteTarget.id);
       toast.success('Status page deleted');
+      setDeleteTarget(null);
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -167,32 +170,14 @@ const Index = () => {
                   </div>
                     <div className="flex items-center gap-2 shrink-0 pr-4">
                      {page.slug !== 'default' && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={e => { e.preventDefault(); e.stopPropagation(); }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent onClick={e => e.preventDefault()}>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete "{page.name}"?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will permanently delete this status page and cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(page.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={e => { e.preventDefault(); e.stopPropagation(); setDeleteTarget({ id: page.id, name: page.name }); }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       )}
                       <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
@@ -201,6 +186,23 @@ const Index = () => {
             ))}
           </div>
         )}
+
+        <AlertDialog open={!!deleteTarget} onOpenChange={open => { if (!open) setDeleteTarget(null); }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete "{deleteTarget?.name}"?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete this status page and all its data. This cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
 
       <footer className="border-t border-border mt-16">
