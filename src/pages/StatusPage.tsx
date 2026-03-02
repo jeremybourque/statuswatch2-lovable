@@ -1,6 +1,7 @@
 import { useServices } from '@/hooks/use-services';
 import { useIncidents } from '@/hooks/use-incidents';
 import { useSiteSettings } from '@/hooks/use-site-settings';
+import { useStatusPage } from '@/hooks/use-status-page';
 import { getOverallStatus, getOverallBanner, statusConfig, incidentStatusConfig } from '@/lib/status-helpers';
 import type { ServiceStatus, IncidentStatus, IncidentImpact } from '@/lib/status-helpers';
 
@@ -18,14 +19,13 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 
 const StatusPage = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { statusPageId, slug } = useStatusPage();
   useEffect(() => { window.scrollTo(0, 0); }, []);
-  const { data: services = [] } = useServices();
-  const { data: incidents = [] } = useIncidents();
-  const { data: settings } = useSiteSettings();
+  const { data: services = [] } = useServices(statusPageId);
+  const { data: incidents = [] } = useIncidents(statusPageId);
+  const { data: settings } = useSiteSettings(statusPageId);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -66,9 +66,7 @@ const StatusPage = () => {
               </Link>
             </div>
           </div>
-          {/* Fixed border - always at bottom of header */}
           <hr className="border-t border-border m-0" />
-          {/* Drawer handle - anchored to the fixed border */}
           <button
             onClick={() => setDrawerOpen(!drawerOpen)}
             className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-10 px-2 py-1 group"
@@ -78,12 +76,10 @@ const StatusPage = () => {
           </button>
         </div>
 
-        {/* Drawer */}
         <div
           className={`bg-card overflow-hidden transition-all duration-300 ease-in-out ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
         >
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
-              {/* Service Status Summary */}
                 <div className="space-y-4">
                   {(() => {
                     const disrupted = services.filter(s => s.status !== 'operational');
@@ -91,7 +87,6 @@ const StatusPage = () => {
                     const showGroups = services.length > 15;
 
                     if (showGroups) {
-                      // Show category groups with aggregated status
                       const groupStatus = (catServices: typeof services) => {
                         const worst = catServices.reduce((acc, s) => {
                           const sev: Record<string, number> = { operational: 0, degraded: 1, partial_outage: 2, major_outage: 3 };
@@ -171,18 +166,14 @@ const StatusPage = () => {
                 </div>
             </div>
         </div>
-        {/* Moving border - travels with bottom of drawer */}
         <hr className="border-t border-border m-0 -mt-px" />
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
-        {/* Overall status banner */}
         <div className={`${banner.bgClass} rounded-lg p-4 flex items-center gap-3 text-primary-foreground`}>
           <span className="text-lg font-semibold">{banner.label}</span>
         </div>
 
-
-        {/* Active Incidents */}
         {activeIncidents.length > 0 && (
           <section id="active-incidents" className="space-y-3 scroll-mt-20">
             <h2 className="text-xl font-semibold text-foreground">{activeIncidents.length} Active Incident{activeIncidents.length !== 1 ? 's' : ''}</h2>
@@ -194,7 +185,6 @@ const StatusPage = () => {
           </section>
         )}
 
-        {/* Services by category */}
         <section id="services" className="space-y-6 scroll-mt-20">
           <h2 className="text-xl font-semibold text-foreground">Services</h2>
           {categories.map(cat => {
@@ -216,7 +206,6 @@ const StatusPage = () => {
           })}
         </section>
 
-        {/* Past incidents */}
         {recentResolved.length > 0 && (
           <Collapsible id="past-incidents" className="scroll-mt-20" defaultOpen={false}>
             <CollapsibleTrigger className="flex items-center gap-2 group w-full">
@@ -258,13 +247,6 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
   const affectedServiceIds = (incident.incident_services || []).map((s: any) => s.service_id);
   const affectedServices = services.filter(s => affectedServiceIds.includes(s.id));
   const impactCfg = impactToServiceStatus[incident.impact] || impactToServiceStatus.none;
-
-  const updateStatusBg: Record<string, string> = {
-    investigating: 'bg-status-major-outage',
-    identified: 'bg-status-partial-outage',
-    monitoring: 'bg-status-degraded',
-    resolved: 'bg-status-operational',
-  };
 
   const updateStatusColor: Record<string, string> = {
     investigating: 'text-status-major-outage',
