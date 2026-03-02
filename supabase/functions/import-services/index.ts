@@ -30,20 +30,28 @@ Deno.serve(async (req) => {
       });
     }
 
-    // 1. Scrape URL via Firecrawl
+    // 1. Determine resource type by URL
     let formattedUrl = url.trim();
     if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
       formattedUrl = `https://${formattedUrl}`;
     }
 
-    console.log('Scraping URL:', formattedUrl);
+    const imageExts = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp', '.tiff'];
+    const urlPath = new URL(formattedUrl).pathname.toLowerCase();
+    const isImage = imageExts.some(ext => urlPath.endsWith(ext));
+    const resourceType = isImage ? 'system_diagram' : 'status_page';
+    console.log('Resource type:', resourceType, 'URL:', formattedUrl);
+
+    // 2. Scrape URL via Firecrawl
+    const scrapeFormats = isImage ? ['markdown', 'screenshot'] : ['markdown'];
+    console.log('Scraping URL:', formattedUrl, 'formats:', scrapeFormats);
     const scrapeRes = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ url: formattedUrl, formats: ['markdown'], onlyMainContent: true }),
+      body: JSON.stringify({ url: formattedUrl, formats: scrapeFormats, onlyMainContent: true }),
     });
 
     const scrapeData = await scrapeRes.json();
@@ -55,13 +63,15 @@ Deno.serve(async (req) => {
     }
 
     const markdown = scrapeData.data?.markdown || scrapeData.markdown || '';
-    if (!markdown) {
+    const screenshot = scrapeData.data?.screenshot || scrapeData.screenshot || '';
+
+    if (!markdown && !screenshot) {
       return new Response(JSON.stringify({ success: false, error: 'No content found at URL' }), {
         status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // 2. Build existing services context
+    // 3. Build existing services context
     let existingContext = '';
     if (existingServices && typeof existingServices === 'object' && Object.keys(existingServices).length > 0) {
       const lines: string[] = [];
@@ -75,97 +85,25 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 3. Pass 1: Classify the resource
+    // 4. Extract services
     const contentSlice = markdown.slice(0, 30000);
-    console.log('Pass 1: Classifying content, length:', contentSlice.length);
-
-    const classifyRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
-        messages: [
-          {
-            role: 'system',
-            content: `You are an expert at analyzing web pages. You will receive the markdown content of a web page. Classify it as one of:
-- "status_page": a service status or uptime page that lists services and their operational status
-- "system_diagram": any page that describes system architecture, infrastructure, or components. Apply a LOOSE standard here — if the content describes interconnected services, components, layers, or anything resembling a box-and-line diagram (even as text, a list, or documentation), classify it as system_diagram. Err on the side of classifying as system_diagram rather than unknown.
-- "unknown": ONLY use this if the page is clearly unrelated to services or systems (e.g. a pure blog post, marketing page, or unrelated content)
-
-Call the classify_resource function with your finding.`,
-          },
-          { role: 'user', content: `Classify this web page:\n\n${contentSlice}` },
-        ],
-        tools: [
-          {
-            type: 'function',
-            function: {
-              name: 'classify_resource',
-              description: 'Classify the type of web page resource.',
-              parameters: {
-                type: 'object',
-                properties: {
-                  type: {
-                    type: 'string',
-                    enum: ['status_page', 'system_diagram', 'unknown'],
-                    description: 'The type of resource identified',
-                  },
-                },
-                required: ['type'],
-                additionalProperties: false,
-              },
-            },
-          },
-        ],
-        tool_choice: { type: 'function', function: { name: 'classify_resource' } },
-      }),
-    });
-
-    if (!classifyRes.ok) {
-      if (classifyRes.status === 429) {
-        return new Response(JSON.stringify({ success: false, error: 'Rate limit exceeded, please try again later.' }), {
-          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (classifyRes.status === 402) {
-        return new Response(JSON.stringify({ success: false, error: 'AI credits exhausted. Please add credits in Settings.' }), {
-          status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      const errText = await classifyRes.text();
-      console.error('AI classify error:', classifyRes.status, errText);
-      return new Response(JSON.stringify({ success: false, error: 'AI classification failed' }), {
-        status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const classifyData = await classifyRes.json();
-    const classifyCall = classifyData.choices?.[0]?.message?.tool_calls?.[0];
-    if (!classifyCall?.function?.arguments) {
-      console.error('No tool call in classify response:', JSON.stringify(classifyData));
-      return new Response(JSON.stringify({ success: false, error: 'AI could not classify the content' }), {
-        status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const { type: resourceType } = JSON.parse(classifyCall.function.arguments);
-    console.log('Pass 1 result:', resourceType);
-
-    if (resourceType === 'unknown') {
-      return new Response(JSON.stringify({ success: true, type: 'unknown', services: [] }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // 4. Pass 2: Extract services based on classification
     const extractionContext = resourceType === 'status_page'
       ? 'This is a status/uptime page. Extract every service, component, or endpoint listed along with its operational group.'
-      : 'This is a system architecture or infrastructure diagram/document. Extract every component, service, or system mentioned.';
+      : 'This is a system architecture or infrastructure diagram. Extract every component, service, or system visible in the diagram.';
 
-    console.log('Pass 2: Extracting services for', resourceType);
+    console.log('Extracting services for', resourceType);
+
+    // Build messages — for system diagrams, include image if available
+    const userContent: any[] = [];
+    if (isImage && screenshot) {
+      userContent.push({
+        type: 'image_url',
+        image_url: { url: screenshot.startsWith('data:') ? screenshot : `data:image/png;base64,${screenshot}` },
+      });
+      userContent.push({ type: 'text', text: 'Extract all services/components from this system diagram.' });
+    } else {
+      userContent.push({ type: 'text', text: `Extract all services from this ${resourceType === 'status_page' ? 'status page' : 'system diagram'}:\n\n${contentSlice}` });
+    }
 
     const extractRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -178,7 +116,7 @@ Call the classify_resource function with your finding.`,
         messages: [
           {
             role: 'system',
-            content: `You are an expert at extracting services from web pages. ${extractionContext}
+            content: `You are an expert at extracting services from web pages and diagrams. ${extractionContext}
 
 Your task:
 1. Extract ALL services/components thoroughly — do not skip or omit any. Include every distinct service, endpoint, or component mentioned.
@@ -188,7 +126,7 @@ Your task:
 
 Call the extract_services function with your findings.`,
           },
-          { role: 'user', content: `Extract all services from this ${resourceType === 'status_page' ? 'status page' : 'system diagram'}:\n\n${contentSlice}` },
+          { role: 'user', content: userContent },
         ],
         tools: [
           {
