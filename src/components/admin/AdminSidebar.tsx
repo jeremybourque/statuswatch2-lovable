@@ -1,6 +1,6 @@
 import { Server, AlertTriangle, Settings, ArrowLeft, BarChart3, FlaskConical } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -13,21 +13,20 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 
-const items = [
-  { title: 'Incidents', url: '/admin/incidents', icon: AlertTriangle },
-  { title: 'Services', url: '/admin/services', icon: Server },
-  { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
-  { title: 'Settings', url: '/admin/settings', icon: Settings },
-  { title: 'Testing', url: '/admin/testing', icon: FlaskConical },
-];
-
 export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
   const location = useLocation();
-  const backLink = sessionStorage.getItem('admin-from-slug')
-    ? `/status/${sessionStorage.getItem('admin-from-slug')}`
-    : '/';
+  const { slug } = useParams<{ slug: string }>();
+  const base = `/${slug}/admin`;
+
+  const items = [
+    { title: 'Incidents', url: `${base}/incidents`, icon: AlertTriangle },
+    { title: 'Services', url: `${base}/services`, icon: Server },
+    { title: 'Analytics', url: `${base}/analytics`, icon: BarChart3 },
+    { title: 'Settings', url: `${base}/settings`, icon: Settings },
+    { title: 'Testing', url: `${base}/testing`, icon: FlaskConical },
+  ];
 
   return (
     <Sidebar collapsible="icon">
@@ -41,7 +40,6 @@ export function AdminSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end={item.url === '/admin'}
                       className="hover:bg-muted/50"
                       activeClassName="bg-muted text-primary font-medium"
                     >
@@ -53,7 +51,7 @@ export function AdminSidebar() {
               ))}
               <SidebarMenuItem className="mt-4">
                 <SidebarMenuButton asChild>
-                  <NavLink to={backLink} className="hover:bg-muted/50" activeClassName="">
+                  <NavLink to={`/${slug}`} className="hover:bg-muted/50" activeClassName="">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     {!collapsed && <span>Back</span>}
                   </NavLink>

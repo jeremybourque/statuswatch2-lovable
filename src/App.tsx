@@ -24,10 +24,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/status/:slug" element={<StatusPage />} />
-          <Route path="/status/:slug/history" element={<IncidentHistory />} />
-          <Route path="/history" element={<IncidentHistory />} />
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/:slug" element={<StatusPage />} />
+          <Route path="/:slug/history" element={<IncidentHistory />} />
+          <Route path="/:slug/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="incidents" replace />} />
             <Route path="services" element={<AdminServices />} />
             <Route path="analytics" element={<AdminAnalytics />} />

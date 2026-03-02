@@ -61,7 +61,7 @@ const StatusPage = () => {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
               <ThemeToggle />
-              <Link to="/admin" onClick={() => sessionStorage.setItem('admin-from-slug', slug || '')} className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link to={`/${slug}/admin`} className="text-muted-foreground hover:text-foreground transition-colors">
                 <Settings className="h-4 w-4" />
               </Link>
             </div>
@@ -228,7 +228,7 @@ const StatusPage = () => {
                 {recentResolved.map(incident => (
                   <IncidentCard key={incident.id} incident={incident} services={services} />
                 ))}
-                <Link to={`/status/${slug}/history`} className="text-sm text-primary hover:underline inline-block mt-1">
+                <Link to={`/${slug}/history`} className="text-sm text-primary hover:underline inline-block mt-1">
                   View all past incidents →
                 </Link>
               </div>
