@@ -92,8 +92,8 @@ Deno.serve(async (req) => {
             role: 'system',
             content: `You are an expert at analyzing web pages. You will receive the markdown content of a web page. Classify it as one of:
 - "status_page": a service status or uptime page that lists services and their operational status
-- "system_diagram": architecture, infrastructure diagram, or technical documentation that describes system components
-- "unknown": anything else (blog posts, marketing pages, landing pages, etc.)
+- "system_diagram": any page that describes system architecture, infrastructure, or components. Apply a LOOSE standard here — if the content describes interconnected services, components, layers, or anything resembling a box-and-line diagram (even as text, a list, or documentation), classify it as system_diagram. Err on the side of classifying as system_diagram rather than unknown.
+- "unknown": ONLY use this if the page is clearly unrelated to services or systems (e.g. a pure blog post, marketing page, or unrelated content)
 
 Call the classify_resource function with your finding.`,
           },
