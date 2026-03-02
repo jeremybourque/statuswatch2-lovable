@@ -1,47 +1,58 @@
 
 
-## StatusWatch2 — Status Page App (Demo Mode)
+## Plan: Import Services from URL
 
-A dark-themed, modern status page application with a public-facing status page and an admin dashboard, powered by Lovable Cloud (Supabase). No authentication — admin is open access for demo purposes.
+### Overview
+Add an "Import Services" button to the service setup step that opens a dialog. The user provides a URL, we scrape it via Firecrawl, then use Lovable AI to analyze the content and extract services if it's a status page or system diagram.
 
-### Pages
+### Architecture
 
-1. **Public Status Page** (`/`)
-   - Dark background, overall system status banner (operational/degraded/outage), auto-calculated from services
-   - Services listed by category with colored status dots (green/yellow/orange/red)
-   - Recent incidents timeline with collapsible updates
+```text
+User clicks "Import" → Dialog with URL input
+  → Edge function "import-services" called
+    → Firecrawl scrapes the URL (markdown)
+    → Lovable AI analyzes the content:
+       - Status page? → Extract service names + categories
+       - System diagram? → Extract components as services
+       - Other? → Return "unrecognized" error
+  → Frontend receives services list → merges into current state
+```
 
-2. **Admin Dashboard** (`/admin`)
-   - Sidebar navigation: Services, Incidents, Settings
-   - **Services**: CRUD — name, description, category, status (operational/degraded/partial_outage/major_outage), display order
-   - **Incidents**: Create/manage incidents, select affected services, add timeline updates (investigating → identified → monitoring → resolved), set impact level
-   - **Settings**: Page title, description, logo URL
+### Tasks
 
-3. **Not Found** (`*`) — 404 page
+1. **Connect Firecrawl connector** — needed to scrape the URL content
 
-### Database (Lovable Cloud / Supabase)
+2. **Create edge function `import-services`**
+   - Accepts `{ url: string }`
+   - Scrapes the URL via Firecrawl API (`markdown` format)
+   - Sends the markdown to Lovable AI with a prompt that asks it to:
+     - Classify the resource as `status_page`, `system_diagram`, or `unknown`
+     - If status page or system diagram, extract services with name, description, and category
+     - Return structured output via tool calling
+   - Returns `{ type, services: [{name, description, category}] }` or `{ type: "unknown", error }`
 
-- **services** — id, name, description, category, status, display_order, created_at
-- **incidents** — id, title, status, impact, created_at, resolved_at
-- **incident_updates** — id, incident_id (FK), status, message, created_at
-- **incident_services** — incident_id, service_id (junction table)
-- **site_settings** — key, value (page title, description, logo)
-- RLS disabled (demo mode — open access)
+3. **Create `ImportServicesDialog` component**
+   - Dialog with URL input and "Import" button
+   - Loading state while scraping + analyzing
+   - On success: shows preview of discovered services with checkboxes to select which to import
+   - On "unknown" type: shows message that the resource type is not recognized
+   - On confirm: merges selected services into existing services state, creating new categories in `extraCategories` as needed
 
-### Design
+4. **Add "Import" button to `ServiceSetupStep`**
+   - Place alongside the existing "Add Category" and "Add Service" buttons
+   - Opens the import dialog
 
-- Dark theme: background `#0a0a0b`, card surfaces `#111113`, borders `#1e1e21`
-- Status colors: green (operational), yellow (degraded), orange (partial outage), red (major outage)
-- Clean sans-serif typography, card-based service layout, colored severity badges
-- Responsive for mobile and desktop
+### Technical Details
 
-### Implementation Steps
-
-1. Set up Lovable Cloud and create all database tables with seed data
-2. Build public status page with service list and incident timeline
-3. Build admin layout with sidebar navigation
-4. Build admin services page (CRUD)
-5. Build admin incidents page (create, update, add timeline entries)
-6. Build admin settings page
-7. Add dark theme styling throughout
+- **Edge function** uses `FIRECRAWL_API_KEY` for scraping and `LOVABLE_API_KEY` for AI analysis
+- AI prompt instructs structured output via tool calling with a schema like:
+  ```json
+  {
+    "type": "status_page" | "system_diagram" | "unknown",
+    "services": [{ "name": "...", "description": "...", "category": "..." }]
+  }
+  ```
+- Default model: `google/gemini-3-flash-preview`
+- The dialog component will be at `src/components/create-status-page/ImportServicesDialog.tsx`
+- Config.toml updated with `[functions.import-services]` and `verify_jwt = false`
 
