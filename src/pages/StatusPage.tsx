@@ -292,15 +292,22 @@ function IncidentCard({ incident, services = [], showLatestUpdate = false }: { i
         <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ${expanded ? 'rotate-180' : ''}`} />
       </button>
 
-      {!expanded && showLatestUpdate && updates.length > 0 && (
-        <div className="px-4 pb-3 -mt-1">
-          <p className="text-sm text-muted-foreground ml-[1.125rem] line-clamp-2">
-            <span className={`font-medium capitalize ${updateStatusColor[updates[0].status] || 'text-muted-foreground'}`}>
-              {updates[0].status}
-            </span>
-            {' — '}
-            {updates[0].message}
-          </p>
+      {showLatestUpdate && updates.length > 0 && (
+        <div
+          className="grid transition-all duration-300 ease-in-out"
+          style={{ gridTemplateRows: expanded ? '0fr' : '1fr' }}
+        >
+          <div className="overflow-hidden">
+            <div className="px-4 pb-3 -mt-1">
+              <p className="text-sm text-muted-foreground ml-[1.125rem] line-clamp-2">
+                <span className={`font-medium capitalize ${updateStatusColor[updates[0].status] || 'text-muted-foreground'}`}>
+                  {updates[0].status}
+                </span>
+                {' — '}
+                {updates[0].message}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
