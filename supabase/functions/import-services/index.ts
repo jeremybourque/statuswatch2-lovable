@@ -96,9 +96,30 @@ Deno.serve(async (req) => {
     // Build messages — for system diagrams, include image if available
     const userContent: any[] = [];
     if (isImage && screenshot) {
+      // Firecrawl may return a URL instead of base64 — fetch and convert if needed
+      let base64Data = screenshot;
+      if (screenshot.startsWith('http://') || screenshot.startsWith('https://')) {
+        console.log('Fetching screenshot image from URL...');
+        const imgRes = await fetch(screenshot);
+        if (!imgRes.ok) {
+          console.error('Failed to fetch screenshot image:', imgRes.status);
+          return new Response(JSON.stringify({ success: false, error: 'Failed to fetch diagram image' }), {
+            status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        const imgBuf = await imgRes.arrayBuffer();
+        const bytes = new Uint8Array(imgBuf);
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        base64Data = btoa(binary);
+      } else if (base64Data.startsWith('data:')) {
+        base64Data = base64Data.split(',')[1] || base64Data;
+      }
+
+      const mimeType = screenshot.includes('.png') ? 'image/png' : screenshot.includes('.jpg') || screenshot.includes('.jpeg') ? 'image/jpeg' : 'image/png';
       userContent.push({
         type: 'image_url',
-        image_url: { url: screenshot.startsWith('data:') ? screenshot : `data:image/png;base64,${screenshot}` },
+        image_url: { url: `data:${mimeType};base64,${base64Data}` },
       });
       userContent.push({ type: 'text', text: 'Extract all services/components from this system diagram.' });
     } else {
