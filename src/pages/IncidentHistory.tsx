@@ -83,7 +83,7 @@ const IncidentHistory = () => {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6 [container-type:inline-size]">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Link to={backLink} className="text-muted-foreground hover:text-foreground transition-colors">
@@ -98,7 +98,7 @@ const IncidentHistory = () => {
                 placeholder="Search incidents..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 text-sm w-40 sm:w-56 animate-in fade-in slide-in-from-right-4 duration-200"
+                className="h-9 text-sm w-[50cqi] animate-in fade-in slide-in-from-right-4 duration-200"
               />
             )}
             <Button
