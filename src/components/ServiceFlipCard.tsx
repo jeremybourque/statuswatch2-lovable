@@ -194,7 +194,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
             })()}
           </div>
           {backView !== 'graph' && (
-            <div className={`mt-auto h-5 ${backView === 'calendar' ? '-mt-1.5' : '-mt-1'}`}>
+            <div className={`mt-auto h-5 ${backView === 'calendar' ? '-mt-3' : '-mt-1'}`}>
               {hoveredDay ? (() => {
                 const parts = hoveredDay.split(' ● ');
                 return (
