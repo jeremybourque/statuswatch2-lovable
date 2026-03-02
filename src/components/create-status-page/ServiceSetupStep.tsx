@@ -93,26 +93,33 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
   };
 
   const handleDragEnd = (result: DropResult) => {
-    const { source, destination } = result;
+    const { source, destination, type } = result;
     if (!destination) return;
+
+    if (type === 'category') {
+      const reordered = [...allCategories];
+      const [moved] = reordered.splice(source.index, 1);
+      reordered.splice(destination.index, 0, moved);
+      // Rebuild extraCategories to match new order, preserving all entries
+      onExtraCategoriesChange(reordered);
+      // Reorder services to match new category order
+      const reorderedServices = reordered.flatMap(cat => services.filter(s => s.category === cat));
+      onServicesChange(reorderedServices);
+      return;
+    }
 
     const sourceCategory = source.droppableId;
     const destCategory = destination.droppableId;
 
-    // Build ordered lists per category
     const byCat: Record<string, ServiceEntry[]> = {};
     for (const cat of allCategories) {
       byCat[cat] = services.filter(s => s.category === cat);
     }
 
-    // Remove from source
     const [moved] = byCat[sourceCategory].splice(source.index, 1);
-    // Update category if moved between groups
     moved.category = destCategory;
-    // Insert at destination
     byCat[destCategory].splice(destination.index, 0, moved);
 
-    // Flatten back preserving order
     const reordered = allCategories.flatMap(cat => byCat[cat] || []);
     onServicesChange(reordered);
   };
@@ -133,133 +140,159 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="space-y-5">
-          {allCategories.map(category => (
-            <div key={category} className="space-y-2">
-              {/* Category header */}
-              <div className="flex items-center justify-between">
-                {editingCategory === category ? (
-                  <Input
-                    value={editCategoryName}
-                    onChange={e => setEditCategoryName(e.target.value)}
-                    onBlur={() => renameCategory(category)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') renameCategory(category);
-                      if (e.key === 'Escape') setEditingCategory(null);
-                    }}
-                    autoFocus
-                    className="h-6 text-xs font-semibold uppercase tracking-wider max-w-[200px] px-1 py-0"
-                  />
-                ) : (
-                  <button
-                    type="button"
-                    className="group/cat flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors cursor-text"
-                    onClick={() => {
-                      setEditingCategory(category);
-                      setEditCategoryName(category);
-                    }}
-                  >
-                    {category}
-                    <Pencil className="h-3 w-3 opacity-0 group-hover/cat:opacity-50 transition-opacity" />
-                  </button>
-                )}
-                <div className="flex items-center gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 text-xs gap-1 px-2"
-                    onClick={() => addService(category)}
-                  >
-                    <Plus className="h-3.5 w-3.5" /> Add Service
-                  </Button>
-                  {servicesInCategory(category).length === 0 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                      onClick={() => removeCategory(category)}
+        <Droppable droppableId="categories" type="category">
+          {(catListProvided) => (
+            <div
+              ref={catListProvided.innerRef}
+              {...catListProvided.droppableProps}
+              className="space-y-5"
+            >
+              {allCategories.map((category, catIdx) => (
+                <Draggable key={category} draggableId={`cat-${category}`} index={catIdx}>
+                  {(catDragProvided, catDragSnapshot) => (
+                    <div
+                      ref={catDragProvided.innerRef}
+                      {...catDragProvided.draggableProps}
+                      className={`space-y-2 ${catDragSnapshot.isDragging ? 'opacity-80' : ''}`}
                     >
-                      <X className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {/* Droppable zone */}
-              <Droppable droppableId={category}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={`min-h-[48px] rounded-lg border border-dashed transition-colors ${
-                      snapshot.isDraggingOver
-                        ? 'border-primary/50 bg-primary/5'
-                        : 'border-border'
-                    } ${servicesInCategory(category).length === 0 ? 'p-4' : 'p-2 space-y-2'}`}
-                  >
-                    {servicesInCategory(category).length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center">
-                        Drag services here or click Add
-                      </p>
-                    )}
-                    {servicesInCategory(category).map((svc, idx) => (
-                      <Draggable key={svc.id} draggableId={svc.id} index={idx}>
-                        {(dragProvided, dragSnapshot) => (
+                      {/* Category header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
                           <div
-                            ref={dragProvided.innerRef}
-                            {...dragProvided.draggableProps}
-                            className={`border border-border rounded-lg bg-card p-3 flex items-start gap-3 transition-shadow ${
-                              dragSnapshot.isDragging ? 'shadow-lg ring-2 ring-primary/20' : ''
-                            }`}
+                            {...catDragProvided.dragHandleProps}
+                            tabIndex={-1}
+                            className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing"
                           >
-                            <div
-                              {...dragProvided.dragHandleProps}
-                              tabIndex={-1}
-                              className="mt-2.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing shrink-0"
+                            <GripVertical className="h-3.5 w-3.5" />
+                          </div>
+                          {editingCategory === category ? (
+                            <Input
+                              value={editCategoryName}
+                              onChange={e => setEditCategoryName(e.target.value)}
+                              onBlur={() => renameCategory(category)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') renameCategory(category);
+                                if (e.key === 'Escape') setEditingCategory(null);
+                              }}
+                              autoFocus
+                              className="h-6 text-xs font-semibold uppercase tracking-wider max-w-[200px] px-1 py-0"
+                            />
+                          ) : (
+                            <button
+                              type="button"
+                              className="group/cat flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors cursor-text"
+                              onClick={() => {
+                                setEditingCategory(category);
+                                setEditCategoryName(category);
+                              }}
                             >
-                              <GripVertical className="h-4 w-4" />
-                            </div>
-                            <div className="flex-1 flex items-baseline gap-3">
-                              <Input
-                                placeholder="Service name"
-                                value={svc.name}
-                                onChange={e =>
-                                  updateService(svc.id, 'name', e.target.value)
-                                }
-                                className="max-w-[180px] shrink-0"
-                              />
-                              <Input
-                                placeholder="Description (optional)"
-                                value={svc.description}
-                                onChange={e =>
-                                  updateService(svc.id, 'description', e.target.value)
-                                }
-                                className="flex-1"
-                              />
-                            </div>
+                              {category}
+                              <Pencil className="h-3 w-3 opacity-0 group-hover/cat:opacity-50 transition-opacity" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs gap-1 px-2"
+                            onClick={() => addService(category)}
+                          >
+                            <Plus className="h-3.5 w-3.5" /> Add Service
+                          </Button>
+                          {servicesInCategory(category).length === 0 && (
                             <Button
                               type="button"
                               variant="ghost"
                               size="icon"
-                              tabIndex={-1}
-                              className="h-7 w-7 shrink-0 mt-1 text-muted-foreground hover:text-destructive"
-                              onClick={() => removeService(svc.id)}
+                              className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                              onClick={() => removeCategory(category)}
                             >
-                              <X className="h-4 w-4" />
+                              <X className="h-3.5 w-3.5" />
                             </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Droppable zone for services */}
+                      <Droppable droppableId={category} type="service">
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className={`min-h-[48px] rounded-lg border border-dashed transition-colors ${
+                              snapshot.isDraggingOver
+                                ? 'border-primary/50 bg-primary/5'
+                                : 'border-border'
+                            } ${servicesInCategory(category).length === 0 ? 'p-4' : 'p-2 space-y-2'}`}
+                          >
+                            {servicesInCategory(category).length === 0 && (
+                              <p className="text-sm text-muted-foreground text-center">
+                                Drag services here or click Add
+                              </p>
+                            )}
+                            {servicesInCategory(category).map((svc, idx) => (
+                              <Draggable key={svc.id} draggableId={svc.id} index={idx}>
+                                {(dragProvided, dragSnapshot) => (
+                                  <div
+                                    ref={dragProvided.innerRef}
+                                    {...dragProvided.draggableProps}
+                                    className={`border border-border rounded-lg bg-card p-3 flex items-start gap-3 transition-shadow ${
+                                      dragSnapshot.isDragging ? 'shadow-lg ring-2 ring-primary/20' : ''
+                                    }`}
+                                  >
+                                    <div
+                                      {...dragProvided.dragHandleProps}
+                                      tabIndex={-1}
+                                      className="mt-2.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing shrink-0"
+                                    >
+                                      <GripVertical className="h-4 w-4" />
+                                    </div>
+                                    <div className="flex-1 flex items-baseline gap-3">
+                                      <Input
+                                        placeholder="Service name"
+                                        value={svc.name}
+                                        onChange={e =>
+                                          updateService(svc.id, 'name', e.target.value)
+                                        }
+                                        className="max-w-[180px] shrink-0"
+                                      />
+                                      <Input
+                                        placeholder="Description (optional)"
+                                        value={svc.description}
+                                        onChange={e =>
+                                          updateService(svc.id, 'description', e.target.value)
+                                        }
+                                        className="flex-1"
+                                      />
+                                    </div>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      tabIndex={-1}
+                                      className="h-7 w-7 shrink-0 mt-1 text-muted-foreground hover:text-destructive"
+                                      onClick={() => removeService(svc.id)}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
                           </div>
                         )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
+                      </Droppable>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {catListProvided.placeholder}
             </div>
-          ))}
-        </div>
+          )}
+        </Droppable>
       </DragDropContext>
 
       {/* Add category */}
