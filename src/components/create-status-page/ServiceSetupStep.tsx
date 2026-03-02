@@ -24,6 +24,8 @@ interface Props {
 }
 
 export function ServiceSetupStep({ services, onServicesChange, pageName }: Props) {
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editCategoryName, setEditCategoryName] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showCategoryInput, setShowCategoryInput] = useState(false);
 
@@ -57,6 +59,20 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
         s.category === category ? { ...s, category: 'General' } : s
       )
     );
+  };
+
+  const renameCategory = (oldName: string) => {
+    const newName = editCategoryName.trim();
+    if (!newName || newName === oldName) {
+      setEditingCategory(null);
+      return;
+    }
+    onServicesChange(
+      services.map(s =>
+        s.category === oldName ? { ...s, category: newName } : s
+      )
+    );
+    setEditingCategory(null);
   };
 
   const addService = (category: string) => {
@@ -120,9 +136,30 @@ export function ServiceSetupStep({ services, onServicesChange, pageName }: Props
             <div key={category} className="space-y-2">
               {/* Category header */}
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {category}
-                </p>
+                {editingCategory === category ? (
+                  <Input
+                    value={editCategoryName}
+                    onChange={e => setEditCategoryName(e.target.value)}
+                    onBlur={() => renameCategory(category)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') renameCategory(category);
+                      if (e.key === 'Escape') setEditingCategory(null);
+                    }}
+                    autoFocus
+                    className="h-6 text-xs font-semibold uppercase tracking-wider max-w-[200px] px-1 py-0"
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    className="text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors cursor-text"
+                    onClick={() => {
+                      setEditingCategory(category);
+                      setEditCategoryName(category);
+                    }}
+                  >
+                    {category}
+                  </button>
+                )}
                 <div className="flex items-center gap-1">
                   <Button
                     type="button"
