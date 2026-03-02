@@ -75,7 +75,7 @@ const StatusPage = () => {
         </div>
 
         <div
-          className={`bg-card overflow-hidden transition-all duration-[400ms] ease-in-out ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+          className={`bg-card overflow-hidden transition-all duration-500 ease-in-out ${drawerOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
         >
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
                 <div className="space-y-4">
