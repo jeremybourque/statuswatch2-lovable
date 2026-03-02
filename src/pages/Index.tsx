@@ -149,7 +149,7 @@ const Index = () => {
             {pages.map(page => (
               <Link
                 key={page.id}
-                to={`/${page.slug}`}
+                to={`/status/${page.slug}`}
                 className="group block border border-border rounded-lg bg-card p-4 hover:bg-accent/50 transition-colors"
               >
                 <div className="flex items-center justify-between">
