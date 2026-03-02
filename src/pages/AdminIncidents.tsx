@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useDeleteIncidentUpdate, useUpdateIncidentServices, useUpdateIncidentImpact, useUpdateIncidentTitle, useEditIncidentUpdate, useUpdateIncidentTimestamp } from '@/hooks/use-incidents';
+import { useIncidents, useCreateIncident, useAddIncidentUpdate, useDeleteIncident, useDeleteIncidentUpdate, useUpdateIncidentServices, useUpdateIncidentImpact, useUpdateIncidentTitle, useEditIncidentUpdate } from '@/hooks/use-incidents';
 import { useServices } from '@/hooks/use-services';
 import { incidentStatusConfig, statusConfig, type IncidentStatus, type IncidentImpact } from '@/lib/status-helpers';
 
@@ -35,7 +35,6 @@ export default function AdminIncidents() {
   const deleteUpdate = useDeleteIncidentUpdate();
   const updateTitle = useUpdateIncidentTitle();
   const editUpdate = useEditIncidentUpdate();
-  const updateTimestamp = useUpdateIncidentTimestamp();
   const [createOpen, setCreateOpen] = useState(false);
   const [openIncidents, setOpenIncidents] = useState<Set<string>>(new Set());
   const [resolvedOpen, setResolvedOpen] = useState(false);
@@ -47,29 +46,6 @@ export default function AdminIncidents() {
   const [editUpdateId, setEditUpdateId] = useState<string | null>(null);
   const [editUpdateMessage, setEditUpdateMessage] = useState('');
   const [editUpdateStatus, setEditUpdateStatus] = useState('');
-  const [editTimestampId, setEditTimestampId] = useState<string | null>(null);
-  const [editTimestampValue, setEditTimestampValue] = useState('');
-  const [editTimestampType, setEditTimestampType] = useState<'incident' | 'update'>('incident');
-
-  const toLocalDatetime = (iso: string) => {
-    const d = new Date(iso);
-    const offset = d.getTimezoneOffset();
-    const local = new Date(d.getTime() - offset * 60000);
-    return local.toISOString().slice(0, 16);
-  };
-
-  const handleTimestampSave = async (id: string, type: 'incident' | 'update', newValue: string, updateMeta?: { message: string; status: string }) => {
-    const isoValue = new Date(newValue).toISOString();
-    try {
-      if (type === 'incident') {
-        await updateTimestamp.mutateAsync({ id, created_at: isoValue });
-      } else if (updateMeta) {
-        await editUpdate.mutateAsync({ id, message: updateMeta.message, status: updateMeta.status, created_at: isoValue });
-      }
-      toast.success('Timestamp updated');
-      setEditTimestampId(null);
-    } catch { toast.error('Failed to update timestamp'); }
-  };
 
   const handleCreate = async (data: any) => {
     try {
@@ -185,31 +161,7 @@ export default function AdminIncidents() {
                         )}
                         <div className="flex items-center gap-2 shrink-0">
                           <Badge className={`${impactCfg.color} border-0 text-xs mr-1`}>{impactCfg.label}</Badge>
-                          {editTimestampId === incident.id && editTimestampType === 'incident' ? (
-                            <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                              <Input
-                                type="datetime-local"
-                                value={editTimestampValue}
-                                onChange={e => setEditTimestampValue(e.target.value)}
-                                className="h-6 text-xs w-auto"
-                              />
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => handleTimestampSave(incident.id, 'incident', editTimestampValue)}>
-                                <Check className="h-3 w-3" />
-                              </Button>
-                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => setEditTimestampId(null)}>
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <button className="text-xs text-muted-foreground hover:text-foreground transition-colors" onClick={(e) => {
-                              e.stopPropagation();
-                              setEditTimestampId(incident.id);
-                              setEditTimestampType('incident');
-                              setEditTimestampValue(toLocalDatetime(incident.created_at));
-                            }}>
-                              {format(new Date(incident.created_at), 'MMM d, HH:mm')}
-                            </button>
-                          )}
+                          <span className="text-xs text-muted-foreground">{format(new Date(incident.created_at), 'MMM d, HH:mm')}</span>
                           <ChevronDown className="h-4 w-4 text-muted-foreground" />
                         </div>
                       </div>
@@ -244,23 +196,7 @@ export default function AdminIncidents() {
                                       <SelectItem value="resolved">Resolved</SelectItem>
                                     </SelectContent>
                                   </Select>
-                                  <Input
-                                    type="datetime-local"
-                                    value={editTimestampId === u.id ? editTimestampValue : toLocalDatetime(u.created_at)}
-                                    onChange={e => { setEditTimestampId(u.id); setEditTimestampType('update'); setEditTimestampValue(e.target.value); }}
-                                    onFocus={() => { if (editTimestampId !== u.id) { setEditTimestampId(u.id); setEditTimestampType('update'); setEditTimestampValue(toLocalDatetime(u.created_at)); } }}
-                                    className="h-6 text-xs w-auto"
-                                  />
-                                  {editTimestampId === u.id && editTimestampType === 'update' && (
-                                    <div className="flex gap-0.5">
-                                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => handleTimestampSave(u.id, 'update', editTimestampValue, { message: editUpdateMessage, status: editUpdateStatus })}>
-                                        <Check className="h-3 w-3" />
-                                      </Button>
-                                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => setEditTimestampId(null)}>
-                                        <X className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                  )}
+                                  <p className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</p>
                                 </div>
                                 <Textarea
                                   value={editUpdateMessage}
@@ -285,30 +221,7 @@ export default function AdminIncidents() {
                               <>
                                 <div className="shrink-0 space-y-1">
                                   <Badge className={`${uCfg.color} border-0 text-xs w-[6.5rem] text-center justify-center`}>{uCfg.label}</Badge>
-                                  {editTimestampId === u.id && editTimestampType === 'update' ? (
-                                    <div className="flex items-center gap-0.5">
-                                      <Input
-                                        type="datetime-local"
-                                        value={editTimestampValue}
-                                        onChange={e => setEditTimestampValue(e.target.value)}
-                                        className="h-6 text-xs w-auto"
-                                      />
-                                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => handleTimestampSave(u.id, 'update', editTimestampValue, { message: u.message, status: u.status })}>
-                                        <Check className="h-3 w-3" />
-                                      </Button>
-                                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => setEditTimestampId(null)}>
-                                        <X className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                  ) : (
-                                    <button className="text-xs text-muted-foreground hover:text-foreground transition-colors" onClick={() => {
-                                      setEditTimestampId(u.id);
-                                      setEditTimestampType('update');
-                                      setEditTimestampValue(toLocalDatetime(u.created_at));
-                                    }}>
-                                      {format(new Date(u.created_at), 'MMM d, HH:mm')}
-                                    </button>
-                                  )}
+                                  <p className="text-xs text-muted-foreground">{format(new Date(u.created_at), 'MMM d, HH:mm')}</p>
                                 </div>
                                 <p className="text-muted-foreground flex-1">{u.message}</p>
                                 <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 h-6 w-6 p-0" onClick={() => {
