@@ -75,9 +75,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 3. Ask AI to classify and extract services
-    console.log('Analyzing content with AI, length:', markdown.length);
-    const aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // 3. Pass 1: Classify the resource
+    const contentSlice = markdown.slice(0, 30000);
+    console.log('Pass 1: Classifying content, length:', contentSlice.length);
+
+    const classifyRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${lovableKey}`,
@@ -88,26 +90,21 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an expert at analyzing web pages. You will receive the markdown content of a web page. Your task is to:
-1. Classify it as one of: "status_page" (a service status/uptime page), "system_diagram" (architecture/infrastructure diagram or documentation), or "unknown" (anything else).
-2. If it's a status_page or system_diagram, extract ALL services/components thoroughly — do not skip or omit any. Include every distinct service, endpoint, or component mentioned.
-3. For each service, provide a brief description (one short sentence). Prefer concise descriptions over lengthy ones.
-4. Do NOT prepend the category/group name to the service name.
-5. Minimize the number of categories/groups. Only create separate categories when services are truly distinct in purpose (e.g. "API" vs "Website" vs "Infrastructure"). Do NOT artificially flatten everything into a single group — use your judgment to find a natural, minimal grouping.${existingContext}
+            content: `You are an expert at analyzing web pages. You will receive the markdown content of a web page. Classify it as one of:
+- "status_page": a service status or uptime page that lists services and their operational status
+- "system_diagram": architecture, infrastructure diagram, or technical documentation that describes system components
+- "unknown": anything else (blog posts, marketing pages, landing pages, etc.)
 
-Call the extract_services function with your findings.`,
+Call the classify_resource function with your finding.`,
           },
-          {
-            role: 'user',
-            content: `Analyze this web page content and extract services if applicable:\n\n${markdown.slice(0, 30000)}`,
-          },
+          { role: 'user', content: `Classify this web page:\n\n${contentSlice}` },
         ],
         tools: [
           {
             type: 'function',
             function: {
-              name: 'extract_services',
-              description: 'Extract classified resource type and services from web page content.',
+              name: 'classify_resource',
+              description: 'Classify the type of web page resource.',
               parameters: {
                 type: 'object',
                 properties: {
@@ -116,6 +113,92 @@ Call the extract_services function with your findings.`,
                     enum: ['status_page', 'system_diagram', 'unknown'],
                     description: 'The type of resource identified',
                   },
+                },
+                required: ['type'],
+                additionalProperties: false,
+              },
+            },
+          },
+        ],
+        tool_choice: { type: 'function', function: { name: 'classify_resource' } },
+      }),
+    });
+
+    if (!classifyRes.ok) {
+      if (classifyRes.status === 429) {
+        return new Response(JSON.stringify({ success: false, error: 'Rate limit exceeded, please try again later.' }), {
+          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (classifyRes.status === 402) {
+        return new Response(JSON.stringify({ success: false, error: 'AI credits exhausted. Please add credits in Settings.' }), {
+          status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const errText = await classifyRes.text();
+      console.error('AI classify error:', classifyRes.status, errText);
+      return new Response(JSON.stringify({ success: false, error: 'AI classification failed' }), {
+        status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const classifyData = await classifyRes.json();
+    const classifyCall = classifyData.choices?.[0]?.message?.tool_calls?.[0];
+    if (!classifyCall?.function?.arguments) {
+      console.error('No tool call in classify response:', JSON.stringify(classifyData));
+      return new Response(JSON.stringify({ success: false, error: 'AI could not classify the content' }), {
+        status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { type: resourceType } = JSON.parse(classifyCall.function.arguments);
+    console.log('Pass 1 result:', resourceType);
+
+    if (resourceType === 'unknown') {
+      return new Response(JSON.stringify({ success: true, type: 'unknown', services: [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // 4. Pass 2: Extract services based on classification
+    const extractionContext = resourceType === 'status_page'
+      ? 'This is a status/uptime page. Extract every service, component, or endpoint listed along with its operational group.'
+      : 'This is a system architecture or infrastructure diagram/document. Extract every component, service, or system mentioned.';
+
+    console.log('Pass 2: Extracting services for', resourceType);
+
+    const extractRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${lovableKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-3-flash-preview',
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert at extracting services from web pages. ${extractionContext}
+
+Your task:
+1. Extract ALL services/components thoroughly — do not skip or omit any. Include every distinct service, endpoint, or component mentioned.
+2. For each service, provide a brief description (one short sentence). Prefer concise descriptions over lengthy ones.
+3. Do NOT prepend the category/group name to the service name.
+4. Minimize the number of categories/groups. Only create separate categories when services are truly distinct in purpose (e.g. "API" vs "Website" vs "Infrastructure"). Do NOT artificially flatten everything into a single group — use your judgment to find a natural, minimal grouping.${existingContext}
+
+Call the extract_services function with your findings.`,
+          },
+          { role: 'user', content: `Extract all services from this ${resourceType === 'status_page' ? 'status page' : 'system diagram'}:\n\n${contentSlice}` },
+        ],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'extract_services',
+              description: 'Extract services from the web page content.',
+              parameters: {
+                type: 'object',
+                properties: {
                   services: {
                     type: 'array',
                     items: {
@@ -128,10 +211,10 @@ Call the extract_services function with your findings.`,
                       required: ['name', 'description', 'category'],
                       additionalProperties: false,
                     },
-                    description: 'List of services extracted. Empty array if type is unknown.',
+                    description: 'List of services extracted.',
                   },
                 },
-                required: ['type', 'services'],
+                required: ['services'],
                 additionalProperties: false,
               },
             },
@@ -141,40 +224,39 @@ Call the extract_services function with your findings.`,
       }),
     });
 
-    if (!aiRes.ok) {
-      if (aiRes.status === 429) {
+    if (!extractRes.ok) {
+      if (extractRes.status === 429) {
         return new Response(JSON.stringify({ success: false, error: 'Rate limit exceeded, please try again later.' }), {
           status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      if (aiRes.status === 402) {
+      if (extractRes.status === 402) {
         return new Response(JSON.stringify({ success: false, error: 'AI credits exhausted. Please add credits in Settings.' }), {
           status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      const errText = await aiRes.text();
-      console.error('AI gateway error:', aiRes.status, errText);
-      return new Response(JSON.stringify({ success: false, error: 'AI analysis failed' }), {
+      const errText = await extractRes.text();
+      console.error('AI extract error:', extractRes.status, errText);
+      return new Response(JSON.stringify({ success: false, error: 'AI extraction failed' }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const aiData = await aiRes.json();
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall?.function?.arguments) {
-      console.error('No tool call in AI response:', JSON.stringify(aiData));
-      return new Response(JSON.stringify({ success: false, error: 'AI could not analyze the content' }), {
+    const extractData = await extractRes.json();
+    const extractCall = extractData.choices?.[0]?.message?.tool_calls?.[0];
+    if (!extractCall?.function?.arguments) {
+      console.error('No tool call in extract response:', JSON.stringify(extractData));
+      return new Response(JSON.stringify({ success: false, error: 'AI could not extract services' }), {
         status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const result = JSON.parse(toolCall.function.arguments);
+    const { services: extractedServices } = JSON.parse(extractCall.function.arguments);
 
     // Strip category/group name prefix from service names
-    if (result.services?.length) {
-      for (const svc of result.services) {
+    if (extractedServices?.length) {
+      for (const svc of extractedServices) {
         if (svc.category && svc.name) {
-          // Check common patterns: "Category - Name", "Category: Name", "Category / Name"
           const prefixes = [
             `${svc.category} - `, `${svc.category}: `, `${svc.category} / `,
             `${svc.category} – `, `${svc.category} — `,
@@ -189,7 +271,8 @@ Call the extract_services function with your findings.`,
       }
     }
 
-    console.log('AI result:', result.type, 'services:', result.services?.length);
+    const result = { type: resourceType, services: extractedServices || [] };
+    console.log('Pass 2 result:', result.type, 'services:', result.services.length);
 
     return new Response(JSON.stringify({ success: true, ...result }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
