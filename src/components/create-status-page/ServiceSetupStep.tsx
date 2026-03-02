@@ -52,11 +52,21 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
       category: s.category || 'General',
     }));
     const newCategories = [...new Set(imported.map(s => s.category || 'General'))];
-    const addedCategories = newCategories.filter(c => !extraCategories.includes(c));
-    if (addedCategories.length) {
-      onExtraCategoriesChange([...extraCategories, ...addedCategories]);
+
+    // Check if user only has blank/default services (no manually entered content)
+    const hasOnlyBlankServices = services.every(s => !s.name.trim() && !s.description.trim());
+
+    if (hasOnlyBlankServices) {
+      // Replace everything with imported services and their categories
+      onExtraCategoriesChange(newCategories);
+      onServicesChange(newServices);
+    } else {
+      const addedCategories = newCategories.filter(c => !extraCategories.includes(c));
+      if (addedCategories.length) {
+        onExtraCategoriesChange([...extraCategories, ...addedCategories]);
+      }
+      onServicesChange([...services, ...newServices]);
     }
-    onServicesChange([...services, ...newServices]);
   };
 
 
