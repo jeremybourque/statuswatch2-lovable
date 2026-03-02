@@ -22,26 +22,38 @@ export function useCreateIncident() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: { title: string; status: string; impact: string; service_ids: string[]; message: string; status_page_id: string }) => {
-      const { data: incident, error } = await supabase
-        .from('incidents')
-        .insert({ title: input.title, status: input.status, impact: input.impact, status_page_id: input.status_page_id })
-        .select()
-        .single();
-      if (error) throw error;
+      if (!input.service_ids?.length) {
+        throw new Error('Select at least one affected service');
+      }
 
-      if (input.service_ids.length > 0) {
+      const primaryServiceId = input.service_ids[0];
+      const { data: incidentId, error: createErr } = await (supabase as any).rpc('create_incident_with_service', {
+        p_status_page_id: input.status_page_id,
+        p_service_id: primaryServiceId,
+        p_title: input.title,
+        p_impact: input.impact,
+        p_status: input.status,
+        p_message: input.message,
+      });
+      if (createErr) throw createErr;
+
+      const createdIncidentId = incidentId as string | null;
+      if (!createdIncidentId) throw new Error('Failed to create incident');
+
+      const additionalServiceIds = input.service_ids.slice(1);
+      if (additionalServiceIds.length > 0) {
         const { error: linkErr } = await supabase
           .from('incident_services')
-          .insert(input.service_ids.map(sid => ({ incident_id: incident.id, service_id: sid })));
+          .insert(additionalServiceIds.map(service_id => ({ incident_id: createdIncidentId, service_id })));
         if (linkErr) throw linkErr;
       }
 
-      if (input.message) {
-        const { error: updateErr } = await supabase
-          .from('incident_updates')
-          .insert({ incident_id: incident.id, status: input.status, message: input.message });
-        if (updateErr) throw updateErr;
-      }
+      const { data: incident, error: fetchErr } = await supabase
+        .from('incidents')
+        .select('*')
+        .eq('id', createdIncidentId)
+        .single();
+      if (fetchErr) throw fetchErr;
 
       return incident;
     },
