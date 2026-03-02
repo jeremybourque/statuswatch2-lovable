@@ -122,7 +122,7 @@ export function ServiceFlipCard({ service }: ServiceFlipCardProps) {
           style={{ backfaceVisibility: 'hidden' }}>
 
           <div className="p-4 flex items-center h-full">
-            <div className="flex items-center gap-3 w-[180px] shrink-0">
+            <div className="flex items-center gap-3 w-[240px] shrink-0">
               <StatusDot status={service.status as ServiceStatus} />
               <span className="text-lg font-medium text-card-foreground truncate">{service.name}</span>
             </div>
