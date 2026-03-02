@@ -263,13 +263,18 @@ const CreateStatusPage = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
-                <Button type="button" variant="outline" onClick={() => goTo(1)}>
-                  <ArrowLeft className="h-4 w-4 mr-1" /> Back
+              <div className="flex justify-between pt-2">
+                <Button type="button" variant="ghost" asChild>
+                  <Link to="/">Cancel</Link>
                 </Button>
-                <Button onClick={handleSubmit} disabled={saving}>
-                  {saving ? 'Creating…' : 'Create Status Page'}
-                </Button>
+                <div className="flex gap-3">
+                  <Button type="button" variant="outline" onClick={() => goTo(1)}>
+                    <ArrowLeft className="h-4 w-4 mr-1" /> Back
+                  </Button>
+                  <Button onClick={handleSubmit} disabled={saving}>
+                    {saving ? 'Creating…' : 'Create Status Page'}
+                  </Button>
+                </div>
               </div>
             </div>
           )}
