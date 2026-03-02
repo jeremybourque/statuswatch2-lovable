@@ -118,16 +118,24 @@ export default function AdminTesting() {
 
   const addIncident = async () => {
     try {
-      const { data: services } = await supabase.from('services').select('id').eq('status_page_id', statusPageId).order('display_order').limit(1);
+      const { data: services } = await supabase.from('services').select('id').eq('status_page_id', statusPageId).order('display_order');
       if (!services?.length) { toast.error('No services exist'); return; }
+      // Pick a random service for variety
+      const randomService = services[Math.floor(Math.random() * services.length)];
       const { data: incident, error } = await supabase
         .from('incidents')
         .insert({ title: 'Test incident — ' + new Date().toLocaleTimeString(), impact: 'minor', status_page_id: statusPageId })
         .select()
         .single();
       if (error) throw error;
-      await supabase.from('incident_services').insert({ incident_id: incident.id, service_id: services[0].id });
-      await supabase.from('incident_updates').insert({ incident_id: incident.id, status: 'investigating', message: 'Investigating the issue.' });
+      const { error: svcErr } = await supabase.from('incident_services').insert({ incident_id: incident.id, service_id: randomService.id });
+      if (svcErr) {
+        // Clean up the orphan incident
+        await supabase.from('incidents').delete().eq('id', incident.id);
+        throw svcErr;
+      }
+      const { error: updErr } = await supabase.from('incident_updates').insert({ incident_id: incident.id, status: 'investigating', message: 'Investigating the issue.' });
+      if (updErr) throw updErr;
       qc.invalidateQueries({ queryKey: ['incidents', statusPageId] });
       qc.invalidateQueries({ queryKey: ['services', statusPageId] });
       toast.success('Created test incident');
