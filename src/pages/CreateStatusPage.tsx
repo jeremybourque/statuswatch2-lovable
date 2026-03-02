@@ -288,16 +288,26 @@ const CreateStatusPage = () => {
                     Edit
                   </Button>
                 </div>
-                <div className="divide-y divide-border">
-                  {services.filter(s => s.name.trim()).map(svc => (
-                    <div key={svc.id} className="py-2.5 first:pt-0 last:pb-0 flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground">{svc.name}</p>
-                        {svc.description && (
-                          <p className="text-xs text-muted-foreground mt-0.5">{svc.description}</p>
-                        )}
+                <div className="space-y-4">
+                  {Object.entries(
+                    services.filter(s => s.name.trim()).reduce<Record<string, ServiceEntry[]>>((acc, s) => {
+                      const cat = s.category.trim() || 'General';
+                      (acc[cat] = acc[cat] || []).push(s);
+                      return acc;
+                    }, {})
+                  ).map(([category, items]) => (
+                    <div key={category}>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">{category}</p>
+                      <div className="divide-y divide-border">
+                        {items.map(svc => (
+                          <div key={svc.id} className="py-2.5 first:pt-0 last:pb-0">
+                            <p className="text-sm font-medium text-foreground">{svc.name}</p>
+                            {svc.description && (
+                              <p className="text-xs text-muted-foreground mt-0.5">{svc.description}</p>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{svc.category || 'General'}</span>
                     </div>
                   ))}
                 </div>
