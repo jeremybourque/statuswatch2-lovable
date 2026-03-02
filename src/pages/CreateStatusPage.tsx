@@ -245,10 +245,10 @@ const CreateStatusPage = () => {
                       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">{category}</p>
                       <div className="pl-3 space-y-1.5">
                         {items.map(svc => (
-                          <div key={svc.id}>
+                          <div key={svc.id} className="flex items-baseline gap-2">
                             <p className="text-sm font-medium text-foreground">{svc.name}</p>
                             {svc.description && (
-                              <p className="text-xs text-muted-foreground mt-0.5">{svc.description}</p>
+                              <p className="text-xs text-muted-foreground">{svc.description}</p>
                             )}
                           </div>
                         ))}
