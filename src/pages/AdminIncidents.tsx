@@ -41,8 +41,6 @@ export default function AdminIncidents() {
   const [resolvedOpen, setResolvedOpen] = useState(false);
   const [updateDialogId, setUpdateDialogId] = useState<string | null>(null);
   const [editIncidentDialogId, setEditIncidentDialogId] = useState<string | null>(null);
-  const [editTitleId, setEditTitleId] = useState<string | null>(null);
-  const [editTitleValue, setEditTitleValue] = useState('');
   const [editUpdateId, setEditUpdateId] = useState<string | null>(null);
   const [editUpdateMessage, setEditUpdateMessage] = useState('');
   const [editUpdateStatus, setEditUpdateStatus] = useState('');
@@ -119,47 +117,7 @@ export default function AdminIncidents() {
                   <CollapsibleTrigger className="w-full group">
                     <CardHeader className="py-3">
                       <div className="flex items-center justify-between">
-                        {editTitleId === incident.id ? (
-                          <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-                            <Input
-                              value={editTitleValue}
-                              onChange={e => setEditTitleValue(e.target.value)}
-                              className="h-7 text-sm"
-                              autoFocus
-                              onKeyDown={e => {
-                                if (e.key === 'Enter') {
-                                  updateTitle.mutateAsync({ id: incident.id, title: editTitleValue }).then(() => {
-                                    toast.success('Title updated');
-                                    setEditTitleId(null);
-                                  }).catch(() => toast.error('Failed to update title'));
-                                } else if (e.key === 'Escape') {
-                                  setEditTitleId(null);
-                                }
-                              }}
-                            />
-                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={async (e) => {
-                              e.stopPropagation();
-                              try {
-                                await updateTitle.mutateAsync({ id: incident.id, title: editTitleValue });
-                                toast.success('Title updated');
-                                setEditTitleId(null);
-                              } catch { toast.error('Failed to update title'); }
-                            }}><Check className="h-3.5 w-3.5" /></Button>
-                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {
-                              e.stopPropagation();
-                              setEditTitleId(null);
-                            }}><X className="h-3.5 w-3.5" /></Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5">
-                            <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
-                            <Button variant="ghost" size="sm" className={`h-6 w-6 p-0 transition-opacity ${openIncidents.has(incident.id) ? 'opacity-0 group-hover:opacity-100' : 'invisible'}`} onClick={(e) => {
-                              e.stopPropagation();
-                              setEditTitleId(incident.id);
-                              setEditTitleValue(incident.title);
-                            }}><Pencil className="h-3 w-3 text-muted-foreground" /></Button>
-                          </div>
-                        )}
+                        <CardTitle className="text-sm font-medium">{incident.title}</CardTitle>
                         <div className="flex items-center gap-2 shrink-0">
                           <Badge className={`${impactCfg.color} border-0 text-xs mr-1`}>{impactCfg.label}</Badge>
                           <span className="text-xs text-muted-foreground">{format(new Date(incident.created_at), 'MMM d, HH:mm')}</span>
@@ -298,6 +256,7 @@ export default function AdminIncidents() {
                               services={services}
                               onSave={async (data) => {
                                 try {
+                                  await updateTitle.mutateAsync({ id: incident.id, title: data.title });
                                   await updateTimestamp.mutateAsync({ id: incident.id, created_at: new Date(data.timestamp).toISOString() });
                                   await updateImpact.mutateAsync({ id: incident.id, impact: data.impact });
                                   await updateServices.mutateAsync({ incident_id: incident.id, service_ids: data.service_ids });
@@ -500,7 +459,8 @@ function EditImpactForm({ currentImpact, onSave }: { currentImpact: string; onSa
   );
 }
 
-function EditIncidentForm({ incident, services, onSave }: { incident: any; services: any[]; onSave: (data: { impact: string; service_ids: string[]; timestamp: string }) => void }) {
+function EditIncidentForm({ incident, services, onSave }: { incident: any; services: any[]; onSave: (data: { title: string; impact: string; service_ids: string[]; timestamp: string }) => void }) {
+  const [title, setTitle] = useState(incident.title);
   const [impact, setImpact] = useState(incident.impact);
   const [selectedServices, setSelectedServices] = useState<string[]>(
     (incident.incident_services || []).map((l: any) => l.service_id)
@@ -512,7 +472,11 @@ function EditIncidentForm({ incident, services, onSave }: { incident: any; servi
   };
 
   return (
-    <form onSubmit={e => { e.preventDefault(); if (selectedServices.length === 0) { toast.error('Select at least one service'); return; } onSave({ impact, service_ids: selectedServices, timestamp }); }} className="space-y-4">
+    <form onSubmit={e => { e.preventDefault(); if (selectedServices.length === 0) { toast.error('Select at least one service'); return; } onSave({ title, impact, service_ids: selectedServices, timestamp }); }} className="space-y-4">
+      <div className="space-y-2">
+        <Label>Title</Label>
+        <Input value={title} onChange={e => setTitle(e.target.value)} required />
+      </div>
       <div className="space-y-2">
         <Label>Timestamp</Label>
         <Input type="datetime-local" value={timestamp} onChange={e => setTimestamp(e.target.value)} />
