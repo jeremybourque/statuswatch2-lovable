@@ -141,8 +141,6 @@ export function useDeleteIncident() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, status_page_id }: { id: string; status_page_id: string }) => {
-      await supabase.from('incident_services').delete().eq('incident_id', id);
-      await supabase.from('incident_updates').delete().eq('incident_id', id);
       const { error } = await supabase.from('incidents').delete().eq('id', id);
       if (error) throw error;
       return status_page_id;
