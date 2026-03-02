@@ -166,7 +166,6 @@ export function ServiceSetupStep({ services, onServicesChange, pageName, extraCa
         </div>
         <Button
           type="button"
-          variant="outline"
           size="sm"
           onClick={() => setShowImportDialog(true)}
         >
