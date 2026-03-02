@@ -34,8 +34,10 @@ const CreateStatusPage = () => {
   const [description, setDescription] = useState('');
 
   // Step 1 state
-  const [services, setServices] = useState<ServiceEntry[]>([]);
-  const [extraCategories, setExtraCategories] = useState<string[]>([]);
+  const [services, setServices] = useState<ServiceEntry[]>([
+    { id: crypto.randomUUID(), name: '', description: '', category: 'General' },
+  ]);
+  const [extraCategories, setExtraCategories] = useState<string[]>(['General']);
   const [saving, setSaving] = useState(false);
 
   const filledServiceCount = services.filter(s => s.name.trim()).length;
