@@ -249,7 +249,7 @@ export default function AdminIncidents() {
                           <DialogTrigger asChild>
                             <Button variant="outline" size="sm"><Pencil className="h-4 w-4 mr-1" /> Edit</Button>
                           </DialogTrigger>
-                          <DialogContent>
+                          <DialogContent onOpenAutoFocus={e => e.preventDefault()}>
                             <DialogHeader><DialogTitle>Edit Incident</DialogTitle></DialogHeader>
                             <EditIncidentForm
                               incident={incident}
